@@ -14,4 +14,10 @@
 
   (send editor set-editor text)
 
-  (send ide show #t))
+  (send ide show #t)
+
+  (define pre-inserted #<<EOS
+#lang racket
+EOS
+    )
+  (send text insert (make-object string-snip% pre-inserted)))
