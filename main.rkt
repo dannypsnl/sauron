@@ -9,9 +9,9 @@
   (define editor (new editor-canvas%
                       [parent ide]
                       [style '(no-hscroll)]))
-
+  ; The editor<%> interface defines the core editor functionality,
+  ; but editors are created as instances of text% or pasteboard%.
   (define text (new text%))
-
   (send editor set-editor text)
 
   (send ide show #t)
