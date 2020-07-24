@@ -1,3 +1,5 @@
-sauron
-======
-README text here.
+# sauron
+
+WARNING: This project still in early stage.
+
+Sauron is an IDE for Racket language.
