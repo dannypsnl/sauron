@@ -20,4 +20,15 @@
 #lang racket
 EOS
     )
-  (send text insert (make-object string-snip% pre-inserted)))
+  (send text insert (make-object string-snip% pre-inserted))
+
+  (define menu-bar (new menu-bar% [parent ide]))
+  (append-editor-operation-menu-items
+   (new menu%
+        [label "Edit"]
+        [parent menu-bar]) #f)
+  (append-editor-font-menu-items
+   (new menu%
+        [label "Font"]
+        [parent menu-bar]))
+  (send text set-max-undo-history 100))
