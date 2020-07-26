@@ -7,4 +7,12 @@
 
 @defmodule[sauron]
 
-Package Description Here
+@section{Shortcut}
+
+@(itemlist
+ @item{c+s: save}
+ @item{c+a: select all}
+ @item{c+c: copy}
+ @item{c+v: paste}
+ @item{c+z: undo}
+)
