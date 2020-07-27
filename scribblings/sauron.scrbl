@@ -13,12 +13,18 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
 @section{Shortcut}
 
 @(itemlist
- @item{c+o: open file}
- @item{c+s: save file}
- @item{c+a: select all}
- @item{c+c: copy}
- @item{c+v: paste}
- @item{c+z: undo})
+  ;;; file
+  @item{c+o: open file}
+  @item{c+s: save file}
+  ;;; edit
+  @item{c+a: select all}
+  @item{c+c: copy}
+  @item{c+v: paste}
+  @item{c+z: undo}
+  ;;; move cursor
+  @item{c+<up>/<down>/<left>/right: move to most up/down/left/right}
+  @item{o+<left>: move left by a token/s-exp}
+  @item{o+<right>: move right by a token/s-exp})
 
 @section{Develop}
 
