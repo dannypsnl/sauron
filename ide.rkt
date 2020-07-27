@@ -2,6 +2,8 @@
 
 (provide ide-main)
 
+(require framework)
+
 (define (ide-main)
   (define ide (new frame%
                    [label "sauron"]
@@ -13,7 +15,7 @@
                       [style '(no-hscroll)]))
   ; The editor<%> interface defines the core editor functionality,
   ; but editors are created as instances of text% or pasteboard%.
-  (define text (new text%))
+  (define text (new racket:text%))
 
   (define m-bar (new menu-bar% [parent ide]))
   (define m-file (new menu% [label "File"] [parent m-bar]))
