@@ -13,13 +13,11 @@
     (define/override (on-char e)
       (cond
         [(and (send e get-meta-down)
-              (eq? (send e get-key-code)
-                   #\b))
+              (eq? (send e get-key-code) #\b))
          ;;; TODO: jump to definition
          (displayln "c+b")]
         [(and (send e get-meta-down)
-              (eq? (send e get-key-code)
-                   #\;))
+              (eq? (send e get-key-code) #\;))
          (let* ([start-line (send this position-line (send this get-start-position))]
                 [end-line (send this position-line (send this get-end-position))]
                 [start (send this line-start-position start-line)]
