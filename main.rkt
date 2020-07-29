@@ -20,9 +20,12 @@
         [(and (send e get-meta-down)
               (eq? (send e get-key-code)
                     #\;))
-         (send this comment-out-selection
-               (send this get-start-position)
-               (send this get-end-position))]
+         (let* ([start (send this get-start-position)]
+               [end (send this get-end-position)]
+               [selected-text (send this get-text start end)])
+           (if (string-prefix? selected-text ";")
+               (send this uncomment-selection start end)
+               (send this comment-out-selection start end)))]
         [else (super on-char e)]))
     (define/override (on-local-event e)
       ;;; c+<click>
