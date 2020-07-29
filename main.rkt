@@ -14,15 +14,17 @@
       (cond
         [(and (send e get-meta-down)
               (eq? (send e get-key-code)
-                    #\b))
+                   #\b))
          ;;; TODO: jump to definition
          (displayln "c+b")]
         [(and (send e get-meta-down)
               (eq? (send e get-key-code)
-                    #\;))
-         (let* ([start (send this get-start-position)]
-               [end (send this get-end-position)]
-               [selected-text (send this get-text start end)])
+                   #\;))
+         (let* ([start-line (send this position-line (send this get-start-position))]
+                [end-line (send this position-line (send this get-end-position))]
+                [start (send this line-start-position start-line)]
+                [end (send this line-end-position end-line)]
+                [selected-text (send this get-text start end)])
            (if (string-prefix? selected-text ";")
                (send this uncomment-selection start end)
                (send this comment-out-selection start end)))]
