@@ -11,14 +11,16 @@
     (init complete?)
     (super-new)
     (define/override (on-char e)
-      ;;; c+<click>
-      (displayln (send e get-key-code))
       (cond
         [(and (send e get-meta-down)
-              (eqv? (send e get-key-code)
-                    'b))
+              (eq? (send e get-key-code)
+                    #\b))
          ;;; TODO: jump to definition
          (displayln "c+b")]
+        [(and (send e get-meta-down)
+              (eq? (send e get-key-code)
+                    #\;))
+         (displayln "c+;")]
         ;;; dispatch to super
         [else (super on-char e)]))
     (define/override (on-local-event e)
