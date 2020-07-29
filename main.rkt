@@ -20,8 +20,9 @@
         [(and (send e get-meta-down)
               (eq? (send e get-key-code)
                     #\;))
-         (displayln "c+;")]
-        ;;; dispatch to super
+         (send this comment-out-selection
+               (send this get-start-position)
+               (send this get-end-position))]
         [else (super on-char e)]))
     (define/override (on-local-event e)
       ;;; c+<click>
@@ -29,7 +30,6 @@
                  (send e button-down?))
         ;;; TODO: jump to definition
         (displayln (format "x: ~a y: ~a" (send e get-x) (send e get-y))))
-      ;;; dispatch to super
       (super on-local-event e))))
 
 (define (ide-main)
