@@ -1,7 +1,23 @@
 #lang racket/gui
 
+(require framework
+         racket/class)
+
 (module+ main
   (ide-main))
+
+(define editor%
+  (class racket:text%
+    (init complete?)
+    (super-new)
+    (define/override (on-local-event e)
+      ;;; c+<click>
+      (if (and (send e get-meta-down)
+               (send e button-down?))
+          (displayln (format "x: ~a y: ~a" (send e get-x) (send e get-y)))
+          (void))
+      ;;; dispatch to super
+      (super on-local-event e))))
 
 (define (ide-main)
   (define ide (new frame%
@@ -14,7 +30,7 @@
                       [style '(no-hscroll)]))
   ; The editor<%> interface defines the core editor functionality,
   ; but editors are created as instances of text% or pasteboard%.
-  (define text (new text%))
+  (define text (new editor% [complete? ""]))
 
   (define m-bar (new menu-bar% [parent ide]))
   (let ([m-file (new menu% [label "File"] [parent m-bar])])
