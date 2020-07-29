@@ -10,12 +10,23 @@
   (class racket:text%
     (init complete?)
     (super-new)
+    (define/override (on-char e)
+      ;;; c+<click>
+      (displayln (send e get-key-code))
+      (cond
+        [(and (send e get-meta-down)
+              (eqv? (send e get-key-code)
+                    'b))
+         ;;; TODO: jump to definition
+         (displayln "c+b")]
+        ;;; dispatch to super
+        [else (super on-char e)]))
     (define/override (on-local-event e)
       ;;; c+<click>
-      (if (and (send e get-meta-down)
-               (send e button-down?))
-          (displayln (format "x: ~a y: ~a" (send e get-x) (send e get-y)))
-          (void))
+      (when (and (send e get-meta-down)
+                 (send e button-down?))
+        ;;; TODO: jump to definition
+        (displayln (format "x: ~a y: ~a" (send e get-x) (send e get-y))))
       ;;; dispatch to super
       (super on-local-event e))))
 
