@@ -18,8 +18,7 @@
   (define text (new racket:text%))
 
   (define m-bar (new menu-bar% [parent ide]))
-  (define m-file (new menu% [label "File"] [parent m-bar]))
-  (define mi-open
+  (let ([m-file (new menu% [label "File"] [parent m-bar])])
     (new menu-item%
          [label "Open"]
          [parent m-file]
@@ -29,8 +28,7 @@
             (when path
               (send text load-file path 'text)))]
          [shortcut #\o]
-         [shortcut-prefix (get-default-shortcut-prefix)]))
-  (define mi-save
+         [shortcut-prefix (get-default-shortcut-prefix)])
     (new menu-item%
          [label "Save"]
          [parent m-file]
@@ -38,7 +36,9 @@
           (λ (i e)
             (send text save-file #f 'text))]
          [shortcut #\s]
-         [shortcut-prefix (get-default-shortcut-prefix)]))
+         [shortcut-prefix (get-default-shortcut-prefix)])
+    (void))
+
   (append-editor-operation-menu-items
    (new menu% [label "Edit"] [parent m-bar]) #f)
   (send editor set-editor text)
