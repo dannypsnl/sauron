@@ -65,6 +65,7 @@
          [parent m-file]
          [callback
           (λ (i e)
+            (send text tabify-all)
             (send text save-file #f 'text))]
          [shortcut #\s]
          [shortcut-prefix (get-default-shortcut-prefix)])
