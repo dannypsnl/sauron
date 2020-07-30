@@ -18,6 +18,8 @@
          (displayln "c+b")]
         [(and (send e get-meta-down)
               (eq? (send e get-key-code) #\;))
+         ; NOTE: get-start-position and get-end-position would have same value when no selected text
+         ; following code comment all lines of selected text(or automatically select cursor line)
          (let* ([start-line (send this position-line (send this get-start-position))]
                 [end-line (send this position-line (send this get-end-position))]
                 [start (send this line-start-position start-line)]
