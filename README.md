@@ -10,5 +10,3 @@ Sauron is an IDE for Racket language.
 # start IDE
 racket main.rkt
 ```
-
-TODO: make hot-reload to improve developing experience.
