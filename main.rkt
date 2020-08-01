@@ -28,6 +28,15 @@
            (if (string-prefix? selected-text ";")
                (send this uncomment-selection start end)
                (send this comment-out-selection start end)))]
+        [(eq? (send e get-key-code) #\()
+         (let ([start (send this get-start-position)]
+               [end (send this get-end-position)])
+           (if (not (= start end))
+               (let ([selected-text (send this get-text start end)])
+                 (send this insert "(")
+                 (send this insert selected-text)
+                 (send this insert ")"))
+             (super on-char e)))]
         [else (super on-char e)]))
     (define/override (on-local-event e)
       ;;; c+<click>
