@@ -16,6 +16,9 @@
               (eq? (send e get-key-code) #\b))
          ;;; TODO: jump to definition
          (displayln "c+b")]
+        [(and (send e get-meta-down)
+              (eq? (send e get-key-code) #\k))
+         (move-cursor 'left 10)]
         ;;; c+; for comment/uncomment
         [(and (send e get-meta-down)
               (eq? (send e get-key-code) #\;))
@@ -46,7 +49,15 @@
                  (send e button-down?))
         ;;; TODO: jump to definition
         (displayln (format "x: ~a y: ~a" (send e get-x) (send e get-y))))
-      (super on-local-event e))))
+      (super on-local-event e))
+
+    (define/private (move-cursor direction step
+                                 #:shift-pressed? [shift-pressed? #f])
+      (for ([i step])
+        (super on-char 
+               (new key-event%	 
+                    [key-code direction]
+                    [shift-down shift-pressed?]))))))
 
 (define (ide-main)
   (define ide (new frame%
