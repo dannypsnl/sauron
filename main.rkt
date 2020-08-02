@@ -14,37 +14,31 @@
     (super-new)
     (define/override (on-char e)
       (update-env)
-      (cond
-        [(and (send e get-meta-down)
-              (eq? (send e get-key-code) #\b))
-         ;;; TODO: jump to definition
-         (displayln "c+b")]
-        [(and (send e get-meta-down)
-              (eq? (send e get-key-code) #\k))
-         (move-cursor 'left 10)]
+      (match (send e get-key-code)
+        [#\b #:when (send e get-meta-down)
+             ;;; TODO: jump to definition
+             (displayln "c+b")]
         ;;; c+; for comment/uncomment
-        [(and (send e get-meta-down)
-              (eq? (send e get-key-code) #\;))
-         ; NOTE: get-start-position and get-end-position would have same value when no selected text
-         ; following code comment all lines of selected text(or automatically select cursor line)
-         (let* ([start-line (send this position-line (send this get-start-position))]
-                [end-line (send this position-line (send this get-end-position))]
-                [start (send this line-start-position start-line)]
-                [end (send this line-end-position end-line)]
-                [selected-text (send this get-text start end)])
-           (if (string-prefix? selected-text ";")
-               (send this uncomment-selection start end)
-               (send this comment-out-selection start end)))]
+        [#\; #:when (send e get-meta-down)
+             ; NOTE: get-start-position and get-end-position would have same value when no selected text
+             ; following code comment all lines of selected text(or automatically select cursor line)
+             (let* ([start-line (send this position-line (send this get-start-position))]
+                    [end-line (send this position-line (send this get-end-position))]
+                    [start (send this line-start-position start-line)]
+                    [end (send this line-end-position end-line)]
+                    [selected-text (send this get-text start end)])
+               (if (string-prefix? selected-text ";")
+                   (send this uncomment-selection start end)
+                   (send this comment-out-selection start end)))]
         ;;; `(` auto wrap selected text
-        [(eq? (send e get-key-code) #\()
-         (let ([start (send this get-start-position)]
-               [end (send this get-end-position)])
-           (if (not (= start end))
-               (let ([selected-text (send this get-text start end)])
-                 (send this insert "(")
-                 (send this insert selected-text)
-                 (send this insert ")"))
-               (super on-char e)))]
+        [#\( (let ([start (send this get-start-position)]
+                   [end (send this get-end-position)])
+               (if (not (= start end))
+                   (let ([selected-text (send this get-text start end)])
+                     (send this insert "(")
+                     (send this insert selected-text)
+                     (send this insert ")"))
+                   (super on-char e)))]
         [else (super on-char e)]))
     (define/override (on-local-event e)
       ;;; c+<click>
