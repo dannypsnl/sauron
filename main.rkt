@@ -31,7 +31,7 @@
                (if (string-prefix? selected-text ";")
                    (send this uncomment-selection start end)
                    (send this comment-out-selection start end)))]
-        ;;; `(` auto wrap selected text
+        ;;; `(`/`[`/`{`/`"` auto wrap selected text
         [#\( (auto-wrap-with "(" ")")]
         [#\[ (auto-wrap-with "[" "]")]
         [#\{ (auto-wrap-with "{" "}")]
