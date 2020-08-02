@@ -2,15 +2,18 @@
 
 (require framework
          racket/class)
+(require drracket/check-syntax)
 
 (module+ main
   (ide-main))
 
 (define editor%
   (class racket:text%
-    (init)
+    ;;; TODO: limit check-syntax via this field?
+    (field [update-env-count 0])
     (super-new)
     (define/override (on-char e)
+      (update-env)
       (cond
         [(and (send e get-meta-down)
               (eq? (send e get-key-code) #\b))
@@ -57,7 +60,14 @@
         (super on-char 
                (new key-event%	 
                     [key-code direction]
-                    [shift-down shift-pressed?]))))))
+                    [shift-down shift-pressed?]))))
+    (define/private (update-env)
+      (let ([text (send this get-filename)])
+        (for ([e (show-content text)])
+          (match e
+            [(vector syncheck:add-jump-to-definition start end id filename submods)
+             (displayln e)]
+            [else (void)]))))))
 
 (define (ide-main)
   (define ide (new frame%
