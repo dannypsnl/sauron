@@ -8,7 +8,7 @@
 
 (define editor%
   (class racket:text%
-    (init complete?)
+    (init)
     (super-new)
     (define/override (on-char e)
       (cond
@@ -36,7 +36,7 @@
                  (send this insert "(")
                  (send this insert selected-text)
                  (send this insert ")"))
-             (super on-char e)))]
+               (super on-char e)))]
         [else (super on-char e)]))
     (define/override (on-local-event e)
       ;;; c+<click>
@@ -57,7 +57,7 @@
                       [style '(no-hscroll)]))
   ; The editor<%> interface defines the core editor functionality,
   ; but editors are created as instances of text% or pasteboard%.
-  (define text (new editor% [complete? ""]))
+  (define text (new editor%))
 
   (define m-bar (new menu-bar% [parent ide]))
   (let ([m-file (new menu% [label "File"] [parent m-bar])])
