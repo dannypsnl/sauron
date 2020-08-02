@@ -16,6 +16,7 @@
               (eq? (send e get-key-code) #\b))
          ;;; TODO: jump to definition
          (displayln "c+b")]
+        ;;; c+; for comment/uncomment
         [(and (send e get-meta-down)
               (eq? (send e get-key-code) #\;))
          ; NOTE: get-start-position and get-end-position would have same value when no selected text
@@ -28,6 +29,7 @@
            (if (string-prefix? selected-text ";")
                (send this uncomment-selection start end)
                (send this comment-out-selection start end)))]
+        ;;; `(` auto wrap selected text
         [(eq? (send e get-key-code) #\()
          (let ([start (send this get-start-position)]
                [end (send this get-end-position)])
@@ -76,6 +78,7 @@
          [parent m-file]
          [callback
           (λ (i e)
+            ; reindent all expressions before save to file
             (send text tabify-all)
             (send text save-file #f 'text))]
          [shortcut #\s]
