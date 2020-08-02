@@ -13,7 +13,8 @@
     (field [update-env-count 0])
     (super-new)
     (define/override (on-char e)
-      (update-env)
+      ; (update-env)
+
       (match (send e get-key-code)
         [#\b #:when (send e get-meta-down)
              ;;; TODO: jump to definition
@@ -31,14 +32,10 @@
                    (send this uncomment-selection start end)
                    (send this comment-out-selection start end)))]
         ;;; `(` auto wrap selected text
-        [#\( (let ([start (send this get-start-position)]
-                   [end (send this get-end-position)])
-               (if (not (= start end))
-                   (let ([selected-text (send this get-text start end)])
-                     (send this insert "(")
-                     (send this insert selected-text)
-                     (send this insert ")"))
-                   (super on-char e)))]
+        [#\( (auto-wrap-with "(" ")")]
+        [#\[ (auto-wrap-with "[" "]")]
+        [#\{ (auto-wrap-with "{" "}")]
+        [#\" (auto-wrap-with "\"" "\"")]
         [else (super on-char e)]))
     (define/override (on-local-event e)
       ;;; c+<click>
@@ -48,13 +45,21 @@
         (displayln (format "x: ~a y: ~a" (send e get-x) (send e get-y))))
       (super on-local-event e))
 
-    (define/private (move-cursor direction step
+    (define/private (move-cursor direction [step 1]
                                  #:shift-pressed? [shift-pressed? #f])
       (for ([i step])
         (super on-char 
                (new key-event%	 
                     [key-code direction]
                     [shift-down shift-pressed?]))))
+    (define/private (auto-wrap-with open close)
+      (let ([selected-text (send this get-text (send this get-start-position) (send this get-end-position))])
+        (send this insert open)
+        (when selected-text
+          (send this insert selected-text))
+        (send this insert close)
+        (move-cursor 'left)))
+
     (define/private (update-env)
       (let ([text (send this get-filename)])
         (for ([e (show-content text)])
