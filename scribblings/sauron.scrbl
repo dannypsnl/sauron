@@ -21,6 +21,7 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   @item{c+c: copy}
   @item{c+v: paste}
   @item{c+z: undo}
+  @item{c+x: cut}
   ;;; move cursor
   @item{c+<up>/<down>/<left>/right: move to most up/down/left/right}
   @item{o+<left>: move left by a token/s-exp}
