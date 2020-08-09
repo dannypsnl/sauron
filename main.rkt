@@ -36,7 +36,17 @@
         [#\[ (auto-wrap-with "[" "]")]
         [#\{ (auto-wrap-with "{" "}")]
         [#\" (auto-wrap-with "\"" "\"")]
-        [else (super on-char e)]))
+        [key-code
+         (cond
+           [(not (or (send e get-meta-down)
+                     (send e get-control-down)
+                     (send e get-shift-down)
+                     (send e get-alt-down)
+                     (member key-code
+                             '(#\return #\space #\tab #\backspace release))))
+            (super on-char e)
+            (send this auto-complete)]
+           [else (super on-char e)])]))
     (define/override (on-local-event e)
       ;;; c+<click>
       (when (and (send e get-meta-down)
@@ -44,6 +54,9 @@
         ;;; TODO: jump to definition
         (displayln (format "x: ~a y: ~a" (send e get-x) (send e get-y))))
       (super on-local-event e))
+    ;;; auto complete words
+    (define/override (get-all-words)
+      '("define" "let"))
 
     (define/private (move-cursor direction [step 1]
                                  #:shift-pressed? [shift-pressed? #f])
