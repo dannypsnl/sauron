@@ -10,7 +10,15 @@
 (define editor%
   (class racket:text%
     ;;; TODO: limit check-syntax via this field?
-    (field [update-env-count 0])
+    (field [update-env-count 0]
+           [control-key-list '(#\return #\space #\tab #\backspace
+                                        release start cancel clear
+                                        insert menu escape capital pause
+                                        next end home left
+                                        up down left right
+                                        f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24
+                                        numlock
+                                        wheel-up wheel-down wheel-left wheel-right)])
     (super-new)
     (define/override (on-char e)
       ; (update-env)
@@ -42,8 +50,7 @@
                      (send e get-control-down)
                      (send e get-shift-down)
                      (send e get-alt-down)
-                     (member key-code
-                             '(#\return #\space #\tab #\backspace release))))
+                     (member key-code control-key-list)))
             (super on-char e)
             (send this auto-complete)]
            [else (super on-char e)])]))
@@ -56,7 +63,13 @@
       (super on-local-event e))
     ;;; auto complete words
     (define/override (get-all-words)
-      '("define" "let"))
+      '("(define )" "(define () )"
+                    "(let ([]) )"
+                    "(lambda () )"
+                    "(cond
+  [else ])"
+                    "(match
+  [else ])"))
 
     (define/private (move-cursor direction [step 1]
                                  #:shift-pressed? [shift-pressed? #f])
