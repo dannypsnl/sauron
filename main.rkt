@@ -41,10 +41,10 @@
     (define/override (on-char e)
       (match (send e get-key-code)
         [#\b #:when (send e get-meta-down)
-             (let ([start (send this get-backward-sexp (send this get-start-position))]
-                   [end (send this get-forward-sexp (send this get-start-position))])
-               (when (and start end)
-                 (jump-to-definition (send this get-text start end))))]
+             (let* ([start (send this get-backward-sexp
+                                 (+ 1 (send this get-start-position)))]
+                    [end (send this get-forward-sexp start)])
+               (jump-to-definition (send this get-text start end)))]
         ;;; c+; for comment/uncomment
         [#\; #:when (send e get-meta-down)
              ; NOTE: get-start-position and get-end-position would have same value when no selected text
