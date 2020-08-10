@@ -38,14 +38,15 @@ Warning: Only consider #lang racket currently, would try to support more variant
 Sauron try to improve experience when programming Racket, one of the important features was auto completion, Sauron provides several builtin form:
 
 @(itemlist
-  @item{(define )}
-  @item{(define () )}
-  @item{"(let ([]) )"}
-  @item{"(lambda () )"}
-  @item{"(cond
- [else ])"}
-  @item{"(match 
- [else ])"})
+  @item{define
+    @code[#:lang "racket"]{(define )}
+    @code[#:lang "racket"]{(define () )}}
+  @item{(let ([]) )}
+  @item{(lambda () )}
+  @item{(cond
+ [else ])}
+  @item{(match 
+ [else ])})
 
 When you introduce identifier, Sauron would record it to provide completion.
 
