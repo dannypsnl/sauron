@@ -31,6 +31,22 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   ;;; misc
   @item|{(/[/{/": when has selected text, wrap selected text automatically}|)
 
+@section{Auto complete}
+
+Warning: Only consider #lang racket currently, would try to support more variant in the future.
+
+Sauron try to improve experience when programming Racket, one of the important features was auto completion, Sauron provides several builtin form:
+
+@(itemlist
+  @item{(define )}
+  @item{(define () )}
+  @item{"(let ([]) )"}
+  @item{"(lambda () )"}
+  @item{"(cond
+ [else ])"}
+  @item{"(match
+ [else ])"})
+
 @section{Develop}
 
 ctrl/command and alt/option just rely on this function from racket/gui @racketlink[gui:get-default-shortcut-prefix]{get-default-shortcut-prefix}.
