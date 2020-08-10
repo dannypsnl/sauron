@@ -92,11 +92,12 @@
 
     (define/public (update-env)
       (let ([text (send this get-filename)])
-        (for ([e (show-content text)])
+        (for ([e
+               ;;; TODO: show-content reports error via exception, catch and show
+               (show-content text)])
           (match e
             [(vector syncheck:add-definition-target start end id style-name)
              (add-user-defined (symbol->string id))]
-            ;;; TODO: handle
             [(vector syncheck:add-jump-to-definition start end id filename submods)
              (void)]
             [(vector syncheck:add-docs-menu start end id label definition-tag path tag)
@@ -105,7 +106,7 @@
              (void)]
             ;;; TODO: show message when mouse in range(start end)
             [(vector syncheck:add-mouse-over-status start end message)
-             (void)]
+             (displayln e)]
             [(vector syncheck:add-arrow/name-dup/pxpy
                      start-left start-right start-px start-py
                      end-left end-right end-px end-py

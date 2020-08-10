@@ -11,9 +11,6 @@ Sauron is an IDE for Racket language.
 
 ```sh
 raco pkg install --auto sauron
-# document
-raco setup
-raco docs sauron
 ```
 
 ### Develop
@@ -21,4 +18,6 @@ raco docs sauron
 ```sh
 # start IDE
 racket main.rkt
+# deploy document, ref: http://www.greghendershott.com/2014/06/does-your-racket-project-need-a-makefile.html
+make publish
 ```
