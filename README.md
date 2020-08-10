@@ -7,6 +7,15 @@ WARNING: This project still in early stage.
 
 Sauron is an IDE for Racket language.
 
+### Install
+
+```sh
+raco pkg install --auto sauron
+# document
+raco setup
+raco docs
+```
+
 ### Develop
 
 ```sh
