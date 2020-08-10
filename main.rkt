@@ -143,7 +143,9 @@
                       [style '(no-hscroll)]))
   ; The editor<%> interface defines the core editor functionality,
   ; but editors are created as instances of text% or pasteboard%.
-  (define text (new editor%))
+  (define text (new (text:line-numbers-mixin editor%)))
+
+  (send text show-line-numbers! #t)
 
   (define m-bar (new menu-bar% [parent ide]))
   (let ([m-file (new menu% [label "File"] [parent m-bar])])
