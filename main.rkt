@@ -30,17 +30,17 @@
     (super-new)
 
     (define/override (on-local-event e)
-      ;;; c+<click>
-      (when (and (send e get-meta-down)
-                 (send e button-down?))
-        ;;; TODO: jump to definition
-        (displayln (send this get-forward-sexp (send this get-start-position)))
-        (displayln (format "x: ~a y: ~a" (send e get-x) (send e get-y))))
-      (super on-local-event e))
+      (cond
+        ;;; c+<click>
+        [(and (send e get-meta-down)
+              (send e button-down?))
+         ;;; TODO: jump to definition
+         (displayln (send this get-forward-sexp (send this get-start-position)))
+         (displayln (format "x: ~a y: ~a" (send e get-x) (send e get-y)))]
+        [else (super on-local-event e)]))
     (define/override (on-char e)
       (match (send e get-key-code)
         [#\b #:when (send e get-meta-down)
-             ;;; TODO: jump to definition
              (let ([start (send this get-backward-sexp (send this get-start-position))]
                    [end (send this get-forward-sexp (send this get-start-position))])
                (when (and start end)
