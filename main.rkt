@@ -28,11 +28,23 @@
   [else ])")]
            [user-defined-complete (make-hash)])
     (super-new)
+
+    (define/override (on-local-event e)
+      ;;; c+<click>
+      (when (and (send e get-meta-down)
+                 (send e button-down?))
+        ;;; TODO: jump to definition
+        (displayln (send this get-forward-sexp (send this get-start-position)))
+        (displayln (format "x: ~a y: ~a" (send e get-x) (send e get-y))))
+      (super on-local-event e))
     (define/override (on-char e)
       (match (send e get-key-code)
         [#\b #:when (send e get-meta-down)
              ;;; TODO: jump to definition
-             (displayln "c+b")]
+             (let ([start (send this get-backward-sexp (send this get-start-position))]
+                   [end (send this get-forward-sexp (send this get-start-position))])
+               (when (and start end)
+                 (jump-to-definition (send this get-text start end))))]
         ;;; c+; for comment/uncomment
         [#\; #:when (send e get-meta-down)
              ; NOTE: get-start-position and get-end-position would have same value when no selected text
@@ -60,21 +72,20 @@
             (super on-char e)
             (send this auto-complete)]
            [else (super on-char e)])]))
-    (define/override (on-local-event e)
-      ;;; c+<click>
-      (when (and (send e get-meta-down)
-                 (send e button-down?))
-        ;;; TODO: jump to definition
-        (displayln (format "x: ~a y: ~a" (send e get-x) (send e get-y))))
-      (super on-local-event e))
+
     ;;; auto complete words
     (define/override (get-all-words)
       (flatten
        (append racket-builtin-form*
-               (hash-values user-defined-complete))))
-    (define/private (add-user-defined id)
-      (hash-set! user-defined-complete id id))
+               (hash-keys user-defined-complete))))
+    (define/private (add-user-defined id start-pos)
+      (hash-set! user-defined-complete id start-pos))
 
+    ;;; moving fundamental
+    (define/private (move-to to-pos)
+      (let* ([cur-pos (send this get-start-position)]
+             [step (- cur-pos to-pos)])
+        (move-cursor (if (positive? step) 'left 'right) step)))
     (define/private (move-cursor direction [step 1]
                                  #:shift-pressed? [shift-pressed? #f])
       (for ([i step])
@@ -89,6 +100,11 @@
           (send this insert selected-text))
         (send this insert close)
         (move-cursor 'left)))
+    ;;; advanced moving
+    (define/private (jump-to-definition id)
+      (let ([jump-to (hash-ref user-defined-complete id #f)])
+        (when jump-to
+          (move-to jump-to))))
 
     (define/public (update-env)
       (let ([text (send this get-filename)])
@@ -97,7 +113,7 @@
                (show-content text)])
           (match e
             [(vector syncheck:add-definition-target start end id style-name)
-             (add-user-defined (symbol->string id))]
+             (add-user-defined (symbol->string id) start)]
             [(vector syncheck:add-jump-to-definition start end id filename submods)
              (void)]
             [(vector syncheck:add-docs-menu start end id label definition-tag path tag)
@@ -106,7 +122,7 @@
              (void)]
             ;;; TODO: show message when mouse in range(start end)
             [(vector syncheck:add-mouse-over-status start end message)
-             (displayln e)]
+             (void)]
             [(vector syncheck:add-arrow/name-dup/pxpy
                      start-left start-right start-px start-py
                      end-left end-right end-px end-py
