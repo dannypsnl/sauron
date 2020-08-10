@@ -1,3 +1,3 @@
 .PHONY: docs
 docs:
-	@cd docs/ && scribble ../scribblings/sauron.scrbl
+	@cd docs/ && scribble ../scribblings/index.scrbl
