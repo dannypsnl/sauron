@@ -44,8 +44,17 @@ Sauron try to improve experience when programming Racket, one of the important f
   @item{"(lambda () )"}
   @item{"(cond
  [else ])"}
-  @item{"(match
+  @item{"(match 
  [else ])"})
+
+When you introduce identifier, Sauron would record it to provide completion.
+
+For example:
+
+@(racketblock
+  (define (id x) x))
+
+Type @code[#:lang "racket"]{i} would trigger completion.
 
 @section{Develop}
 
