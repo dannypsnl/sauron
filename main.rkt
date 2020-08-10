@@ -82,20 +82,13 @@
       (hash-set! user-defined-complete id start-pos))
 
     ;;; moving fundamental
-    (define/private (move-cursor direction [step 1]
-                                 #:shift-pressed? [shift-pressed? #f])
-      (for ([i step])
-        (super on-char 
-               (new key-event%	 
-                    [key-code direction]
-                    [shift-down shift-pressed?]))))
     (define/private (auto-wrap-with open close)
       (let ([selected-text (send this get-text (send this get-start-position) (send this get-end-position))])
         (send this insert open)
         (when selected-text
           (send this insert selected-text))
         (send this insert close)
-        (move-cursor 'left)))
+        (send this set-position (send this get-start-position) (+ 1 (send this get-start-position)))))
     ;;; advanced moving
     (define/private (jump-to-definition id)
       (let ([jump-to (hash-ref user-defined-complete id #f)])
