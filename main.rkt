@@ -82,10 +82,6 @@
       (hash-set! user-defined-complete id start-pos))
 
     ;;; moving fundamental
-    (define/private (move-to to-pos)
-      (let* ([cur-pos (send this get-start-position)]
-             [step (- cur-pos to-pos)])
-        (move-cursor (if (positive? step) 'left 'right) step)))
     (define/private (move-cursor direction [step 1]
                                  #:shift-pressed? [shift-pressed? #f])
       (for ([i step])
@@ -104,7 +100,7 @@
     (define/private (jump-to-definition id)
       (let ([jump-to (hash-ref user-defined-complete id #f)])
         (when jump-to
-          (move-to jump-to))))
+          (send this set-position jump-to))))
 
     (define/public (update-env)
       (let ([text (send this get-filename)])
