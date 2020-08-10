@@ -18,11 +18,17 @@
                                         up down left right
                                         f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24
                                         numlock
-                                        wheel-up wheel-down wheel-left wheel-right)])
+                                        wheel-up wheel-down wheel-left wheel-right)]
+           [racket-builtin-form* '("(define )" "(define () )"
+                                               "(let ([]) )"
+                                               "(lambda () )"
+                                               "(cond
+  [else ])"
+                                               "(match 
+  [else ])")]
+           [user-defined-complete (make-hash)])
     (super-new)
     (define/override (on-char e)
-      ; (update-env)
-
       (match (send e get-key-code)
         [#\b #:when (send e get-meta-down)
              ;;; TODO: jump to definition
@@ -63,13 +69,11 @@
       (super on-local-event e))
     ;;; auto complete words
     (define/override (get-all-words)
-      '("(define )" "(define () )"
-                    "(let ([]) )"
-                    "(lambda () )"
-                    "(cond
-  [else ])"
-                    "(match
-  [else ])"))
+      (flatten
+       (append racket-builtin-form*
+               (hash-values user-defined-complete))))
+    (define/private (add-user-defined id)
+      (hash-set! user-defined-complete id id))
 
     (define/private (move-cursor direction [step 1]
                                  #:shift-pressed? [shift-pressed? #f])
@@ -86,13 +90,30 @@
         (send this insert close)
         (move-cursor 'left)))
 
-    (define/private (update-env)
+    (define/public (update-env)
       (let ([text (send this get-filename)])
         (for ([e (show-content text)])
           (match e
+            [(vector syncheck:add-definition-target start end id style-name)
+             (add-user-defined (symbol->string id))]
+            ;;; TODO: handle
             [(vector syncheck:add-jump-to-definition start end id filename submods)
-             (displayln e)]
-            [else (void)]))))))
+             (void)]
+            [(vector syncheck:add-docs-menu start end id label definition-tag path tag)
+             (void)]
+            [(vector syncheck:add-text-type start end id)
+             (void)]
+            ;;; TODO: show message when mouse in range(start end)
+            [(vector syncheck:add-mouse-over-status start end message)
+             (void)]
+            [(vector syncheck:add-arrow/name-dup/pxpy
+                     start-left start-right start-px start-py
+                     end-left end-right end-px end-py
+                     actual? phase-level require-arrow name-dup?)
+             (void)]
+            [(vector syncheck:add-tail-arrow start end)
+             (void)]
+            [else (displayln e)]))))))
 
 (define (ide-main)
   (define ide (new frame%
@@ -124,9 +145,12 @@
          [parent m-file]
          [callback
           (λ (i e)
-            ; reindent all expressions before save to file
-            (send text tabify-all)
-            (send text save-file #f 'text))]
+            (send* text
+              ; reindent all expressions before save to file
+              (tabify-all)
+              (save-file #f 'text)
+              ; enforce renew cached environment
+              (update-env)))]
          [shortcut #\s]
          [shortcut-prefix (get-default-shortcut-prefix)])
     (void))
