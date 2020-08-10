@@ -84,10 +84,8 @@
     ;;; moving fundamental
     (define/private (auto-wrap-with open close)
       (let ([selected-text (send this get-text (send this get-start-position) (send this get-end-position))])
-        (send this insert open)
-        (when selected-text
-          (send this insert selected-text))
-        (send this insert close)
+        (send this insert
+              (string-join (list open (if selected-text selected-text "") close) ""))
         (send this set-position (send this get-start-position) (+ 1 (send this get-start-position)))))
     ;;; advanced moving
     (define/private (jump-to-definition id)
