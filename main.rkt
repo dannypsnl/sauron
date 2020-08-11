@@ -18,20 +18,15 @@
 
     (define/override (on-local-event e)
       (cond
-        ;;; c+<click>
+        ;;; c+<click>, jump to definition
         [(and (send e get-meta-down)
               (send e button-down?))
-         ;;; TODO: jump to definition
-         (displayln (send this get-forward-sexp (send this get-start-position)))
-         (displayln (format "x: ~a y: ~a" (send e get-x) (send e get-y)))]
+         (jump-to-definition (send this find-position (send e get-x) (send e get-y)))]
         [else (super on-local-event e)]))
     (define/override (on-char e)
       (match (send e get-key-code)
         [#\b #:when (send e get-meta-down)
-             (let* ([start (send this get-backward-sexp
-                                 (+ 1 (send this get-start-position)))]
-                    [end (send this get-forward-sexp start)])
-               (jump-to-definition (send this get-text start end)))]
+             (jump-to-definition (send this get-start-position))]
         ;;; c+; for comment/uncomment
         [#\; #:when (send e get-meta-down)
              ; NOTE: get-start-position and get-end-position would have same value when no selected text
@@ -76,8 +71,11 @@
               (string-join (list open (if selected-text selected-text "") close) ""))
         (send this set-position (+ 1 origin-start))))
     ;;; advanced moving
-    (define/private (jump-to-definition id)
-      (let ([jump-to (hash-ref user-defined-complete id #f)])
+    (define/private (jump-to-definition pos)
+      (let* ([start (send this get-backward-sexp
+                          (+ 1 pos))]
+             [end (send this get-forward-sexp start)]
+             [jump-to (hash-ref user-defined-complete (send this get-text start end) #f)])
         (when jump-to
           (send this set-position jump-to))))
 

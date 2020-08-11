@@ -26,7 +26,8 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   @item{c+<up>/<down>/<left>/right: move to most up/down/left/right}
   @item{o+<left>: move left by a token/s-exp}
   @item{o+<right>: move right by a token/s-exp}
-  @item{c+b: jump to definition}
+  ; jump to definition
+  @item{c+b/<click>: jump to definition}
   ;;; comment/uncomment
   @item{c+;: comment selected text or line if uncommented, uncomment if commented}
   ;;; misc
