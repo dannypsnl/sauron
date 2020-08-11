@@ -9,7 +9,8 @@
   (ide-main))
 
 (define editor%
-  (class racket:text%
+  (class (text:line-numbers-mixin
+           racket:text%)
     ;;; TODO: limit check-syntax via this field?
     (field [update-env-count 0]
            [user-defined-complete (make-hash)])
@@ -116,7 +117,7 @@
                       [style '(no-hscroll)]))
   ; The editor<%> interface defines the core editor functionality,
   ; but editors are created as instances of text% or pasteboard%.
-  (define text (new (text:line-numbers-mixin editor%)))
+  (define text (new editor%))
 
   (send text show-line-numbers! #t)
 
