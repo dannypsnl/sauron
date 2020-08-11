@@ -10,7 +10,7 @@
 
 (define editor%
   (class (text:line-numbers-mixin
-           racket:text%)
+          racket:text%)
     ;;; TODO: limit check-syntax via this field?
     (field [update-env-count 0]
            [user-defined-complete (make-hash)])
@@ -70,10 +70,11 @@
 
     ;;; moving fundamental
     (define/private (auto-wrap-with open close)
-      (let ([selected-text (send this get-text (send this get-start-position) (send this get-end-position))])
+      (let* ([origin-start (send this get-start-position)]
+             [selected-text (send this get-text origin-start (send this get-end-position))])
         (send this insert
               (string-join (list open (if selected-text selected-text "") close) ""))
-        (send this set-position (send this get-start-position) (+ 1 (send this get-start-position)))))
+        (send this set-position (+ 1 origin-start))))
     ;;; advanced moving
     (define/private (jump-to-definition id)
       (let ([jump-to (hash-ref user-defined-complete id #f)])
