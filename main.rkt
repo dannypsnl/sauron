@@ -3,6 +3,7 @@
 (require framework
          racket/class)
 (require drracket/check-syntax)
+(require "meta.rkt")
 
 (module+ main
   (ide-main))
@@ -11,21 +12,6 @@
   (class racket:text%
     ;;; TODO: limit check-syntax via this field?
     (field [update-env-count 0]
-           [control-key-list '(#\return #\space #\tab #\backspace
-                                        release start cancel clear
-                                        insert menu escape capital pause
-                                        next end home left
-                                        up down left right
-                                        f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24
-                                        numlock
-                                        wheel-up wheel-down wheel-left wheel-right)]
-           [racket-builtin-form* '("(define )" "(define () )"
-                                               "(let ([]) )"
-                                               "(lambda () )"
-                                               "(cond
-  [else ])"
-                                               "(match 
-  [else ])")]
            [user-defined-complete (make-hash)])
     (super-new)
 
