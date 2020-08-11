@@ -43,12 +43,14 @@ Sauron try to improve experience when programming Racket, one of the important f
   @item{define
     @code[#:lang "racket"]{(define )}
     @code[#:lang "racket"]{(define () )}}
-  @item{(let ([]) )}
-  @item{(lambda () )}
-  @item{(cond
- [else ])}
-  @item{(match 
- [else ])})
+  @item{@code[#:lang "racket"]{(let ([]) )}}
+  @item{@code[#:lang "racket"]{(lambda () )}}
+  @item{@code[#:lang "racket"]{(cond
+ [else ])}}
+  @item{@code[#:lang "racket"]{(match 
+ [else ])}}
+  @item{@code[#:lang "racket"]{(provide )}}
+  @item{@code[#:lang "racket"]{(require )}})
 
 When you introduce identifier, Sauron would record it to provide completion.
 
