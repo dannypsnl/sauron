@@ -78,6 +78,7 @@
           (send this set-position jump-to))))
 
     (define/public (update-env)
+      (set! user-defined-complete (make-hash))
       (let ([text (send this get-filename)])
         ;;; TODO: show-content reports error via exception, catch and show
         (for ([e (show-content text)])
