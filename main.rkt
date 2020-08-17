@@ -11,9 +11,7 @@
 (define editor%
   (class (text:line-numbers-mixin
           racket:text%)
-    ;;; TODO: limit check-syntax via this field?
-    (field [update-env-count 0]
-           [user-defined-complete (make-hash)])
+    (field [user-defined-complete (make-hash)])
     (super-new)
 
     (define/override (on-local-event e)
@@ -81,9 +79,8 @@
 
     (define/public (update-env)
       (let ([text (send this get-filename)])
-        (for ([e
-               ;;; TODO: show-content reports error via exception, catch and show
-               (show-content text)])
+        ;;; TODO: show-content reports error via exception, catch and show
+        (for ([e (show-content text)])
           (match e
             [(vector syncheck:add-definition-target start end id style-name)
              (add-user-defined (symbol->string id) start)]
