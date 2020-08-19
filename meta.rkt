@@ -13,16 +13,48 @@
              wheel-up wheel-down wheel-left wheel-right))
 
 (define racket-builtin-form*
-  '("(define )"
-    "(define () )"
-    "(let ([]) )"
-    "(lambda () )"
-    "(cond
+  (list
+   ;;; define
+   "(define )"
+   "(define () )"
+   ;;; let
+   "(let ([]) )"
+   "(let* ([]) )"
+   "(letrec ([]) )"
+   ;;; λ
+   "(lambda () )"
+   "(λ () )"
+   ;;; branch
+   "(cond
   [else ])"
-    "(match 
+   "(match 
   [else ])"
-    "(require )"
-    "(provide )"))
+   ;;; module
+   "(require )"
+   "(provide )"
+   "(all-defined-out)"
+   "(only-in )"
+   "(except-in )"
+   "(prefix-in )"
+   "(rename-in )"
+   "(combine-in )"
+   "(relative-in )"
+   "(only-meta-in )"
+   "(for-syntax )"
+   "contract-out"
+   ;;; loop
+   "(for ([])
+  )"
+   "(for/list ([])
+  )"
+   "(for/vector ([])
+  )"
+   "(for/hash ([])
+  )"
+   "(for/hasheq ([])
+  )"
+   "(for/hasheqv ([])
+  )"))
 
 (define latex-complete
   #hash(("\\" . "\\")
