@@ -105,7 +105,9 @@
             [(vector syncheck:add-definition-target start end id style-name)
              (add-user-defined (symbol->string id) start)]
             [(vector syncheck:add-jump-to-definition start end id filename submods)
-             (void)]
+             (send this set-clickback start end
+                   (λ (t start end)
+                     (displayln e)))]
             [(vector syncheck:add-docs-menu start end id label definition-tag path tag)
              (void)]
             [(vector syncheck:add-text-type start end id)
