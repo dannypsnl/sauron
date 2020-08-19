@@ -39,7 +39,7 @@
                ;;; select previous LaTeX text
                (send this set-position start end)
                ;;; replace it with new text
-               (send this insert (hash-ref latex-complete to-complete
+               (send this insert (hash-ref latex-complete (string-trim to-complete "\\" #:right? #f)
                                            to-complete))
                ; off
                (set! latex-input? #f))
