@@ -11,7 +11,8 @@
 (define editor%
   (class (text:line-numbers-mixin
           racket:text%)
-    (field [user-defined-complete (make-hash)])
+    (field [user-defined-complete (make-hash)]
+           [latex-input? #f])
     (super-new)
 
     (define/override (on-local-event e)
@@ -25,6 +26,24 @@
       (match (send e get-key-code)
         [#\b #:when (send e get-meta-down)
              (jump-to-definition (send this get-start-position))]
+        ;;; when receive `\`, prepare to typing LaTeX symbol
+        [#\\
+         ; on
+         (set! latex-input? #t)
+         (super on-char e)]
+        [#\return
+         (if latex-input?
+             (let* ([end (send this get-start-position)]
+                    [start (send this get-backward-sexp end)]
+                    [to-complete (send this get-text start end)])
+               ;;; select previous LaTeX text
+               (send this set-position start end)
+               ;;; replace it with new text
+               (send this insert (hash-ref latex-complete to-complete
+                                           to-complete))
+               ; off
+               (set! latex-input? #f))
+             (super on-char e))]
         ;;; c+; for comment/uncomment
         [#\; #:when (send e get-meta-down)
              ; NOTE: get-start-position and get-end-position would have same value when no selected text
