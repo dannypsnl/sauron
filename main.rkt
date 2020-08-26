@@ -109,12 +109,14 @@
                    (λ (t start end)
                      (displayln e)))]
             [(vector syncheck:add-docs-menu start end id label definition-tag path tag)
-             (void)]
+             (displayln e)
+             ;;; TODO: open document
+             ]
             [(vector syncheck:add-text-type start end id)
-             (void)]
+             (displayln e)]
             ;;; TODO: show message when mouse in range(start end)
             [(vector syncheck:add-mouse-over-status start end message)
-             (void)]
+             (displayln e)]
             [(vector syncheck:add-arrow/name-dup/pxpy
                      start-left start-right start-px start-py
                      end-left end-right end-px end-py
