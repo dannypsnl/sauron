@@ -100,8 +100,8 @@
         ;;; TODO: show-content reports error via exception, catch and show
         (for ([e (show-content text)])
           (match e
-            [(vector syncheck:add-definition-target start end id style-name)
-             (add-user-defined (symbol->string id) start)]
+            ; ignore
+            [(vector syncheck:add-definition-target start end id style-name) (void)]
             [(vector syncheck:add-jump-to-definition start end id filename submods)
              (send this set-clickback start end
                    (λ (t start end)
