@@ -15,13 +15,11 @@
            [latex-input? #f])
     (super-new)
 
+    ;;; mouse event
     (define/override (on-local-event e)
       (cond
-        ;;; c+<click>, jump to definition
-        [(and (send e get-meta-down)
-              (send e button-down?))
-         (jump-to-definition (send this find-position (send e get-x) (send e get-y)))]
         [else (super on-local-event e)]))
+    ;;; keyboard event
     (define/override (on-char e)
       (match (send e get-key-code)
         [#\b #:when (send e get-meta-down)
@@ -88,11 +86,11 @@
               (string-join (list open (if selected-text selected-text "") close) ""))
         (send this set-position (+ 1 origin-start))))
     ;;; advanced moving
-    (define/private (jump-to-definition pos)
-      (let* ([start (send this get-backward-sexp
-                          (+ 1 pos))]
-             [end (send this get-forward-sexp start)]
-             [jump-to (hash-ref user-defined-complete (send this get-text start end) #f)])
+    (define/private (jump-to-definition
+                     pos
+                     #:start [start (send this get-backward-sexp (+ 1 pos))]
+                     #:end [end (send this get-forward-sexp start)])
+      (let ([jump-to (hash-ref user-defined-complete (send this get-text start end) #f)])
         (when jump-to
           (send this set-position jump-to))))
 
@@ -118,10 +116,17 @@
             [(vector syncheck:add-mouse-over-status start end message)
              (displayln e)]
             [(vector syncheck:add-arrow/name-dup/pxpy
-                     start-left start-right start-px start-py
-                     end-left end-right end-px end-py
+                     var-start var-end var-px var-py
+                     occurs-start occurs-end occurs-px occurs-py
                      actual? phase-level require-arrow name-dup?)
-             (void)]
+             (add-user-defined (send this get-text var-start var-end)
+                               var-start)
+             (send this set-clickback occurs-start occurs-end
+                   (λ (t start end)
+                     (jump-to-definition
+                      (send this find-position occurs-px occurs-py)
+                      #:start occurs-start
+                      #:end occurs-end)))]
             [(vector syncheck:add-tail-arrow start end)
              (void)]
             [else (displayln e)]))))))
