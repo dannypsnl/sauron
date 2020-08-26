@@ -119,16 +119,10 @@
         (send this insert
               (string-join (list open (if selected-text selected-text "") close) ""))
         (send this set-position (+ 1 origin-start))))
-    ;;; advanced moving
     (define/private (jump-to-definition pos)
       (let ([jump-to (hash-ref jumping-map pos #f)])
         (when jump-to
           (send this set-position jump-to))))
-
-    (define/private (get-cur-sexp-range pos)
-      (let* ([start (send this get-backward-sexp (+ 1 pos))]
-             [end (send this get-forward-sexp start)])
-        (pos-range start end)))
 
     (define/public (update-env)
       (set! user-defined-complete (make-hash))
@@ -138,8 +132,6 @@
         ;;; TODO: show-content reports error via exception, catch and show
         (for ([e (show-content text)])
           (match e
-            ; ignore
-            [(vector syncheck:add-definition-target start end id style-name) (void)]
             [(vector syncheck:add-jump-to-definition start end id filename submods)
              (send this set-clickback start end
                    (λ (t start end)
@@ -165,13 +157,20 @@
                      (jump-to-definition start)))]
             [(vector syncheck:add-tail-arrow start end)
              (void)]
+            ; ignore
+            [(vector syncheck:add-definition-target start end id style-name) (void)]
             [else (displayln e)]))))
 
     ;;; auto complete words
     (define/override (get-all-words)
       (flatten
        (append racket-builtin-form*
-               (hash-keys user-defined-complete))))))
+               (hash-keys user-defined-complete))))
+    ;;; get current sexp range
+    (define/private (get-cur-sexp-range pos)
+      (let* ([start (send this get-backward-sexp (+ 1 pos))]
+             [end (send this get-forward-sexp start)])
+        (pos-range start end)))))
 
 (define (ide-main)
   (define ide (new frame%
