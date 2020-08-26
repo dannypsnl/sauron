@@ -12,6 +12,7 @@
   (class (text:line-numbers-mixin
           racket:text%)
     (field [user-defined-complete (make-hash)]
+           [jumping-map (make-hash)]
            [latex-input? #f])
     (super-new)
 
@@ -22,6 +23,14 @@
     ;;; keyboard event
     (define/override (on-char e)
       (match (send e get-key-code)
+        [#\r #:when (send e get-meta-down)
+             ; TODO: refactor renaming
+             (get-text-from-user "refactor: rename"
+                                 "new name:"
+                                 ; parent
+                                 #f
+                                 (get-current-s-exp (send this get-start-position)))
+             (void)]
         [#\b #:when (send e get-meta-down)
              (jump-to-definition (send this get-start-position))]
         ;;; when receive `\`, prepare to typing LaTeX symbol
@@ -70,13 +79,11 @@
             (send this auto-complete)]
            [else (super on-char e)])]))
 
-    ;;; auto complete words
-    (define/override (get-all-words)
-      (flatten
-       (append racket-builtin-form*
-               (hash-keys user-defined-complete))))
-    (define/private (add-user-defined id start-pos)
-      (hash-set! user-defined-complete id start-pos))
+    ; new user defined
+    (define/private (add-user-defined id range-start range-end jump-to)
+      (hash-set! user-defined-complete id jump-to)
+      (for ([pos (in-range range-start (+ 1 range-end))])
+        (hash-set! jumping-map pos jump-to)))
 
     ;;; moving fundamental
     (define/private (auto-wrap-with open close)
@@ -86,16 +93,19 @@
               (string-join (list open (if selected-text selected-text "") close) ""))
         (send this set-position (+ 1 origin-start))))
     ;;; advanced moving
-    (define/private (jump-to-definition
-                     pos
-                     #:start [start (send this get-backward-sexp (+ 1 pos))]
-                     #:end [end (send this get-forward-sexp start)])
-      (let ([jump-to (hash-ref user-defined-complete (send this get-text start end) #f)])
+    (define/private (jump-to-definition pos)
+      (let ([jump-to (hash-ref jumping-map pos #f)])
         (when jump-to
           (send this set-position jump-to))))
 
+    (define/private (get-current-s-exp pos)
+      (let* ([start (send this get-backward-sexp (+ 1 pos))]
+             [end (send this get-forward-sexp start)])
+        (send this get-text start end)))
+
     (define/public (update-env)
       (set! user-defined-complete (make-hash))
+      (set! jumping-map (make-hash))
       (let ([text (send this get-filename)])
         ;;; TODO: show-content reports error via exception, catch and show
         (for ([e (show-content text)])
@@ -120,16 +130,20 @@
                      occurs-start occurs-end occurs-px occurs-py
                      actual? phase-level require-arrow name-dup?)
              (add-user-defined (send this get-text var-start var-end)
+                               occurs-start occurs-end
                                var-start)
              (send this set-clickback occurs-start occurs-end
                    (λ (t start end)
-                     (jump-to-definition
-                      (send this find-position occurs-px occurs-py)
-                      #:start occurs-start
-                      #:end occurs-end)))]
+                     (jump-to-definition start)))]
             [(vector syncheck:add-tail-arrow start end)
              (void)]
-            [else (displayln e)]))))))
+            [else (displayln e)]))))
+
+    ;;; auto complete words
+    (define/override (get-all-words)
+      (flatten
+       (append racket-builtin-form*
+               (hash-keys user-defined-complete))))))
 
 (define (ide-main)
   (define ide (new frame%
