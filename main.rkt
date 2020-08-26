@@ -3,7 +3,8 @@
 (require framework
          racket/class)
 (require drracket/check-syntax)
-(require "meta.rkt")
+(require "meta.rkt"
+         "pos-range.rkt")
 
 (module+ main
   (ide-main))
@@ -13,6 +14,7 @@
           racket:text%)
     (field [user-defined-complete (make-hash)]
            [jumping-map (make-hash)]
+           [all-occurs-map (make-hash)]
            [latex-input? #f])
     (super-new)
 
@@ -24,33 +26,52 @@
     (define/override (on-char e)
       (match (send e get-key-code)
         [#\r #:when (send e get-meta-down)
-             ; TODO: refactor renaming
-             (get-text-from-user "refactor: rename"
-                                 "new name:"
-                                 ; parent
-                                 #f
-                                 (get-current-s-exp (send this get-start-position)))
-             (void)]
+             (define cur-pos (send this get-start-position))
+             (define cur-sexp-range (get-cur-sexp-range cur-pos))
+             (define origin-text (send this get-text (pos-range-start cur-sexp-range) (pos-range-end cur-sexp-range)))
+             (define new-text? (get-text-from-user "refactor: rename"
+                                                   "new name:"
+                                                   ; parent
+                                                   #f
+                                                   ; init text
+                                                   origin-text))
+             (define offset 0)
+             (when new-text?
+               (let* ([jump-to? (hash-ref jumping-map cur-pos #f)]
+                      [occur* (if jump-to?
+                                  ; is an occur
+                                  (cons (get-cur-sexp-range jump-to?)
+                                        (hash-ref all-occurs-map jump-to?))
+                                  ; is a binding
+                                  (let ([occur*? (hash-ref all-occurs-map (pos-range-start cur-sexp-range) #f)])
+                                    (if occur*?
+                                        (cons cur-sexp-range
+                                              occur*?)
+                                        '())))])
+                 (for ([range occur*])
+                   (send this set-position
+                         (+ offset (pos-range-start range))
+                         (+ offset (pos-range-end range)))
+                   (send this insert new-text?)
+                   (set! offset (+ offset
+                                   (- (string-length new-text?) (string-length origin-text)))))))]
         [#\b #:when (send e get-meta-down)
              (jump-to-definition (send this get-start-position))]
         ;;; when receive `\`, prepare to typing LaTeX symbol
-        [#\\
-         ; on
-         (set! latex-input? #t)
-         (super on-char e)]
-        [#\return
-         (if latex-input?
-             (let* ([end (send this get-start-position)]
-                    [start (send this get-backward-sexp end)]
-                    [to-complete (send this get-text start end)])
-               ;;; select previous LaTeX text
-               (send this set-position start end)
-               ;;; replace it with new text
-               (send this insert (hash-ref latex-complete (string-trim to-complete "\\" #:right? #f)
-                                           to-complete))
-               ; off
-               (set! latex-input? #f))
-             (super on-char e))]
+        [#\\ (set! latex-input? #t) ; on
+             (super on-char e)]
+        [#\return (if latex-input?
+                      (let* ([end (send this get-start-position)]
+                             [start (send this get-backward-sexp end)]
+                             [to-complete (send this get-text start end)])
+                        ;;; select previous LaTeX text
+                        (send this set-position start end)
+                        ;;; replace it with new text
+                        (send this insert (hash-ref latex-complete (string-trim to-complete "\\" #:right? #f)
+                                                    to-complete))
+                        ; off
+                        (set! latex-input? #f))
+                      (super on-char e))]
         ;;; c+; for comment/uncomment
         [#\; #:when (send e get-meta-down)
              ; NOTE: get-start-position and get-end-position would have same value when no selected text
@@ -80,10 +101,16 @@
            [else (super on-char e)])]))
 
     ; new user defined
-    (define/private (add-user-defined id range-start range-end jump-to)
-      (hash-set! user-defined-complete id jump-to)
+    (define/private (add-user-defined id range-start range-end binding-start)
+      (hash-set! user-defined-complete id binding-start)
       (for ([pos (in-range range-start (+ 1 range-end))])
-        (hash-set! jumping-map pos jump-to)))
+        (hash-set! jumping-map pos binding-start))
+      ; binding backtracing occurs
+      (define range (pos-range range-start range-end))
+      (if (not (hash-has-key? all-occurs-map binding-start))
+          (hash-set! all-occurs-map binding-start (list range))
+          (hash-update! all-occurs-map binding-start
+                        (λ (existed) (cons range existed)))))
 
     ;;; moving fundamental
     (define/private (auto-wrap-with open close)
@@ -98,14 +125,15 @@
         (when jump-to
           (send this set-position jump-to))))
 
-    (define/private (get-current-s-exp pos)
+    (define/private (get-cur-sexp-range pos)
       (let* ([start (send this get-backward-sexp (+ 1 pos))]
              [end (send this get-forward-sexp start)])
-        (send this get-text start end)))
+        (pos-range start end)))
 
     (define/public (update-env)
       (set! user-defined-complete (make-hash))
       (set! jumping-map (make-hash))
+      (set! all-occurs-map (make-hash))
       (let ([text (send this get-filename)])
         ;;; TODO: show-content reports error via exception, catch and show
         (for ([e (show-content text)])
