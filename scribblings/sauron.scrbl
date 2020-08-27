@@ -29,7 +29,7 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   ; jump to definition
   @item{c+b or <click> jump to definition(notice that only identifier is clickable to trigger this)}
   ; open document
-  @item{c+d open document)}
+  @item{c+d open document}
   ; refactor
   @item{c+r rename all bound}
   ;;; comment/uncomment
