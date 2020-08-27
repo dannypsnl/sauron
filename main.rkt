@@ -2,6 +2,7 @@
 
 (require framework
          racket/class)
+(require net/sendurl)
 (require drracket/check-syntax)
 (require "meta.rkt"
          "pos-range.rkt")
@@ -15,6 +16,7 @@
     (field [user-defined-complete (make-hash)]
            [jumping-map (make-hash)]
            [all-occurs-map (make-hash)]
+           [open-document-map (make-hash)]
            [latex-input? #f])
     (super-new)
 
@@ -55,6 +57,10 @@
                    (send this insert new-text?)
                    (set! offset (+ offset
                                    (- (string-length new-text?) (string-length origin-text)))))))]
+        [#\d #:when (send e get-meta-down)
+             (let ([document-path? (hash-ref open-document-map (send this get-start-position) #f)])
+               (when document-path?
+                 (send-url/file document-path?)))]
         [#\b #:when (send e get-meta-down)
              (jump-to-definition (send this get-start-position))]
         ;;; when receive `\`, prepare to typing LaTeX symbol
@@ -127,9 +133,12 @@
                 (pos-range-end binding-range)))))
 
     (define/public (update-env)
+      ;;; renew environment
       (set! user-defined-complete (make-hash))
       (set! jumping-map (make-hash))
       (set! all-occurs-map (make-hash))
+      (set! open-document-map (make-hash))
+
       (let ([text (send this get-filename)])
         ;;; TODO: show-content reports error via exception, catch and show
         (for ([e (show-content text)])
@@ -138,8 +147,11 @@
              (send this set-clickback start end
                    (λ (t start end)
                      (displayln e)))]
-            [(vector syncheck:add-docs-menu start end id label definition-tag path tag)
-             (displayln e)
+            [(vector syncheck:add-docs-menu start end id label document-page _ _)
+             (for ([pos (in-range start end)])
+               (hash-set! open-document-map
+                          pos
+                          document-page))
              ;;; TODO: open document
              ]
             [(vector syncheck:add-text-type start end id)
