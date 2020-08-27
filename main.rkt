@@ -17,6 +17,7 @@
     (inherit find-position get-start-position get-end-position
              get-text set-position insert
              get-backward-sexp get-forward-sexp
+             position-location
              position-line line-start-position line-end-position
              uncomment-selection comment-out-selection
              get-filename
@@ -41,9 +42,16 @@
              [msg? (hash-ref mouse-over-status-map cur-pos #f)])
         (if msg?
             (when (not tooltip-show?)
-              (set! tooltip-show? #t)
-              (send tooltip set-tooltip (list msg?))
-              (send tooltip show-over mouse-x mouse-y 10 10))
+              (define cur-line (position-line cur-pos))
+              (define cur-line-end (line-end-position cur-line))
+              (define x (box #f))
+              (define y (box #f))
+              ; fill x, y
+              (position-location cur-line-end x y)
+              (when (and x y)
+                (set! tooltip-show? #t)
+                (send tooltip set-tooltip (list msg?))
+                (send tooltip show-over (unbox x) (unbox y) 10 10)))
             (begin
               (set! tooltip-show? #f)
               (send tooltip show #f))))
