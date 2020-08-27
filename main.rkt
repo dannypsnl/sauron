@@ -13,24 +13,41 @@
 (define editor%
   (class (text:line-numbers-mixin
           racket:text%)
+    (inherit find-position get-start-position get-end-position
+             get-text set-position insert
+             get-backward-sexp get-forward-sexp
+             position-line line-start-position line-end-position
+             uncomment-selection comment-out-selection
+             get-filename
+             set-clickback
+             auto-complete)
+
     (field [user-defined-complete (make-hash)]
            [jumping-map (make-hash)]
            [all-occurs-map (make-hash)]
            [open-document-map (make-hash)]
+           [mouse-over-status-map (make-hash)]
            [latex-input? #f])
     (super-new)
 
     ;;; mouse event
     (define/override (on-local-event e)
+      (let* ([mouse-x (send e get-x)]
+             [mouse-y (send e get-y)]
+             [cur-pos (find-position mouse-x mouse-y)]
+             [msg? (hash-ref mouse-over-status-map cur-pos #f)])
+        (when msg?
+          ; TODO: show tooltip
+          (void)))
       (cond
         [else (super on-local-event e)]))
     ;;; keyboard event
     (define/override (on-char e)
       (match (send e get-key-code)
         [#\r #:when (send e get-meta-down)
-             (define cur-pos (send this get-start-position))
+             (define cur-pos (get-start-position))
              (define cur-sexp-range (get-cur-sexp-range cur-pos))
-             (define origin-text (send this get-text (pos-range-start cur-sexp-range) (pos-range-end cur-sexp-range)))
+             (define origin-text (get-text (pos-range-start cur-sexp-range) (pos-range-end cur-sexp-range)))
              (define new-text? (get-text-from-user "refactor: rename"
                                                    "new name:"
                                                    ; parent
@@ -51,30 +68,30 @@
                                               occur*?)
                                         '())))])
                  (for ([range occur*])
-                   (send this set-position
-                         (+ offset (pos-range-start range))
-                         (+ offset (pos-range-end range)))
-                   (send this insert new-text?)
+                   (set-position
+                    (+ offset (pos-range-start range))
+                    (+ offset (pos-range-end range)))
+                   (insert new-text?)
                    (set! offset (+ offset
                                    (- (string-length new-text?) (string-length origin-text)))))))]
         [#\d #:when (send e get-meta-down)
-             (let ([document-path? (hash-ref open-document-map (send this get-start-position) #f)])
+             (let ([document-path? (hash-ref open-document-map (get-start-position) #f)])
                (when document-path?
                  (send-url/file document-path?)))]
         [#\b #:when (send e get-meta-down)
-             (jump-to-definition (send this get-start-position))]
+             (jump-to-definition (get-start-position))]
         ;;; when receive `\`, prepare to typing LaTeX symbol
         [#\\ (set! latex-input? #t) ; on
              (super on-char e)]
         [#\return (if latex-input?
-                      (let* ([end (send this get-start-position)]
-                             [start (send this get-backward-sexp end)]
-                             [to-complete (send this get-text start end)])
+                      (let* ([end (get-start-position)]
+                             [start (get-backward-sexp end)]
+                             [to-complete (get-text start end)])
                         ;;; select previous LaTeX text
-                        (send this set-position start end)
+                        (set-position start end)
                         ;;; replace it with new text
-                        (send this insert (hash-ref latex-complete (string-trim to-complete "\\" #:right? #f)
-                                                    to-complete))
+                        (insert (hash-ref latex-complete (string-trim to-complete "\\" #:right? #f)
+                                          to-complete))
                         ; off
                         (set! latex-input? #f))
                       (super on-char e))]
@@ -82,14 +99,14 @@
         [#\; #:when (send e get-meta-down)
              ; NOTE: get-start-position and get-end-position would have same value when no selected text
              ; following code comment all lines of selected text(or automatically select cursor line)
-             (let* ([start-line (send this position-line (send this get-start-position))]
-                    [end-line (send this position-line (send this get-end-position))]
-                    [start (send this line-start-position start-line)]
-                    [end (send this line-end-position end-line)]
-                    [selected-text (send this get-text start end)])
+             (let* ([start-line (position-line (get-start-position))]
+                    [end-line (position-line (get-end-position))]
+                    [start (line-start-position start-line)]
+                    [end (line-end-position end-line)]
+                    [selected-text (get-text start end)])
                (if (string-prefix? selected-text ";")
-                   (send this uncomment-selection start end)
-                   (send this comment-out-selection start end)))]
+                   (uncomment-selection start end)
+                   (comment-out-selection start end)))]
         ;;; `(`/`[`/`{`/`"` auto wrap selected text
         [#\( (auto-wrap-with "(" ")")]
         [#\[ (auto-wrap-with "[" "]")]
@@ -103,7 +120,7 @@
                      (send e get-alt-down)
                      (member key-code control-key-list)))
             (super on-char e)
-            (send this auto-complete)]
+            (auto-complete)]
            [else (super on-char e)])]))
 
     ; new user defined
@@ -120,17 +137,16 @@
 
     ;;; moving fundamental
     (define/private (auto-wrap-with open close)
-      (let* ([origin-start (send this get-start-position)]
-             [selected-text (send this get-text origin-start (send this get-end-position))])
-        (send this insert
-              (string-join (list open (if selected-text selected-text "") close) ""))
-        (send this set-position (+ 1 origin-start))))
+      (let* ([origin-start (get-start-position)]
+             [selected-text (get-text origin-start (get-end-position))])
+        (insert (string-join (list open (if selected-text selected-text "") close) ""))
+        (set-position (+ 1 origin-start))))
     (define/private (jump-to-definition pos)
       (let ([binding-range (hash-ref jumping-map pos #f)])
         (when binding-range
-          (send this set-position
-                (pos-range-start binding-range)
-                (pos-range-end binding-range)))))
+          (set-position
+           (pos-range-start binding-range)
+           (pos-range-end binding-range)))))
 
     (define/public (update-env)
       ;;; renew environment
@@ -138,42 +154,36 @@
       (set! jumping-map (make-hash))
       (set! all-occurs-map (make-hash))
       (set! open-document-map (make-hash))
+      (set! mouse-over-status-map (make-hash))
 
-      (let ([text (send this get-filename)])
+      (let ([text (get-filename)])
         ;;; TODO: show-content reports error via exception, catch and show
         (for ([e (show-content text)])
           (match e
-            [(vector syncheck:add-jump-to-definition start end id filename submods)
-             (send this set-clickback start end
-                   (λ (t start end)
-                     (displayln e)))]
             [(vector syncheck:add-docs-menu start end id label document-page _ _)
              (for ([pos (in-range start end)])
                (hash-set! open-document-map
-                          pos
-                          document-page))
-             ;;; TODO: open document
-             ]
-            [(vector syncheck:add-text-type start end id)
-             (displayln e)]
-            ;;; TODO: show message when mouse in range(start end)
+                          pos document-page))]
             [(vector syncheck:add-mouse-over-status start end message)
-             (displayln e)]
+             (for ([pos (in-range start end)])
+               (hash-set! mouse-over-status-map
+                          pos message))]
             [(vector syncheck:add-arrow/name-dup/pxpy
                      var-start var-end var-px var-py
                      occurs-start occurs-end occurs-px occurs-py
                      actual? phase-level require-arrow name-dup?)
-             (add-user-defined (send this get-text var-start var-end)
+             (add-user-defined (get-text var-start var-end)
                                occurs-start occurs-end
                                (pos-range var-start var-end))
-             (send this set-clickback occurs-start occurs-end
+             (set-clickback occurs-start occurs-end
                    (λ (t start end)
                      (jump-to-definition start)))]
-            [(vector syncheck:add-tail-arrow start end)
-             (void)]
+            [(vector syncheck:add-tail-arrow start end) (void)]
+            [(vector syncheck:add-text-type start end id) (void)]
             ; ignore
             [(vector syncheck:add-definition-target start end id style-name) (void)]
-            [else (displayln e)]))))
+            [(vector syncheck:add-jump-to-definition start end id filename submods) (void)]
+            [else (printf "else: ~a~n" e)]))))
 
     ;;; auto complete words
     (define/override (get-all-words)
@@ -182,8 +192,8 @@
                (hash-keys user-defined-complete))))
     ;;; get current sexp range
     (define/private (get-cur-sexp-range pos)
-      (let* ([start (send this get-backward-sexp (+ 1 pos))]
-             [end (send this get-forward-sexp start)])
+      (let* ([start (get-backward-sexp (+ 1 pos))]
+             [end (get-forward-sexp start)])
         (pos-range start end)))))
 
 (define (ide-main)
