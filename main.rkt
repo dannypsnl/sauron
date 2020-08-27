@@ -3,7 +3,8 @@
 (require framework
          racket/class)
 (require net/sendurl)
-(require drracket/check-syntax)
+(require drracket/check-syntax
+         drracket/private/tooltip)
 (require "meta.rkt"
          "pos-range.rkt")
 
@@ -30,15 +31,22 @@
            [latex-input? #f])
     (super-new)
 
+    (define tooltip (new tooltip-frame%))
+    (define tooltip-show? #f)
     ;;; mouse event
     (define/override (on-local-event e)
       (let* ([mouse-x (send e get-x)]
              [mouse-y (send e get-y)]
              [cur-pos (find-position mouse-x mouse-y)]
              [msg? (hash-ref mouse-over-status-map cur-pos #f)])
-        (when msg?
-          ; TODO: show tooltip
-          (void)))
+        (if msg?
+            (when (not tooltip-show?)
+              (set! tooltip-show? #t)
+              (send tooltip set-tooltip (list msg?))
+              (send tooltip show-over mouse-x mouse-y 10 10))
+            (begin
+              (set! tooltip-show? #f)
+              (send tooltip show #f))))
       (cond
         [else (super on-local-event e)]))
     ;;; keyboard event
@@ -161,11 +169,11 @@
         (for ([e (show-content text)])
           (match e
             [(vector syncheck:add-docs-menu start end id label document-page _ _)
-             (for ([pos (in-range start end)])
+             (for ([pos (in-range start (+ 1 end))])
                (hash-set! open-document-map
                           pos document-page))]
             [(vector syncheck:add-mouse-over-status start end message)
-             (for ([pos (in-range start end)])
+             (for ([pos (in-range start (+ 1 end))])
                (hash-set! mouse-over-status-map
                           pos message))]
             [(vector syncheck:add-arrow/name-dup/pxpy
@@ -176,8 +184,8 @@
                                occurs-start occurs-end
                                (pos-range var-start var-end))
              (set-clickback occurs-start occurs-end
-                   (λ (t start end)
-                     (jump-to-definition start)))]
+                            (λ (t start end)
+                              (jump-to-definition start)))]
             [(vector syncheck:add-tail-arrow start end) (void)]
             [(vector syncheck:add-text-type start end id) (void)]
             ; ignore
