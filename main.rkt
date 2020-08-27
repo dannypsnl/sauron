@@ -101,15 +101,15 @@
            [else (super on-char e)])]))
 
     ; new user defined
-    (define/private (add-user-defined id range-start range-end binding-start)
-      (hash-set! user-defined-complete id binding-start)
+    (define/private (add-user-defined id range-start range-end binding-range)
+      (hash-set! user-defined-complete id binding-range)
       (for ([pos (in-range range-start (+ 1 range-end))])
-        (hash-set! jumping-map pos binding-start))
+        (hash-set! jumping-map pos binding-range))
       ; binding backtracing occurs
       (define range (pos-range range-start range-end))
-      (if (not (hash-has-key? all-occurs-map binding-start))
-          (hash-set! all-occurs-map binding-start (list range))
-          (hash-update! all-occurs-map binding-start
+      (if (not (hash-has-key? all-occurs-map binding-range))
+          (hash-set! all-occurs-map binding-range (list range))
+          (hash-update! all-occurs-map binding-range
                         (λ (existed) (cons range existed)))))
 
     ;;; moving fundamental
@@ -120,9 +120,11 @@
               (string-join (list open (if selected-text selected-text "") close) ""))
         (send this set-position (+ 1 origin-start))))
     (define/private (jump-to-definition pos)
-      (let ([jump-to (hash-ref jumping-map pos #f)])
-        (when jump-to
-          (send this set-position jump-to))))
+      (let ([binding-range (hash-ref jumping-map pos #f)])
+        (when binding-range
+          (send this set-position
+                (pos-range-start binding-range)
+                (pos-range-end binding-range)))))
 
     (define/public (update-env)
       (set! user-defined-complete (make-hash))
@@ -151,7 +153,7 @@
                      actual? phase-level require-arrow name-dup?)
              (add-user-defined (send this get-text var-start var-end)
                                occurs-start occurs-end
-                               var-start)
+                               (pos-range var-start var-end))
              (send this set-clickback occurs-start occurs-end
                    (λ (t start end)
                      (jump-to-definition start)))]
