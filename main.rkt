@@ -196,9 +196,10 @@
              (set-clickback occurs-start occurs-end
                             (λ (t start end)
                               (jump-to-definition start)))]
-            [(vector syncheck:add-tail-arrow start end) (void)]
-            [(vector syncheck:add-text-type start end id) (void)]
+            ; unsure these are needed or not yet
+            [(vector syncheck:add-text-type start end id) (displayln e)]
             ; ignore
+            [(vector syncheck:add-tail-arrow start end) (void)]
             [(vector syncheck:add-definition-target start end id style-name) (void)]
             [(vector syncheck:add-jump-to-definition start end id filename submods) (void)]
             [else (printf "else: ~a~n" e)]))))
