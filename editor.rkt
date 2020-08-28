@@ -7,12 +7,13 @@
 (require net/sendurl)
 (require drracket/check-syntax
          drracket/private/tooltip)
-(require "meta.rkt"
+(require "common-editor.rkt"
+         "meta.rkt"
          "pos-range.rkt")
 
 (define editor%
   (class (text:line-numbers-mixin
-          racket:text%)
+          common:text%)
     (init repl)
     (define repl-inst repl)
 
@@ -30,8 +31,7 @@
            [jumping-map (make-hash)]
            [all-occurs-map (make-hash)]
            [open-document-map (make-hash)]
-           [mouse-over-status-map (make-hash)]
-           [latex-input? #f])
+           [mouse-over-status-map (make-hash)])
     (super-new)
 
     (define tooltip (new tooltip-frame%))
@@ -103,48 +103,14 @@
         [#\e #:when (send e get-meta-down)
              (send repl-inst reset)
              (send repl-inst run-file (get-filename))]
-        ;;; when receive `\`, prepare to typing LaTeX symbol
-        [#\\ (set! latex-input? #t) ; on
-             (super on-char e)]
-        [#\return (if latex-input?
-                      (let* ([end (get-start-position)]
-                             [start (get-backward-sexp end)]
-                             [to-complete (get-text start end)])
-                        ;;; select previous LaTeX text
-                        (set-position start end)
-                        ;;; replace it with new text
-                        (insert (hash-ref latex-complete (string-trim to-complete "\\" #:right? #f)
-                                          to-complete))
-                        ; off
-                        (set! latex-input? #f))
-                      (super on-char e))]
-        ;;; c+; for comment/uncomment
-        [#\; #:when (send e get-meta-down)
-             ; NOTE: get-start-position and get-end-position would have same value when no selected text
-             ; following code comment all lines of selected text(or automatically select cursor line)
-             (let* ([start-line (position-line (get-start-position))]
-                    [end-line (position-line (get-end-position))]
-                    [start (line-start-position start-line)]
-                    [end (line-end-position end-line)]
-                    [selected-text (get-text start end)])
-               (if (string-prefix? selected-text ";")
-                   (uncomment-selection start end)
-                   (comment-out-selection start end)))]
-        ;;; `(`/`[`/`{`/`"` auto wrap selected text
-        [#\( (auto-wrap-with "(" ")")]
-        [#\[ (auto-wrap-with "[" "]")]
-        [#\{ (auto-wrap-with "{" "}")]
-        [#\" (auto-wrap-with "\"" "\"")]
-        [key-code
-         (cond
-           [(not (or (send e get-meta-down)
-                     (send e get-control-down)
-                     (send e get-shift-down)
-                     (send e get-alt-down)
-                     (member key-code control-key-list)))
-            (super on-char e)
-            (auto-complete)]
-           [else (super on-char e)])]))
+        [key-code #:when (not (or (send e get-meta-down)
+                                  (send e get-control-down)
+                                  (send e get-shift-down)
+                                  (send e get-alt-down)
+                                  (member key-code control-key-list)))
+                  (super on-char e)
+                  (auto-complete)]
+        [else (super on-char e)]))
 
     ; new user defined
     (define/private (add-user-defined id range-start range-end binding-range)
@@ -159,11 +125,6 @@
                         (λ (existed) (cons range existed)))))
 
     ;;; moving fundamental
-    (define/private (auto-wrap-with open close)
-      (let* ([origin-start (get-start-position)]
-             [selected-text (get-text origin-start (get-end-position))])
-        (insert (string-join (list open (if selected-text selected-text "") close) ""))
-        (set-position (+ 1 origin-start))))
     (define/private (jump-to-definition pos)
       (let ([binding-range (hash-ref jumping-map pos #f)])
         (when binding-range
@@ -229,7 +190,8 @@
   (define editor-canvas (new editor-canvas%
                              [parent test-frame]
                              [style '(no-hscroll)]))
-  (define editor (new editor%))
+  (define editor (new editor%
+                      [repl #f]))
   (send editor-canvas set-editor editor)
 
   (send test-frame show #t))

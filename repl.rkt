@@ -8,10 +8,11 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 (provide repl-text%)
 
 (require framework)
+(require "common-editor.rkt")
 
 (define repl-text%
   ;;; TODO: should share some operations with code editor
-  (class racket:text%
+  (class common:text%
     (inherit insert last-position get-text erase)
     (define prompt-pos 0)
     (define locked? #f)
