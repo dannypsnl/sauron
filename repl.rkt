@@ -69,7 +69,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
 (module+ main
   (define test-frame (new frame%
-                          [label "sauron"]
+                          [label "REPL component"]
                           [width 1200]
                           [height 600]))
 
