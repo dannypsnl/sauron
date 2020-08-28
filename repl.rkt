@@ -11,8 +11,8 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 (require "common-editor.rkt")
 
 (define repl-text%
-  ;;; TODO: should share some operations with code editor
   (class common:text%
+    (super-new)
     (inherit insert get-text erase
              get-start-position last-position
              ; from common:text%
@@ -65,9 +65,6 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (set! prompt-pos 0)
       (erase)
       (new-prompt))
-    ;; initialize superclass-defined state:
-    (super-new)
-    ;; create the initial prompt:
     (new-prompt)))
 
 (define esq-eventspace (current-eventspace))

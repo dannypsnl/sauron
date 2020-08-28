@@ -15,8 +15,6 @@
   (define editor-canvas (new editor-canvas%
                              [parent ide]
                              [style '(no-hscroll)]))
-  ; The editor<%> interface defines the core editor functionality,
-  ; but editors are created as instances of text% or pasteboard%.
   (define repl (new repl-text%))
   (define editor (new editor%
                       [repl repl]))
