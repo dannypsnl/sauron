@@ -25,7 +25,9 @@
              uncomment-selection comment-out-selection
              get-filename
              set-clickback
-             auto-complete)
+             auto-complete
+             ; from common:text%
+             will-do-nothing-with)
 
     (field [user-defined-complete (make-hash)]
            [jumping-map (make-hash)]
@@ -103,11 +105,12 @@
         [#\e #:when (send e get-meta-down)
              (send repl-inst reset)
              (send repl-inst run-file (get-filename))]
-        [key-code #:when (not (or (send e get-meta-down)
+        [key-code #:when (and (not (or (send e get-meta-down)
                                   (send e get-control-down)
                                   (send e get-shift-down)
                                   (send e get-alt-down)
                                   (member key-code control-key-list)))
+                              (not (will-do-nothing-with key-code)))
                   (super on-char e)
                   (auto-complete)]
         [else (super on-char e)]))

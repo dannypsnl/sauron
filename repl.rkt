@@ -13,7 +13,10 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 (define repl-text%
   ;;; TODO: should share some operations with code editor
   (class common:text%
-    (inherit insert last-position get-text erase)
+    (inherit insert get-text erase
+             get-start-position last-position
+             ; from common:text%
+             will-do-nothing-with)
     (define prompt-pos 0)
     (define locked? #f)
     ;;; these two prevent users accidentally remove `> ` or typed commands
@@ -25,10 +28,11 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
         (and (>= start prompt-pos) (not locked?))))
     ;;; hajack special keys
     (define/override (on-char c)
-      (super on-char c)
       (match (send c get-key-code)
-        [#\return
-         (when (not locked?)
+        [#\return #:when (will-do-nothing-with #\return)
+         (super on-char c)
+         (when (and (>= (get-start-position) (last-position))
+                    (not locked?))
            (set! locked? #t)
            (define result
              (with-handlers ([(λ (e) #t)
@@ -37,7 +41,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                (eval (read (open-input-string (get-text prompt-pos (last-position)))))))
            (output (format "~a~n" result))
            (new-prompt))]
-        [else (void)]))
+        [else (super on-char c)]))
     ;; methods
     (define/public (new-prompt)
       (queue-output (lambda ()

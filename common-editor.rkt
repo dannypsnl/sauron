@@ -16,6 +16,12 @@
              auto-complete)
     (field [latex-input? #f])
 
+    (define/public (will-do-nothing-with key-code)
+      (match key-code
+        [#\return
+         (displayln (not latex-input?))
+         (not latex-input?)]
+        [else #f]))
     (define/override (on-char e)
       (match (send e get-key-code)
         ;;; when receive `\`, prepare to typing LaTeX symbol
