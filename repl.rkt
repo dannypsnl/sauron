@@ -31,7 +31,10 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          (when (not locked?)
            (set! locked? #t)
            (define result
-             (eval (read (open-input-string (get-text prompt-pos (last-position))))))
+             (with-handlers ([(λ (e) #t)
+                              ; catch any error and return it as result
+                              (λ (e) e)])
+               (eval (read (open-input-string (get-text prompt-pos (last-position)))))))
            (output (format "~a~n" result))
            (new-prompt))]
         [else (void)]))
