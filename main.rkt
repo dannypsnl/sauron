@@ -6,7 +6,8 @@
 (require drracket/check-syntax
          drracket/private/tooltip)
 (require "meta.rkt"
-         "pos-range.rkt")
+         "pos-range.rkt"
+         "repl.rkt")
 
 (module+ main
   (ide-main))
@@ -14,6 +15,9 @@
 (define editor%
   (class (text:line-numbers-mixin
           racket:text%)
+    (init repl)
+    (define repl-inst repl)
+
     (inherit find-position get-start-position get-end-position
              get-text set-position insert
              get-backward-sexp get-forward-sexp
@@ -98,6 +102,9 @@
                  (send-url/file document-path?)))]
         [#\b #:when (send e get-meta-down)
              (jump-to-definition (get-start-position))]
+        [#\e #:when (send e get-meta-down)
+             (send repl-inst reset)
+             (send repl-inst run-file (get-filename))]
         ;;; when receive `\`, prepare to typing LaTeX symbol
         [#\\ (set! latex-input? #t) ; on
              (super on-char e)]
@@ -221,14 +228,15 @@
                    [width 1200]
                    [height 600]))
 
-  (define editor (new editor-canvas%
-                      [parent ide]
-                      [style '(no-hscroll)]))
+  (define editor-canvas (new editor-canvas%
+                             [parent ide]
+                             [style '(no-hscroll)]))
   ; The editor<%> interface defines the core editor functionality,
   ; but editors are created as instances of text% or pasteboard%.
-  (define text (new editor%))
-
-  (send text show-line-numbers! #t)
+  (define repl (new repl-text%))
+  (define editor (new editor%
+                      [repl repl]))
+  (send editor show-line-numbers! #t)
 
   (define m-bar (new menu-bar% [parent ide]))
   (let ([m-file (new menu% [label "File"] [parent m-bar])])
@@ -239,7 +247,7 @@
           (λ (i e)
             (define path (get-file #f ide))
             (when path
-              (send text load-file path 'text)))]
+              (send editor load-file path 'text)))]
          [shortcut #\o]
          [shortcut-prefix (get-default-shortcut-prefix)])
     (new menu-item%
@@ -247,7 +255,7 @@
          [parent m-file]
          [callback
           (λ (i e)
-            (send* text
+            (send* editor
               ; reindent all expressions before save to file
               (tabify-all)
               (save-file #f 'text)
@@ -259,10 +267,16 @@
 
   (append-editor-operation-menu-items
    (new menu% [label "Edit"] [parent m-bar]) #f)
-  (send editor set-editor text)
+  (send editor-canvas set-editor editor)
 
-  (pre-insert-text text)
-  (send text set-max-undo-history 100)
+  (pre-insert-text editor)
+  (send editor set-max-undo-history 100)
+
+  ;;; REPL canvas
+  (define repl-canvas (new editor-canvas%
+                           [parent ide]
+                           [style '(no-hscroll)]))
+  (send repl-canvas set-editor repl)
 
   (send ide show #t))
 
