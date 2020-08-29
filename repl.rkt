@@ -65,8 +65,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (erase)
       (new-prompt))
     ;;; initialize
-    (new-prompt)
-    (run-file (string->path "/Users/dannypsnl/racket.tw/sauron/developing/testing.rkt"))))
+    (new-prompt)))
 
 (define esq-eventspace (current-eventspace))
 (define (queue-output proc)
@@ -84,5 +83,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                            [style '(no-hscroll)]))
   (define repl (new repl-text%))
   (send repl-canvas set-editor repl)
+
+  (send repl run-file (string->path "/Users/dannypsnl/racket.tw/sauron/developing/testing.rkt"))
 
   (send test-frame show #t))
