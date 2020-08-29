@@ -195,39 +195,7 @@
   (define editor-canvas (new editor-canvas%
                              [parent test-frame]
                              [style '(no-hscroll)]))
-  (define repl (new repl-text%))
-  (define editor (new editor%
-                      [repl repl]))
+  (define editor (new editor% [repl #f]))
   (send editor-canvas set-editor editor)
-
-  (define repl-canvas (new editor-canvas%
-                           [parent test-frame]
-                           [style '(no-hscroll)]))
-  (send repl-canvas set-editor repl)
-
-  (define m-bar (new menu-bar% [parent test-frame]))
-  (let ([m-file (new menu% [label "File"] [parent m-bar])])
-    (new menu-item%
-         [label "Open"]
-         [parent m-file]
-         [callback
-          (λ (i e)
-            (define path (get-file #f test-frame))
-            (when path
-              (send editor load-file path 'text)))]
-         [shortcut #\o]
-         [shortcut-prefix (get-default-shortcut-prefix)])
-    (new menu-item%
-         [label "Save"]
-         [parent m-file]
-         [callback
-          (λ (i e)
-            (send* editor
-              (tabify-all)
-              (save-file #f 'text)
-              (update-env)))]
-         [shortcut #\s]
-         [shortcut-prefix (get-default-shortcut-prefix)])
-    (void))
 
   (send test-frame show #t))
