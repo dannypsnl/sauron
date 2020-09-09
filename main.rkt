@@ -7,10 +7,12 @@
   (ide-main))
 
 (define (ide-main)
-  (define ide (new frame%
+  (define ide-frame (new frame%
                    [label "sauron"]
                    [width 1200]
                    [height 600]))
+  (define ide (new horizontal-panel%
+                   [parent ide-frame]))
 
   (define editor-canvas (new editor-canvas%
                              [parent ide]
@@ -20,14 +22,14 @@
   (define editor (new editor%))
   (send editor show-line-numbers! #t)
 
-  (define m-bar (new menu-bar% [parent ide]))
-  (let ([m-file (new menu% [label "File"] [parent m-bar])])
+  (define menu-bar (new menu-bar% [parent ide-frame]))
+  (let ([m-file (new menu% [label "File"] [parent menu-bar])])
     (new menu-item%
          [label "Open"]
          [parent m-file]
          [callback
           (λ (i e)
-            (define path (get-file #f ide))
+            (define path (get-file #f ide-frame))
             (when path
               (send editor load-file path 'text)))]
          [shortcut #\o]
@@ -46,7 +48,7 @@
          [shortcut #\s]
          [shortcut-prefix (get-default-shortcut-prefix)])
     (void))
-  (let ([m-program (new menu% [label "Program"] [parent m-bar])])
+  (let ([m-program (new menu% [label "Program"] [parent menu-bar])])
     (new menu-item%
          [label "Run"]
          [parent m-program]
@@ -56,7 +58,7 @@
     (void))
 
   (append-editor-operation-menu-items
-   (new menu% [label "Edit"] [parent m-bar]) #f)
+   (new menu% [label "Edit"] [parent menu-bar]) #f)
   (send editor-canvas set-editor editor)
 
   (pre-insert-text editor)
@@ -68,7 +70,7 @@
                            [style '(no-hscroll)]))
   (send repl-canvas set-editor repl)
 
-  (send ide show #t))
+  (send ide-frame show #t))
 
 (define (pre-insert-text text)
   (define pre-inserted #<<EOS
