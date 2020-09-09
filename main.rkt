@@ -15,9 +15,9 @@
   (define editor-canvas (new editor-canvas%
                              [parent ide]
                              [style '(no-hscroll)]))
+
   (define repl (new repl-text%))
-  (define editor (new editor%
-                      [repl repl]))
+  (define editor (new editor%))
   (send editor show-line-numbers! #t)
 
   (define m-bar (new menu-bar% [parent ide]))
@@ -44,6 +44,14 @@
               ; enforce renew cached environment
               (update-env)))]
          [shortcut #\s]
+         [shortcut-prefix (get-default-shortcut-prefix)])
+    (void))
+  (let ([m-program (new menu% [label "Program"] [parent m-bar])])
+    (new menu-item%
+         [label "Run"]
+         [parent m-program]
+         [callback (λ (i e) (send repl run-module (send editor get-text)))]
+         [shortcut #\e]
          [shortcut-prefix (get-default-shortcut-prefix)])
     (void))
 

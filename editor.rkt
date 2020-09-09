@@ -14,9 +14,6 @@
 (define editor%
   (class (text:line-numbers-mixin
           common:text%)
-    (init repl)
-    (define repl-inst repl)
-
     (inherit find-position get-start-position get-end-position
              get-text set-position insert
              get-backward-sexp get-forward-sexp
@@ -102,9 +99,6 @@
                  (send-url/file document-path?)))]
         [#\b #:when (send e get-meta-down)
              (jump-to-definition (get-start-position))]
-        [#\e #:when (send e get-meta-down)
-             (send repl-inst reset)
-             (send repl-inst run-file (get-filename))]
         [key-code #:when (and (not (or (send e get-meta-down)
                                        (send e get-control-down)
                                        (send e get-shift-down)
@@ -185,8 +179,6 @@
         (pos-range start end)))))
 
 (module+ main
-  (require "repl.rkt")
-
   (define test-frame (new frame%
                           [label "Code Editor component"]
                           [width 1200]
@@ -195,7 +187,7 @@
   (define editor-canvas (new editor-canvas%
                              [parent test-frame]
                              [style '(no-hscroll)]))
-  (define editor (new editor% [repl #f]))
+  (define editor (new editor%))
   (send editor-canvas set-editor editor)
 
   (send test-frame show #t))
