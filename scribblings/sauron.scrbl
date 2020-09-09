@@ -16,6 +16,8 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   ;;; file
   @item{c+o open file}
   @item{c+s save file(would auto indent code)}
+  ;;; program
+  @item{c+e run REPL}
   ;;; edit
   @item{c+a select all}
   @item{c+c copy}
