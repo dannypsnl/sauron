@@ -6,7 +6,8 @@
 (require "meta.rkt")
 
 (define common:text%
-  (class racket:text%
+  (class (text:searching-mixin
+          racket:text%)
     (super-new)
     (inherit get-start-position get-end-position
              get-text set-position insert
@@ -22,6 +23,9 @@
         [else #f]))
     (define/override (on-char e)
       (match (send e get-key-code)
+        [#\f #:when (send e get-meta-down)
+             (send this set-searching-state "test" #f #f #t)
+             (send this finish-pending-search-work)]
         ;;; when receive `\`, prepare to typing LaTeX symbol
         [#\\ (set! latex-input? #t) ; on
              (super on-char e)]
