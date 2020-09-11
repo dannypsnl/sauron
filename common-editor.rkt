@@ -24,7 +24,11 @@
     (define/override (on-char e)
       (match (send e get-key-code)
         [#\f #:when (send e get-meta-down)
-             (send this set-searching-state "test" #f #f #t)
+             (define search-target (get-text-from-user "search"
+                                                       "text"
+                                                       ; parent
+                                                       #f))
+             (send this set-searching-state search-target #f #f #t)
              (send this finish-pending-search-work)]
         ;;; when receive `\`, prepare to typing LaTeX symbol
         [#\\ (set! latex-input? #t) ; on
