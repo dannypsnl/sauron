@@ -8,19 +8,26 @@
 
 (define (ide-main)
   (define ide-frame (new frame%
-                   [label "sauron"]
-                   [width 1200]
-                   [height 600]))
+                         [label "sauron"]
+                         [width 1200]
+                         [height 600]))
   (define ide (new horizontal-panel%
                    [parent ide-frame]))
 
+  ;;; Editor canvas
   (define editor-canvas (new editor-canvas%
                              [parent ide]
                              [style '(no-hscroll)]))
-
-  (define repl (new repl-text%))
   (define editor (new editor%))
   (send editor show-line-numbers! #t)
+  (send editor-canvas set-editor editor)
+
+  ;;; REPL canvas
+  (define repl-canvas (new editor-canvas%
+                           [parent ide]
+                           [style '(no-hscroll)]))
+  (define repl (new repl-text%))
+  (send repl-canvas set-editor repl)
 
   (define menu-bar (new menu-bar% [parent ide-frame]))
   (let ([m-file (new menu% [label "File"] [parent menu-bar])])
@@ -56,19 +63,11 @@
          [shortcut #\e]
          [shortcut-prefix (get-default-shortcut-prefix)])
     (void))
-
   (append-editor-operation-menu-items
    (new menu% [label "Edit"] [parent menu-bar]) #f)
-  (send editor-canvas set-editor editor)
 
   (pre-insert-text editor)
   (send editor set-max-undo-history 100)
-
-  ;;; REPL canvas
-  (define repl-canvas (new editor-canvas%
-                           [parent ide]
-                           [style '(no-hscroll)]))
-  (send repl-canvas set-editor repl)
 
   (send ide-frame show #t))
 
