@@ -15,8 +15,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
   (class common:text%
     (super-new)
     (inherit insert get-text erase
-             get-start-position last-position
-             change-style
+             get-start-position last-position set-position
              ; from common:text%
              will-do-nothing-with)
     (define prompt-pos 0)
@@ -31,21 +30,24 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
         (and (>= start prompt-pos) (not locked?))))
     ;;; hajack special keys
     (define/override (on-char c)
-      (if (>= (get-start-position) (last-position))
-          (match (send c get-key-code)
-            [#\return #:when (will-do-nothing-with #\return)
-                      (super on-char c)
-                      (when (not locked?)
-                        (set! locked? #t)
-                        (with-handlers ([(λ (e) #t)
-                                         (λ (e) (output (exn-message e)))])
-                          (define result (repl-eval (read (open-input-string (get-text prompt-pos (last-position))))))
-                          (if (member result (list (void) eof))
-                              (void)
-                              (output result)))
-                        (new-prompt))]
-            [else (super on-char c)])
-          (super on-char c)))
+      (match (send c get-key-code)
+        [#\return #:when (and (>= (get-start-position) (last-position))
+                              (will-do-nothing-with #\return))
+                  (super on-char c)
+                  (when (not locked?)
+                    (set! locked? #t)
+                    (with-handlers ([(λ (e) #t)
+                                     (λ (e) (output (exn-message e)))])
+                      (define result (repl-eval (read (open-input-string (get-text prompt-pos (last-position))))))
+                      (if (member result (list (void) eof))
+                          (void)
+                          (output (format "~a" result))))
+                    (new-prompt))]
+        ['left (super on-char c)
+               (let ([new-pos (get-start-position)])
+                 (when (< new-pos prompt-pos)
+                   (set-position prompt-pos)))]
+        [else (super on-char c)]))
     ;; methods
     (define/public (run-module module-str)
       (reset)
