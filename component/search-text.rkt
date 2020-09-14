@@ -4,7 +4,7 @@
          "../meta.rkt")
 
 (define searcher%
-  (class common:text%
+  (class latex:text%
     (super-new)
     (inherit
       get-text
@@ -34,7 +34,6 @@
         [else (super on-char e)]))
 
     (define/private (set-pos f)
-      (displayln cur-search?)
       (when cur-search?
         (when (< cur-search? 0)
           (set! cur-search? (- (length search-result*) 1)))
@@ -73,7 +72,7 @@
                                [parent searcher-panel]
                                [style '(hide-hscroll hide-vscroll )]
                                [min-width 150]
-                               [min-height 10]))
+                               [min-height 30]))
   (define searcher (new searcher%
                         [search-on test-editor]))
   (send searcher-canvas set-editor searcher)

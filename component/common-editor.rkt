@@ -1,22 +1,18 @@
 #lang racket/gui
 
-(provide common:text%)
+(provide latex:text%
+         common:text%)
 
 (require framework)
 (require "../meta.rkt")
 
-(define common:text%
-  (class (text:searching-mixin
-          racket:text%)
+(define latex:text%
+  (class racket:text%
     (super-new)
-    (inherit get-start-position get-end-position
-             get-text set-position insert
-             get-backward-sexp
-             position-line line-start-position line-end-position
-             uncomment-selection comment-out-selection
-             auto-complete)
-    (field [latex-input? #f])
+    (inherit get-start-position get-backward-sexp get-text
+             set-position insert)
 
+    (define latex-input? #f)
     (define/public (will-do-nothing-with key-code)
       (match key-code
         [#\return (not latex-input?)]
@@ -38,6 +34,21 @@
                         ; off
                         (set! latex-input? #f))
                       (super on-char e))]
+        [else (super on-char e)]))))
+
+(define common:text%
+  (class (text:searching-mixin
+          latex:text%)
+    (super-new)
+    (inherit get-start-position get-end-position
+             get-text set-position insert
+             get-backward-sexp
+             position-line line-start-position line-end-position
+             uncomment-selection comment-out-selection
+             auto-complete)
+
+    (define/override (on-char e)
+      (match (send e get-key-code)
         ;;; c+; for comment/uncomment
         [#\; #:when (send e get-meta-down)
              ; NOTE: get-start-position and get-end-position would have same value when no selected text
