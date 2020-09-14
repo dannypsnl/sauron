@@ -1,6 +1,8 @@
 #lang racket/gui
 
-(require "common-editor.rkt"
+(provide new-searcher)
+
+(require "latex-text.rkt"
          "../meta.rkt")
 
 (define (new-searcher editor)
@@ -50,14 +52,14 @@
 
     (define/private (set-pos f)
       (when cur-search?
-        (when (< cur-search? 0)
-          (set! cur-search? (- (length search-result*) 1)))
-        (when (>= cur-search? (length search-result*))
-          (set! cur-search? 0))
         (send search-on set-position (list-ref search-result* cur-search?)
               (+ (string-length (get-text))
                  (list-ref search-result* cur-search?)))
-        (set! cur-search? (f cur-search?))))
+        (set! cur-search? (f cur-search?))
+        (when (< cur-search? 0)
+          (set! cur-search? (- (length search-result*) 1)))
+        (when (>= cur-search? (length search-result*))
+          (set! cur-search? 0))))
     (define/private (search search-target)
       (send* search-on
         [set-searching-state search-target #f #f #t]
@@ -69,13 +71,16 @@
       (set! cur-search? (if (= 0 (length search-result*)) #f 0)))))
 
 (module+ main
+  (require framework)
+
   (define test-frame (new frame%
                           [label "editor"]
                           [width 600]
                           [height 600]))
   (define editor-canvas (new editor-canvas%
                              [parent test-frame]))
-  (define test-editor (new common:text%))
+  (define test-editor (new (text:searching-mixin
+                            latex:text%)))
   (send test-editor insert "aaa bbb aaa ccc bbb aaa dddddd bbbbbbcccccaabbbcccccaa aaaadddddd")
   (send editor-canvas set-editor test-editor)
 
