@@ -78,12 +78,5 @@
                         [search-on test-editor]))
   (send searcher-canvas set-editor searcher)
 
-  (define previous-btn (new button%
-                            [parent searcher-panel]
-                            [label "prev"]))
-  (define next-btn (new button%
-                        [parent searcher-panel]
-                        [label "next"]))
-
   (send test-frame show #t)
   (send searcher-frame show #t))
