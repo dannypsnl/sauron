@@ -15,10 +15,10 @@
     (define/override (on-char e)
       (match (send e get-key-code)
         [#\return #:when (will-do-nothing-with #\return)
+                  ; TODO: move cursor to next/prev occurs
                   (if (send e get-shift-down)
-                      (displayln 'shift-down)
-                      (displayln 'enter))
-                  ]
+                      (void)
+                      (void))]
         [#\backspace (super on-char e)
                      (when (not (= (string-length (get-text)) 0))
                        (search (get-text)))]
