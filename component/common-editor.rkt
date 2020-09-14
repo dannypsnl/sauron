@@ -2,11 +2,13 @@
 
 (provide common:text%)
 
-(require framework)
-(require "meta.rkt")
+(require framework
+         "latex-text.rkt"
+         "search-text.rkt")
 
 (define common:text%
-  (class racket:text%
+  (class (text:searching-mixin
+          latex:text%)
     (super-new)
     (inherit get-start-position get-end-position
              get-text set-position insert
@@ -14,29 +16,13 @@
              position-line line-start-position line-end-position
              uncomment-selection comment-out-selection
              auto-complete)
-    (field [latex-input? #f])
 
-    (define/public (will-do-nothing-with key-code)
-      (match key-code
-        [#\return (not latex-input?)]
-        [else #f]))
     (define/override (on-char e)
       (match (send e get-key-code)
-        ;;; when receive `\`, prepare to typing LaTeX symbol
-        [#\\ (set! latex-input? #t) ; on
-             (super on-char e)]
-        [#\return (if latex-input?
-                      (let* ([end (get-start-position)]
-                             [start (get-backward-sexp end)]
-                             [to-complete (get-text start end)])
-                        ;;; select previous LaTeX text
-                        (set-position start end)
-                        ;;; replace it with new text
-                        (insert (hash-ref latex-complete (string-trim to-complete "\\" #:right? #f)
-                                          to-complete))
-                        ; off
-                        (set! latex-input? #f))
-                      (super on-char e))]
+        ;;; c+f search text
+        [#\f #:when (send e get-meta-down)
+             (define searcher (new-searcher this))
+             (send searcher show #t)]
         ;;; c+; for comment/uncomment
         [#\; #:when (send e get-meta-down)
              ; NOTE: get-start-position and get-end-position would have same value when no selected text
