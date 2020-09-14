@@ -1,5 +1,6 @@
 #lang racket/gui
 
+(require framework)
 (require "repl.rkt"
          "editor.rkt")
 
@@ -11,7 +12,7 @@
                          [label "sauron"]
                          [width 1200]
                          [height 600]))
-  (define ide (new horizontal-panel%
+  (define ide (new panel:horizontal-dragable%
                    [parent ide-frame]))
 
   ;;; Editor canvas
