@@ -3,7 +3,7 @@
 (provide common:text%)
 
 (require framework)
-(require "meta.rkt")
+(require "../meta.rkt")
 
 (define common:text%
   (class (text:searching-mixin
@@ -23,13 +23,6 @@
         [else #f]))
     (define/override (on-char e)
       (match (send e get-key-code)
-        [#\f #:when (send e get-meta-down)
-             (define search-target (get-text-from-user "search"
-                                                       "text"
-                                                       ; parent
-                                                       #f))
-             (send this set-searching-state search-target #f #f #t)
-             (send this finish-pending-search-work)]
         ;;; when receive `\`, prepare to typing LaTeX symbol
         [#\\ (set! latex-input? #t) ; on
              (super on-char e)]

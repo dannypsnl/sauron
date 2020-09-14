@@ -9,7 +9,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
 (require framework)
 (require racket/sandbox)
-(require "common-editor.rkt")
+(require "component/common-editor.rkt")
 
 (define repl-text%
   (class common:text%
