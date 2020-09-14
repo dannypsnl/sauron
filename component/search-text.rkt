@@ -3,6 +3,21 @@
 (require "common-editor.rkt"
          "../meta.rkt")
 
+(define (new-searcher editor)
+  (define searcher-frame (new frame%
+                              [label "searcher"]))
+  (define searcher-panel (new horizontal-pane%
+                              [parent searcher-frame]))
+  (define searcher-canvas (new editor-canvas%
+                               [parent searcher-panel]
+                               [style '(hide-hscroll hide-vscroll )]
+                               [min-width 150]
+                               [min-height 30]))
+  (define searcher (new searcher%
+                        [search-on editor]))
+  (send searcher-canvas set-editor searcher)
+  searcher-frame)
+
 (define searcher%
   (class latex:text%
     (super-new)
@@ -64,18 +79,7 @@
   (send test-editor insert "aaa bbb aaa ccc bbb aaa dddddd bbbbbbcccccaabbbcccccaa aaaadddddd")
   (send editor-canvas set-editor test-editor)
 
-  (define searcher-frame (new frame%
-                              [label "searcher"]))
-  (define searcher-panel (new horizontal-pane%
-                              [parent searcher-frame]))
-  (define searcher-canvas (new editor-canvas%
-                               [parent searcher-panel]
-                               [style '(hide-hscroll hide-vscroll )]
-                               [min-width 150]
-                               [min-height 30]))
-  (define searcher (new searcher%
-                        [search-on test-editor]))
-  (send searcher-canvas set-editor searcher)
+  (define searcher-frame (new-searcher test-editor))
 
   (send test-frame show #t)
   (send searcher-frame show #t))
