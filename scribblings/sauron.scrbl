@@ -37,6 +37,7 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   ;;; comment/uncomment
   @item{c+; comment selected text or line if uncommented, uncomment if commented}
   ;;; misc
+  @item{c+f open text searcher}
   @item|{(/[/{/" when has selected text, wrap selected text automatically}|)
 
 @section{Auto complete}
