@@ -20,8 +20,9 @@
                       (void)
                       (void))]
         [#\backspace (super on-char e)
-                     (when (not (= (string-length (get-text)) 0))
-                       (search (get-text)))]
+                     (if (not (= (string-length (get-text)) 0))
+                       (search (get-text))
+                       (search #f))]
         [key-code #:when (not (member key-code control-key-list))
                   (super on-char e)
                   ; NOTE:
