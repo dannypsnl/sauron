@@ -28,3 +28,11 @@ In a PR, make sure you:
   1. related to key binding
   2. create a new window
   3. changing behavior
+
+### Release Standard
+
+1. create release branch
+2. bump up `info.rkt` version
+3. create PR with title `[release] vx.y.z`
+4. squash merge
+5. create new release
