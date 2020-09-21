@@ -22,12 +22,16 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define locked? #f)
     (define repl-eval #f)
 
+    (define user-eventspace
+      (parameterize ([current-custodian (make-custodian)]
+                     [current-namespace (make-gui-namespace)])
+        (make-eventspace)))
     (define user-output-port (make-output-port
                               'eqs
-                              never-evt
+                              always-evt
                               ;; string printer:
                               (lambda (bstr start end buffer? enable-break?)
-                                (output (bytes->string/utf-8 bstr #\? start end))
+                                (output (bytes->string/utf-8 bstr))
                                 (- end start))
                               ;; closer:
                               (lambda () 'nothing-to-close)))
@@ -46,13 +50,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                   (super on-char c)
                   (when (not locked?)
                     (set! locked? #t)
-                    (with-handlers ([(λ (e) #t)
-                                     (λ (e) (output (exn-message e)))])
-                      (define result (repl-eval (read (open-input-string (get-text prompt-pos (last-position))))))
-                      (if (member result (list (void) eof))
-                          (void)
-                          (output (format "~a" result))))
-                    (new-prompt))]
+                    (evaluate (read (open-input-string (get-text prompt-pos (last-position))))))]
         ['left (super on-char c)
                (let ([new-pos (get-start-position)])
                  (when (< new-pos prompt-pos)
@@ -62,12 +60,25 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define/public (run-module module-str)
       (reset)
       (set! repl-eval
-            (parameterize ([sandbox-output user-output-port]
-                           [sandbox-error-output user-output-port]
-                           [current-namespace (make-empty-namespace)])
-              (make-module-evaluator module-str)))
+            (with-handlers ([(λ (e) #t)
+                             (λ (e) (output (exn-message e)))])
+              (parameterize ([sandbox-output user-output-port]
+                             [sandbox-error-output user-output-port]
+                             [current-eventspace user-eventspace])
+                (make-module-evaluator module-str))))
       (new-prompt))
     ; util
+    (define/private (evaluate str)
+      (queue-output
+       (λ ()
+         (current-output-port user-output-port)
+         (with-handlers ([(λ (e) #t)
+                          (λ (e) (display (exn-message e)))])
+           (define result (repl-eval str))
+           (cond
+             [(void? result) (void)]
+             [else (print result)]))
+         (new-prompt))))
     (define/public (new-prompt)
       (queue-output (lambda ()
                       (set! locked? #f)
