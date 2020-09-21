@@ -18,6 +18,7 @@
   ;;; Editor canvas
   (define editor-canvas (new editor-canvas%
                              [parent ide]
+                             [min-width 800]
                              [style '(no-hscroll)]))
   (define editor (new editor%))
   (send editor show-line-numbers! #t)
