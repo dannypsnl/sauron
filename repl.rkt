@@ -21,6 +21,16 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define prompt-pos 0)
     (define locked? #f)
     (define repl-eval #f)
+
+    (define user-output-port (make-output-port
+                              'eqs
+                              never-evt
+                              ;; string printer:
+                              (lambda (bstr start end buffer? enable-break?)
+                                (output (bytes->string/utf-8 bstr #\? start end))
+                                (- end start))
+                              ;; closer:
+                              (lambda () 'nothing-to-close)))
     ;;; these two prevent users accidentally remove `> ` or typed commands
     (define/augment can-insert?
       (lambda (start len)
@@ -52,10 +62,12 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define/public (run-module module-str)
       (reset)
       (set! repl-eval
-            (with-handlers ([(λ (e) #t)
-                             (λ (e) (output (exn-message e)))])
+            (parameterize ([sandbox-output user-output-port]
+                           [sandbox-error-output user-output-port]
+                           [current-namespace (make-empty-namespace)])
               (make-module-evaluator module-str)))
       (new-prompt))
+    ; util
     (define/public (new-prompt)
       (queue-output (lambda ()
                       (set! locked? #f)
