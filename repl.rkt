@@ -21,6 +21,20 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define prompt-pos 0)
     (define locked? #f)
     (define repl-eval #f)
+
+    (define user-eventspace
+      (parameterize ([current-custodian (make-custodian)]
+                     [current-namespace (make-gui-namespace)])
+        (make-eventspace)))
+    (define user-output-port (make-output-port
+                              'eqs
+                              always-evt
+                              ;; string printer:
+                              (lambda (bstr start end buffer? enable-break?)
+                                (output (bytes->string/utf-8 bstr))
+                                (- end start))
+                              ;; closer:
+                              (lambda () 'nothing-to-close)))
     ;;; these two prevent users accidentally remove `> ` or typed commands
     (define/augment can-insert?
       (lambda (start len)
@@ -36,13 +50,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                   (super on-char c)
                   (when (not locked?)
                     (set! locked? #t)
-                    (with-handlers ([(λ (e) #t)
-                                     (λ (e) (output (exn-message e)))])
-                      (define result (repl-eval (read (open-input-string (get-text prompt-pos (last-position))))))
-                      (if (member result (list (void) eof))
-                          (void)
-                          (output (format "~a" result))))
-                    (new-prompt))]
+                    (evaluate (read (open-input-string (get-text prompt-pos (last-position))))))]
         ['left (super on-char c)
                (let ([new-pos (get-start-position)])
                  (when (< new-pos prompt-pos)
@@ -54,8 +62,22 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (set! repl-eval
             (with-handlers ([(λ (e) #t)
                              (λ (e) (output (exn-message e)))])
-              (make-module-evaluator module-str)))
+              (parameterize ([sandbox-output user-output-port]
+                             [current-eventspace user-eventspace])
+                (make-module-evaluator module-str))))
       (new-prompt))
+    ; util
+    (define/private (evaluate str)
+      (queue-output
+       (λ ()
+         (current-output-port user-output-port)
+         (with-handlers ([(λ (e) #t)
+                          (λ (e) (displayln (exn-message e)))])
+           (define result (repl-eval str))
+           (cond
+             [(void? result) (void)]
+             [else (println result)]))
+         (new-prompt))))
     (define/public (new-prompt)
       (queue-output (lambda ()
                       (set! locked? #f)
@@ -66,7 +88,6 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                       (let ((was-locked? locked?))
                         (set! locked? #f)
                         (insert text)
-                        (insert "\n")
                         (set! locked? was-locked?)))))
     (define/public (reset)
       (set! locked? #f)
