@@ -103,7 +103,9 @@
                                        (send e get-control-down)
                                        (send e get-shift-down)
                                        (send e get-alt-down)
-                                       (member key-code control-key-list)))
+                                       (member key-code control-key-list)
+                                       (member key-code '(#\( #\) #\[ #\] #\{ #\} #\" #\, #\' #\` #\; #\# #\| #\\
+                                                              #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\0))))
                               (not (will-do-nothing-with key-code)))
                   (super on-char e)
                   (auto-complete)]
