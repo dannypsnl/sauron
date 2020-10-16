@@ -1,6 +1,12 @@
 name: Racket
 
-on: [push, pull_request]
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
 
 jobs:
   test:
