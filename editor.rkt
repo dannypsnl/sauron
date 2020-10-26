@@ -78,10 +78,10 @@
                (let* ([jump-to? (hash-ref jumping-map cur-pos #f)]
                       [occur* (if jump-to?
                                   ; is an occur
-                                  (cons (get-cur-sexp-range jump-to?)
+                                  (cons (get-cur-sexp-range (pos-range-start jump-to?))
                                         (hash-ref all-occurs-map jump-to?))
                                   ; is a binding
-                                  (let ([occur*? (hash-ref all-occurs-map (pos-range-start cur-sexp-range) #f)])
+                                  (let ([occur*? (hash-ref all-occurs-map cur-sexp-range #f)])
                                     (if occur*?
                                         (cons cur-sexp-range
                                               occur*?)
