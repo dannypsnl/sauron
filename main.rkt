@@ -24,12 +24,25 @@
   (send editor show-line-numbers! #t)
   (send editor-canvas set-editor editor)
 
-  ;;; REPL canvas
+  ;;; Right Panel
+  (define right-panel (new panel:horizontal-dragable%
+                           [parent ide]))
+  ; REPL canvas
   (define repl-canvas (new editor-canvas%
-                           [parent ide]
+                           [parent right-panel]
                            [style '(no-hscroll)]))
   (define repl (new repl-text%))
   (send repl-canvas set-editor repl)
+  ; REPL button
+  (define button-panel (new panel:vertical-dragable%
+                            [parent right-panel]))
+  (define repl-show? #t)
+  (define repl-button (new button%
+                           [label "REPL"]
+                           [parent button-panel]
+                           [callback (λ (b e)
+                                       (send repl-canvas show (not repl-show?))
+                                       (set! repl-show? (not repl-show?)))]))
 
   (define menu-bar (new menu-bar% [parent ide-frame]))
   (let ([m-file (new menu% [label "File"] [parent menu-bar])])
