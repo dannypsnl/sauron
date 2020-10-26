@@ -4,11 +4,9 @@ on:
   schedule:
     - cron: "0 9 * * *"
   push:
-    branches:
-    - '*'
+    branches: [ develop ]
   pull_request:
-    branches:
-    - '*'
+    branches: [ develop ]
 
 jobs:
   test:
