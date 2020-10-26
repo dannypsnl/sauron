@@ -21,6 +21,6 @@ racket -l sauron
 ```sh
 # start IDE
 racket main.rkt
-# deploy document, ref: http://www.greghendershott.com/2014/06/does-your-racket-project-need-a-makefile.html
+# publish document
 make publish
 ```
