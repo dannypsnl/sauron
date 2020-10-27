@@ -25,24 +25,19 @@
   (send editor-canvas set-editor editor)
 
   ;;; Right Panel
-  (define right-panel (new panel:horizontal-dragable%
-                           [parent ide]))
-  ; REPL canvas
-  (define repl-canvas (new editor-canvas%
-                           [parent right-panel]
-                           [style '(no-hscroll)]))
-  (define repl (new repl-text%))
-  (send repl-canvas set-editor repl)
+  (define right-panel (new vertical-panel% [parent ide]))
   ; REPL button
-  (define button-panel (new panel:vertical-dragable%
-                            [parent right-panel]))
   (define repl-show? #t)
-  (define repl-button (new button%
+  (define repl-button (new button% [parent right-panel]
                            [label "REPL"]
-                           [parent button-panel]
                            [callback (λ (b e)
                                        (send repl-canvas show (not repl-show?))
                                        (set! repl-show? (not repl-show?)))]))
+  ; REPL canvas
+  (define repl-canvas (new editor-canvas% [parent right-panel]
+                           [style '(no-hscroll)]))
+  (define repl (new repl-text%))
+  (send repl-canvas set-editor repl)
 
   (define menu-bar (new menu-bar% [parent ide-frame]))
   (let ([m-file (new menu% [label "File"] [parent menu-bar])])
