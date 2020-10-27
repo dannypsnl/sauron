@@ -24,9 +24,17 @@
   (send editor show-line-numbers! #t)
   (send editor-canvas set-editor editor)
 
-  ;;; REPL canvas
-  (define repl-canvas (new editor-canvas%
-                           [parent ide]
+  ;;; Right Panel
+  (define right-panel (new vertical-panel% [parent ide]))
+  ; REPL button
+  (define repl-show? #t)
+  (define repl-button (new button% [parent right-panel]
+                           [label "REPL"]
+                           [callback (λ (b e)
+                                       (send repl-canvas show (not repl-show?))
+                                       (set! repl-show? (not repl-show?)))]))
+  ; REPL canvas
+  (define repl-canvas (new editor-canvas% [parent right-panel]
                            [style '(no-hscroll)]))
   (define repl (new repl-text%))
   (send repl-canvas set-editor repl)

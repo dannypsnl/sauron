@@ -1,5 +1,7 @@
 ### To Release(v0.2.0)
 
+* REPL switch on/off button
+* fix c+r, renaming broken in somewhere
 * fix c+e, now program evaluation result has output to REPL
 
 ### v0.1.0
