@@ -1,7 +1,7 @@
 #lang racket/gui
 
 (require framework)
-(require "repl.rkt"
+(require "panel/repl.rkt"
          "editor.rkt")
 
 (module+ main
