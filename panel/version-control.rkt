@@ -22,9 +22,11 @@
         (close-input-port err)))
 
     (define ready-zone-cache (make-hash))
-    (define ready-zone (new vertical-panel% [parent this]))
+    (define ready-zone (new vertical-panel% [parent this]
+                            [alignment '(left top)]))
     (define changes-zone-cache (make-hash))
-    (define changes-zone (new vertical-panel% [parent this]))
+    (define changes-zone (new vertical-panel% [parent this]
+                              [alignment '(left top)]))
 
     (define/private (update-status)
       (run "git status --short --untracked-files=all"
@@ -72,7 +74,8 @@
 
 (define file-object%
   (class horizontal-panel%
-    (init-field filename button-label button-action)
+    (init-field filename button-label button-action
+                [stretchable-width #f] [stretchable-height #f])
     (super-new)
 
     (define msg (new message% [parent this] [label filename]))
