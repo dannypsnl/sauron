@@ -69,7 +69,25 @@
     (define editor-canvas (new editor-canvas%
                                [parent this]
                                [style '(no-hscroll)]))
-    (define commit-message-editor (new common:text%))
+
+    (define commit-editor%
+      (class common:text%
+        (super-new)
+        (inherit get-text
+                 erase)
+
+        (define/override (on-char e)
+          (match (send e get-key-code)
+            [#\return #:when (send e get-meta-down)
+                      (run (format "git commit -m '~a'" (get-text)))
+                      (erase)
+                      ;;; after commit, we need to refresh the ready zone
+                      (set! ready-zone-cache (make-hash))
+                      (for ([f (send ready-zone get-children)])
+                        (send ready-zone delete-child f))
+                      (update-status)]
+            [else (super on-char e)]))))
+    (define commit-message-editor (new commit-editor%))
     (send editor-canvas set-editor commit-message-editor)))
 
 (define file-object%
