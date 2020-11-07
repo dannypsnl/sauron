@@ -12,7 +12,7 @@
   (define starter (new starter%
                        [label "sauron"]
                        [width 300]
-                       [height 600]
+                       [height 300]
                        [open-ide ide-main]))
   (send starter show #t))
 
