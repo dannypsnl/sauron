@@ -44,7 +44,7 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   @item{c+f open text searcher}
   @item|{(/[/{/" when has selected text, wrap selected text automatically}|)
 
-@subection{Version Control}
+@subsection{Version Control}
 
 You can use c+k open version control panel, once open the panel, it has two part:
 
