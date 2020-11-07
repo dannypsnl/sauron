@@ -9,19 +9,12 @@
 (module+ main
   (define cur-project-path #f)
 
-  (define starter-frame (new frame%
-                             [label "sauron"]
-                             [width 300]
-                             [height 600]))
-  (define starter (new starter% [parent starter-frame]
-                       [label "Starter"]
-                       [choices '()]
-                       [callback
-                        (λ (starter event)
-                          (send starter-frame show #f)
-                          (ide-main (string->path (send starter get-string (send starter get-selection)))))]))
-
-  (send starter-frame show #t))
+  (define starter (new starter%
+                       [label "sauron"]
+                       [width 300]
+                       [height 600]
+                       [open-ide ide-main]))
+  (send starter show #t))
 
 (define (ide-main cur-project-path)
   (define ide-frame (new frame%
