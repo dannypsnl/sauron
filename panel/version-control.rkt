@@ -2,12 +2,37 @@
 
 (require "../component/common-editor.rkt")
 
-(define version-controller%
+(provide version-control%)
+(define version-control%
   (class vertical-panel%
     (init-field project-folder)
-
     (super-new)
 
+    ;;; commit editor
+    (define editor-canvas (new editor-canvas%
+                               [parent this]
+                               [style '(no-hscroll)]))
+    (define commit-editor%
+      (class common:text%
+        (super-new)
+        (inherit get-text
+                 erase)
+
+        (define/override (on-char e)
+          (match (send e get-key-code)
+            [#\return #:when (send e get-meta-down)
+                      (run (format "git commit -m '~a'" (get-text)))
+                      (erase)
+                      ;;; after commit, we need to refresh the ready zone
+                      (set! ready-zone-cache (make-hash))
+                      (for ([f (send ready-zone get-children)])
+                        (send ready-zone delete-child f))
+                      (update-status)]
+            [else (super on-char e)]))))
+    (define commit-message-editor (new commit-editor%))
+    (send editor-canvas set-editor commit-message-editor)
+
+    ;;; ready/changes zone
     (define (run cmd [callback #f])
       (match-let ([(list out in pid err invoke)
                    (parameterize ([current-directory project-folder])
@@ -64,31 +89,7 @@
                   (loop (read-line out))])))))
 
     ;;; init
-    (update-status)
-
-    (define editor-canvas (new editor-canvas%
-                               [parent this]
-                               [style '(no-hscroll)]))
-
-    (define commit-editor%
-      (class common:text%
-        (super-new)
-        (inherit get-text
-                 erase)
-
-        (define/override (on-char e)
-          (match (send e get-key-code)
-            [#\return #:when (send e get-meta-down)
-                      (run (format "git commit -m '~a'" (get-text)))
-                      (erase)
-                      ;;; after commit, we need to refresh the ready zone
-                      (set! ready-zone-cache (make-hash))
-                      (for ([f (send ready-zone get-children)])
-                        (send ready-zone delete-child f))
-                      (update-status)]
-            [else (super on-char e)]))))
-    (define commit-message-editor (new commit-editor%))
-    (send editor-canvas set-editor commit-message-editor)))
+    (update-status)))
 
 (define file-object%
   (class horizontal-panel%
@@ -123,7 +124,7 @@
   (unless (directory-exists? testing-dir)
     (error 'file "no such dir"))
 
-  (define vc (new version-controller%
+  (define vc (new version-control%
                   [parent test-frame]
                   [project-folder testing-dir]))
 

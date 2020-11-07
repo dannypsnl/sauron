@@ -1,8 +1,9 @@
 #lang racket/gui
 
 (require framework)
-(require "panel/repl.rkt"
-         "editor.rkt")
+(require "editor.rkt"
+         "panel/repl.rkt"
+         "panel/version-control.rkt")
 
 (module+ main
   (ide-main))
@@ -25,21 +26,36 @@
   (send editor-canvas set-editor editor)
 
   ;;; Right Panel
-  (define right-panel (new vertical-panel% [parent ide]))
-  ; REPL button
-  (define repl-show? #t)
-  (define repl-button (new button% [parent right-panel]
-                           [label "REPL"]
-                           [callback (λ (b e)
-                                       (send repl-canvas show (not repl-show?))
-                                       (set! repl-show? (not repl-show?)))]))
+  ; version control
+  (define vc (new version-control% [parent ide]
+                  [project-folder (find-system-path 'home-dir)]))
   ; REPL canvas
-  (define repl-canvas (new editor-canvas% [parent right-panel]
+  (define repl-canvas (new editor-canvas% [parent ide]
                            [style '(no-hscroll)]))
   (define repl (new repl-text%))
   (send repl-canvas set-editor repl)
+  ; show selection
+  (define (show-repl)
+    (send repl-canvas show #t)
+    (send vc show #f))
+  (define (show-vc)
+    (send vc show #t)
+    (send repl-canvas show #f))
+  ; Right Panel Setup
+  (define right-panel (new tab-panel% [parent ide]
+                           [choices (list "REPL" "VC")]
+                           [callback
+                            (λ (panel event)
+                              (match (send panel get-selection)
+                                [0 (show-repl)]
+                                [1 (show-vc)]))]))
+  (send vc reparent right-panel)
+  (send repl-canvas reparent right-panel)
+  (send vc show #f)
 
   (define menu-bar (new menu-bar% [parent ide-frame]))
+  (append-editor-operation-menu-items
+   (new menu% [label "Edit"] [parent menu-bar]) #f)
   (let ([m-file (new menu% [label "File"] [parent menu-bar])])
     (new menu-item%
          [label "Open"]
@@ -69,12 +85,23 @@
     (new menu-item%
          [label "Run"]
          [parent m-program]
-         [callback (λ (i e) (send repl run-module (send editor get-text)))]
+         [callback (λ (i e)
+                     (send right-panel set-selection 0)
+                     (show-repl)
+                     (send repl run-module (send editor get-text)))]
          [shortcut #\e]
          [shortcut-prefix (get-default-shortcut-prefix)])
     (void))
-  (append-editor-operation-menu-items
-   (new menu% [label "Edit"] [parent menu-bar]) #f)
+  (let ([m-program (new menu% [label "Version Control"] [parent menu-bar])])
+    (new menu-item%
+         [label "Open Panel"]
+         [parent m-program]
+         [callback (λ (i e)
+                     (send right-panel set-selection 1)
+                     (show-vc))]
+         [shortcut #\k]
+         [shortcut-prefix (get-default-shortcut-prefix)])
+    (void))
 
   (pre-insert-text editor)
   (send editor set-max-undo-history 100)
