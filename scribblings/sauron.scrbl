@@ -1,6 +1,6 @@
 #lang scribble/manual
 @require[@for-label[sauron racket
-                    @prefix-in[gui racket/gui]]]
+                    racket/gui]]
 @require[scribble/decode]
 
 @title{sauron}
@@ -77,4 +77,4 @@ Sauron also supports convert input \all to ∀. This is helpful for PLT or Math 
 
 @section{Develop}
 
-ctrl/command and alt/option just rely on this function from racket/gui @racketlink[gui:get-default-shortcut-prefix]{get-default-shortcut-prefix}.
+ctrl/command and alt/option just rely on this function from racket/gui @code{get-default-shortcut-prefix}.
