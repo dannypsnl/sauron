@@ -6,9 +6,12 @@
     (super-new)
 
     (define home-dir (find-system-path 'home-dir))
-    (define projects-file (build-path home-dir ".sauron" "projects"))
+    (define config-dir (build-path home-dir ".sauron"))
+    (unless (directory-exists? config-dir)
+      (make-directory config-dir))
+    (define projects-file (build-path config-dir "projects"))
     (unless (file-exists? projects-file)
-      (error 'file "no projects setting"))
+      (display-to-file "" projects-file))
 
     (define f (open-input-file projects-file))
 
@@ -19,4 +22,5 @@
          (send this append project-path)
          (loop (read-line f))]))
 
+    (close-input-port f)
     ))
