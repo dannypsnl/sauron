@@ -1,5 +1,9 @@
 ### To Release(v0.2.0)
 
+* Version Control Panel
+    * ready/changes zone
+    * c+enter commit in commit message editor
+    * c+k open version control panel
 * REPL switch on/off button
 * fix c+r, renaming broken in somewhere
 * fix c+e, now program evaluation result has output to REPL
