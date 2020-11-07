@@ -2,17 +2,33 @@
 
 (require framework)
 (require "editor.rkt"
+         "starter.rkt"
          "panel/repl.rkt"
          "panel/version-control.rkt")
 
 (module+ main
-  (ide-main))
+  (define cur-project-path #f)
 
-(define (ide-main)
+  (define starter-frame (new frame%
+                             [label "sauron"]
+                             [width 300]
+                             [height 600]))
+  (define starter (new starter% [parent starter-frame]
+                       [label "Starter"]
+                       [choices '()]
+                       [callback
+                        (λ (starter event)
+                          (send starter-frame show #f)
+                          (ide-main (string->path (send starter get-string (send starter get-selection)))))]))
+
+  (send starter-frame show #t))
+
+(define (ide-main cur-project-path)
   (define ide-frame (new frame%
                          [label "sauron"]
                          [width 1200]
                          [height 600]))
+
   (define ide (new panel:horizontal-dragable%
                    [parent ide-frame]))
 
@@ -28,7 +44,7 @@
   ;;; Right Panel
   ; version control
   (define vc (new version-control% [parent ide]
-                  [project-folder (find-system-path 'home-dir)]))
+                  [project-folder cur-project-path]))
   ; REPL canvas
   (define repl-canvas (new editor-canvas% [parent ide]
                            [style '(no-hscroll)]))
