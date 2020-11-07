@@ -22,12 +22,10 @@
                          [width 1200]
                          [height 600]))
 
-  (define ide (new panel:horizontal-dragable%
-                   [parent ide-frame]))
+  (define ide (new panel:horizontal-dragable% [parent ide-frame]))
 
   ;;; Editor canvas
-  (define editor-canvas (new editor-canvas%
-                             [parent ide]
+  (define editor-canvas (new editor-canvas% [parent ide]
                              [min-width 800]
                              [style '(no-hscroll)]))
   (define editor (new editor%))
@@ -35,32 +33,33 @@
   (send editor-canvas set-editor editor)
 
   ;;; Right Panel
+  (define invisible-frame (new frame% [label "invisible"]))
   ; version control
-  (define vc (new version-control% [parent ide]
+  (define vc-panel (new panel% [parent invisible-frame]))
+  (define vc (new version-control% [parent vc-panel]
                   [project-folder cur-project-path]))
   ; REPL canvas
-  (define repl-canvas (new editor-canvas% [parent ide]
+  (define repl-panel (new panel% [parent invisible-frame]))
+  (define repl-canvas (new editor-canvas% [parent repl-panel]
                            [style '(no-hscroll)]))
   (define repl (new repl-text%))
   (send repl-canvas set-editor repl)
   ; show selection
-  (define (show-repl)
-    (send repl-canvas show #t)
-    (send vc show #f))
-  (define (show-vc)
-    (send vc show #t)
-    (send repl-canvas show #f))
+  (define (show-repl show-panel)
+    (send repl-panel reparent show-panel)
+    (send vc-panel reparent invisible-frame))
+  (define (show-vc show-panel)
+    (send vc-panel reparent show-panel)
+    (send repl-panel reparent invisible-frame))
   ; Right Panel Setup
   (define right-panel (new tab-panel% [parent ide]
                            [choices (list "REPL" "VC")]
                            [callback
                             (λ (panel event)
                               (match (send panel get-selection)
-                                [0 (show-repl)]
-                                [1 (show-vc)]))]))
-  (send vc reparent right-panel)
-  (send repl-canvas reparent right-panel)
-  (send vc show #f)
+                                [0 (show-repl panel)]
+                                [1 (show-vc panel)]))]))
+  (show-repl right-panel)
 
   (define menu-bar (new menu-bar% [parent ide-frame]))
   (append-editor-operation-menu-items
@@ -96,7 +95,7 @@
          [parent m-program]
          [callback (λ (i e)
                      (send right-panel set-selection 0)
-                     (show-repl)
+                     (show-repl right-panel)
                      (send repl run-module (send editor get-text)))]
          [shortcut #\e]
          [shortcut-prefix (get-default-shortcut-prefix)])
@@ -107,7 +106,7 @@
          [parent m-program]
          [callback (λ (i e)
                      (send right-panel set-selection 1)
-                     (show-vc))]
+                     (show-vc right-panel))]
          [shortcut #\k]
          [shortcut-prefix (get-default-shortcut-prefix)])
     (void))
