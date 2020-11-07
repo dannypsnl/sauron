@@ -8,9 +8,11 @@
 
 @defmodule[sauron]
 
+@section{User Guide}
+
 In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
 
-@section{Shortcut}
+@subsection{Shortcut}
 
 @(itemlist
   ;;; file
@@ -18,6 +20,8 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   @item{c+s save file(would auto indent code)}
   ;;; program
   @item{c+e run REPL}
+  ;;; version control
+  @item{c+k open version control panel}
   ;;; edit
   @item{c+a select all}
   @item{c+c copy}
@@ -40,7 +44,19 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   @item{c+f open text searcher}
   @item|{(/[/{/" when has selected text, wrap selected text automatically}|)
 
-@section{Auto complete}
+@subsection{Version Control}
+
+You can use c+k open version control panel, once open the panel, it has two part:
+
+@subsubsection{commit message editor}
+
+You can type commit message in this editor, use c+<enter> to commit.
+
+@subsubsection{ready/changes zone}
+
+ready zone would be commit, you can move objects to changes zone by click remove button, objects in changes zone can be add into ready zone.
+
+@subsection{Auto complete}
 
 Warning: Only consider #lang racket currently, would try to support more variant in the future.
 
@@ -55,7 +71,7 @@ For example:
 
 Type @code[#:lang "racket"]{i} would trigger completion.
 
-@section{LaTeX input}
+@subsection{LaTeX input}
 
 Sauron also supports convert input \all to ∀. This is helpful for PLT or Math researchers. Full list can refer to @code[#:lang "racket"]{latex-complete} in @(link "https://github.com/racket-tw/sauron/blob/master/meta.rkt" "meta.rkt").
 
