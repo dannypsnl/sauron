@@ -12,8 +12,9 @@
          "pos-range.rkt")
 
 (define editor%
-  (class (text:line-numbers-mixin
-          common:text%)
+  (class (text:first-line-mixin ; show first line
+          (text:line-numbers-mixin ; show line numbers
+           common:text%))
     (inherit find-position get-start-position get-end-position
              get-text set-position insert
              get-backward-sexp get-forward-sexp
@@ -111,6 +112,11 @@
                   (auto-complete)]
         [else (super on-char e)]))
 
+    ;;; shows language line
+    (define/override (is-special-first-line? line)
+      (string-prefix? line "#lang"))
+    (send this highlight-first-line #t)
+
     ; new user defined
     (define/private (add-user-defined id range-start range-end binding-range)
       (hash-set! user-defined-complete id binding-range)
@@ -191,5 +197,11 @@
                              [style '(no-hscroll)]))
   (define editor (new editor%))
   (send editor-canvas set-editor editor)
+
+  (define pre-inserted #<<EOS
+#lang racket
+EOS
+    )
+  (send editor insert (make-object string-snip% pre-inserted))
 
   (send test-frame show #t))
