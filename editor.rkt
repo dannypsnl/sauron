@@ -12,7 +12,7 @@
          "pos-range.rkt")
 
 (define editor%
-  (class (text:first-line-mixin
+  (class (text:first-line-mixin ; show first line
           (text:line-numbers-mixin ; show line numbers
            common:text%))
     (inherit find-position get-start-position get-end-position
