@@ -66,8 +66,7 @@
                        (when (not (hash-ref ready-zone-cache filename #f))
                          (new file-object% [parent ready-zone]
                               [filename filename]
-                              [button-label "-"]
-                              [button-action
+                              [?remove-button-action
                                (λ (this filename)
                                  (run (format "git reset HEAD ~a" (build-path project-folder filename)))
                                  (send ready-zone delete-child this)
@@ -78,8 +77,7 @@
                        (when (not (hash-ref changes-zone-cache filename #f))
                          (new file-object% [parent changes-zone]
                               [filename filename]
-                              [button-label "+"]
-                              [button-action
+                              [?add-button-action
                                (λ (this filename)
                                  (run (format "git add ~a" (build-path project-folder filename)))
                                  (send changes-zone delete-child this)
@@ -93,16 +91,25 @@
 
 (define file-object%
   (class horizontal-panel%
-    (init-field filename button-label button-action
+    (init-field filename
+                [?remove-button-action #f]
+                [?add-button-action #f]
                 [stretchable-width #f] [stretchable-height #f])
     (super-new)
 
     (define msg (new message% [parent this] [label filename]))
-    (new button% [parent this]
-         [label button-label]
-         [callback
-          (λ (btn e)
-            (button-action this filename))])))
+    (when ?remove-button-action
+      (new button% [parent this]
+           [label "-"]
+           [callback
+            (λ (btn e)
+              (?remove-button-action this filename))]))
+    (when ?add-button-action
+      (new button% [parent this]
+           [label "+"]
+           [callback
+            (λ (btn e)
+              (?add-button-action this filename))]))))
 
 (define (parse-git-output output)
   (cons
