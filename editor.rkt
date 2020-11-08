@@ -112,8 +112,9 @@
                   (auto-complete)]
         [else (super on-char e)]))
 
-    ;;; always shows first line
-    (define/override (is-special-first-line? line) #t)
+    ;;; shows language line
+    (define/override (is-special-first-line? line)
+      (string-prefix? line "#lang"))
     (send this highlight-first-line #t)
 
     ; new user defined
