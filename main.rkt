@@ -114,6 +114,7 @@
   (pre-insert-text editor)
   (send editor set-max-undo-history 100)
 
+  (send ide-frame maximize #t)
   (send ide-frame show #t))
 
 (define (pre-insert-text text)
