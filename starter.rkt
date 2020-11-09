@@ -16,7 +16,7 @@
       (display-to-file "" projects-file))
 
     (define list-box (new list-box% [parent this]
-                          [label "Starter"]
+                          [label "projects"]
                           [choices '()]
                           [callback
                            (λ (starter event)

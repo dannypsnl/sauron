@@ -10,7 +10,7 @@
   (define cur-project-path #f)
 
   (define starter (new starter%
-                       [label "sauron"]
+                       [label "select a project"]
                        [width 300]
                        [height 300]
                        [open-ide ide-main]))
