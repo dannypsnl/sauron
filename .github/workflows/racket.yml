@@ -6,9 +6,13 @@ on:
   push:
     branches:
     - '*'
+    paths:
+    - '**.rkt'
   pull_request:
     branches:
     - '*'
+    paths:
+    - '**.rkt'
 
 jobs:
   test:
