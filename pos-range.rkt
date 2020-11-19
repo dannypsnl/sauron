@@ -8,4 +8,6 @@
 (struct pos-range (start end) #:transparent)
 
 (module+ test
-  (check-eq? (pos-range-start (pos-range 1 2)) 1))
+  (let ([r (pos-range 1 2)])
+    (check-eq? (pos-range-start r) 1)
+    (check-eq? (pos-range-end r) 2)))
