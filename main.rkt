@@ -3,6 +3,7 @@
 (require framework)
 (require "editor.rkt"
          "starter.rkt"
+         "panel/project-files.rkt"
          "panel/repl.rkt"
          "panel/version-control.rkt")
 
@@ -24,6 +25,10 @@
                          [height 600]))
 
   (define ide (new panel:horizontal-dragable% [parent ide-frame]))
+
+  ;;; Project Files
+  (new project-files% [parent ide]
+       [dir cur-project-path])
 
   ;;; Editor canvas
   (define editor-canvas (new editor-canvas% [parent ide]
