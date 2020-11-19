@@ -1,5 +1,7 @@
 #lang racket/gui
 
+(require mrlib/terminal)
+
 (provide terminal%)
 (define terminal%
   (class vertical-panel%
@@ -7,31 +9,40 @@
     (super-new)
 
     ;;; terminal
-    (define editor-canvas (new editor-canvas%
-                               [parent this]
-                               [style '(no-hscroll)])) 
-    (define editor (new text%))
-    (send editor-canvas set-editor editor)
+    (define editor (new terminal:text%
+                        [project-folder project-folder]))
+    (define editor-canvas (new editor-canvas% [parent this]
+                               [editor editor]
+                               [style '(no-hscroll)]))))
+
+(define terminal:text%
+  (class text%
+    (init-field project-folder)
+    (super-new)
 
     (define esq-eventspace (current-eventspace))
     (define (queue-output text)
       (parameterize ((current-eventspace esq-eventspace))
-        (queue-callback (lambda () (send editor insert text)) #f)))
+        (queue-callback (lambda () (send this insert text)) #f)))
     (define user-output-port
       (make-output-port
        'eqs
        always-evt
-       ;; string printer:
        (lambda (bstr start end buffer? enable-break?)
          (queue-output (bytes->string/utf-8 bstr))
          (- end start))
-       ;; closer:
        (lambda () 'nothing-to-close)))
 
+    (define terminal-input #f)
+    (define/override (on-char c)
+      (when terminal-input
+        (parameterize ([current-output-port terminal-input])
+          (write (send c get-key-code)))))
     (parameterize ([current-directory project-folder])
-      (match-let ([(list out in pid err invoke) (process "echo hello")])
-        (copy-port out user-output-port)
-        (copy-port err user-output-port)
+      (match-let ([(list out in pid err invoke) (process "bash")])
+        (thread (λ () (set! terminal-input in)))
+        (thread (λ () (copy-port out user-output-port)))
+        (thread (λ () (copy-port err user-output-port)))
 
         (close-output-port in)
         (close-input-port out)
