@@ -58,3 +58,10 @@
     (if open-path
         (open-ide open-path)
         (run))))
+
+(module+ main
+  (new starter%
+       [label "select a project"]
+       [width 300]
+       [height 300]
+       [open-ide #f]))
