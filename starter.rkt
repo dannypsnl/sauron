@@ -3,17 +3,21 @@
 (provide starter%)
 (define starter%
   (class frame%
-    (init-field open-ide)
+    (init-field open-ide
+                ;;; for debugging
+                [open-path #f])
     (super-new)
 
-    ;;; auto setup configuration
-    (define home-dir (find-system-path 'home-dir))
-    (define config-dir (build-path home-dir ".sauron"))
-    (unless (directory-exists? config-dir)
-      (make-directory config-dir))
+    (define config-dir (build-path (find-system-path 'home-dir) ".sauron"))
     (define projects-file (build-path config-dir "projects"))
-    (unless (file-exists? projects-file)
-      (display-to-file "" projects-file))
+
+    (define (auto-setup-configuration-env)
+      ; create config directory if not exised
+      (unless (directory-exists? config-dir)
+        (make-directory config-dir))
+      ; create projects file configuration if not existed
+      (unless (file-exists? projects-file)
+        (display-to-file "" projects-file)))
 
     (define list-box (new list-box% [parent this]
                           [label "projects"]
@@ -22,7 +26,6 @@
                            (λ (starter event)
                              (send this show #f)
                              (open-ide (string->path (send starter get-string (send starter get-selection)))))]))
-
     (new button% [parent this]
          [label "add project"]
          [callback
@@ -35,13 +38,23 @@
                     (displayln path)
                     (send list-box append (path->string path))))
                 #:exists 'append)))])
+    (define (load-projs)
+      ;;; load projects
+      (define f (open-input-file projects-file))
+      (let loop ([project-path (read-line f)])
+        (cond
+          [(eof-object? project-path) (void)]
+          [else
+           (send list-box append project-path)
+           (loop (read-line f))]))
+      (close-input-port f))
 
-    ;;; load projects
-    (define f (open-input-file projects-file))
-    (let loop ([project-path (read-line f)])
-      (cond
-        [(eof-object? project-path) (void)]
-        [else
-         (send list-box append project-path)
-         (loop (read-line f))]))
-    (close-input-port f)))
+    (define (run)
+      (auto-setup-configuration-env)
+      (load-projs)
+      (send this center 'both)
+      (send this show #t))
+
+    (if open-path
+        (open-ide open-path)
+        (run))))

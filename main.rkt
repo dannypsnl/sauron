@@ -4,7 +4,8 @@
 (require "editor.rkt"
          "starter.rkt"
          "panel/repl.rkt"
-         "panel/version-control.rkt")
+         "panel/version-control.rkt"
+         "panel/terminal.rkt")
 
 (module+ main
   (define cur-project-path #f)
@@ -13,9 +14,7 @@
                        [label "select a project"]
                        [width 300]
                        [height 300]
-                       [open-ide ide-main]))
-  (send starter center 'both)
-  (send starter show #t))
+                       [open-ide ide-main])))
 
 (define (ide-main cur-project-path)
   (define ide-frame (new frame%
@@ -23,9 +22,10 @@
                          [width 1200]
                          [height 600]))
 
-  (define ide (new panel:horizontal-dragable% [parent ide-frame]))
-
-  ;;; Editor canvas
+  (define up/down-panel (new panel:vertical-dragable% [parent ide-frame]))
+  ;;; IDE(Up panel)
+  (define ide (new panel:horizontal-dragable% [parent up/down-panel]))
+  ;;; Editor canvas(Left of IDE)
   (define editor-canvas (new editor-canvas% [parent ide]
                              [min-width 800]
                              [style '(no-hscroll)]))
@@ -33,7 +33,7 @@
   (send editor show-line-numbers! #t)
   (send editor-canvas set-editor editor)
 
-  ;;; Right Panel
+  ;;; Right of IDE(VCS, REPL)
   (define invisible-frame (new frame% [label "invisible"]))
   ; version control
   (define vc-panel (new panel% [parent invisible-frame]))
@@ -62,6 +62,11 @@
                                 [1 (show-vc panel)]))]))
   (show-repl right-panel)
 
+  ;;; Down Panel(Terminal)
+  (new terminal% [parent up/down-panel]
+       [project-folder cur-project-path])
+
+  ;;; Menu Bar
   (define menu-bar (new menu-bar% [parent ide-frame]))
   (append-editor-operation-menu-items
    (new menu% [label "Edit"] [parent menu-bar]) #f)
