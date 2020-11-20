@@ -45,13 +45,16 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (for ([i (directory-list dir)])
         (new-item top-dir-list dir i)))
     (define/override (on-double-select i)
-      (send the-editor load-file (send i user-data) 'text))
+      (when (send i user-data) ;; when double-click a file, open it in editor
+        (send the-editor load-file (send i user-data) 'text)))
     ;;; init
     (super-new)
     ; top item in hierlist
     (define top-dir-list (send this new-list set-text-mixin))
     ; initialise directory-list% instance
-    (set-directory the-dir)))
+    (set-directory the-dir)
+    ;; open top dir-list by default
+    (send top-dir-list open)))
 
 (module+ test
   (require framework)
