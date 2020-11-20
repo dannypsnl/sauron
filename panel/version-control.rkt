@@ -115,9 +115,12 @@
   (cons
    (cond
      [(or (string-prefix? output "M  ")
+          (string-prefix? output "D ")
           (string-prefix? output "A  ")) 'ready]
      [(or (string-prefix? output " M ")
-          (string-prefix? output "?? ")) 'changes])
+          (string-prefix? output " D ")
+          (string-prefix? output "?? ")) 'changes]
+     [else (error 'unknown-format output)])
    (substring output 3)))
 
 (module+ main
