@@ -3,6 +3,7 @@
 (require framework)
 (require "editor.rkt"
          "starter.rkt"
+         "panel/project-files.rkt"
          "panel/repl.rkt"
          "panel/version-control.rkt")
 
@@ -25,13 +26,20 @@
 
   (define ide (new panel:horizontal-dragable% [parent ide-frame]))
 
-  ;;; Editor canvas
-  (define editor-canvas (new editor-canvas% [parent ide]
-                             [min-width 800]
-                             [style '(no-hscroll)]))
+  ;; editor instance
   (define editor (new editor%))
   (send editor show-line-numbers! #t)
-  (send editor-canvas set-editor editor)
+
+  ;;; Project Files
+  (new project-files% [parent ide]
+       [dir cur-project-path]
+       [editor editor])
+
+  ;;; Editor canvas
+  (new editor-canvas% [parent ide]
+       [min-width 800]
+       [editor editor]
+       [style '(no-hscroll)])
 
   ;;; Right Panel
   (define invisible-frame (new frame% [label "invisible"]))

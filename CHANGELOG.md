@@ -1,5 +1,8 @@
 ### To Release(v0.2.0)
 
+* Project Files Panel
+    * interactive with files
+    * open file via double click
 * Version Control Panel
     * ready/changes zone
     * c+enter commit in commit message editor

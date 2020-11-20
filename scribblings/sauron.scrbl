@@ -44,7 +44,7 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   @item{c+f open text searcher}
   @item|{(/[/{/" when has selected text, wrap selected text automatically}|)
 
-@subsection{Version Control}
+@subsection{Panel: Version Control}
 
 You can use c+k open version control panel, once open the panel, it has two part:
 
@@ -55,6 +55,13 @@ You can type commit message in this editor, use c+<enter> to commit.
 @subsubsection{ready/changes zone}
 
 ready zone would be commit, you can move objects to changes zone by click remove button, objects in changes zone can be add into ready zone.
+
+@subsection{Panel: Project Files}
+
+@itemlist[
+@item{interactive with files}
+@item{open file via double click}
+]
 
 @subsection{Auto complete}
 
