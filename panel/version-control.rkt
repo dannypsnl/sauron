@@ -53,7 +53,7 @@
     (define changes-zone (new vertical-panel% [parent this]
                               [alignment '(left top)]))
 
-    (define/private (update-status)
+    (define/public (update-status)
       (run "git status --short --untracked-files=all"
            (λ (out in err)
              (let loop ([output (read-line out)])

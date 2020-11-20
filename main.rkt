@@ -115,6 +115,7 @@
          [parent m-program]
          [callback (λ (i e)
                      (send right-panel set-selection 1)
+                     (send vc update-status)
                      (show-vc right-panel))]
          [shortcut #\k]
          [shortcut-prefix (get-default-shortcut-prefix)])
