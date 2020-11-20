@@ -11,16 +11,12 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
   (mixin (hierarchical-list-item<%>)
     ((interface () set-text))
     (inherit get-editor)
-    (define filepath #f)
     (super-new)
     ; set-text: this sets the label of the item
     (define/public (set-text str)
       (define t (get-editor)) ; a text% object
       (send t erase)
-      (send t insert str))
-    ; set-path: this set the path of the item
-    (define/public (set-path fullpath)
-      (set! filepath fullpath))))
+      (send t insert str))))
 
 (provide project-files%)
 (define project-files%
@@ -29,15 +25,16 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define the-editor editor)
     ; new-item : create new item for a file or directory
     (define (new-item parent directory subpath)
-      (define item
-        (if (file-exists? (build-path directory subpath))
-            (send parent new-item set-text-mixin)
-            (send parent new-list set-text-mixin)))
-      (send* item
-        [set-text (path->string subpath)]
-        [set-path (build-path directory subpath)])
-      (send item user-data (build-path directory subpath))
-      item)
+      (let ([cur-path (build-path directory subpath)])
+        (if (file-exists? cur-path)
+            (let ([item (send parent new-item set-text-mixin)])
+              (send* item
+                [set-text (path->string subpath)]
+                [user-data (build-path directory subpath)]))
+            (let ([item (send parent new-list set-text-mixin)])
+              (send item set-text (path->string subpath))
+              (for ([i (directory-list cur-path)])
+                (new-item item cur-path i))))))
     ; Set the top level item, and populate it with an entry
     ; for each item in the directory.
     (define/public (set-directory dir)
