@@ -1,4 +1,6 @@
-### To Release(v0.2.0)
+### To Release(v0.3.0)
+
+### v0.2.0
 
 * Editor Buffer
     * c+w would close current buffer
