@@ -41,7 +41,7 @@
                     (send list-box append (path->string path))))
                 #:exists 'append)))])
 
-  (define (load-projs)
+    (define (load-projs)
       ;;; load projects
       (define f (open-input-file projects-file))
       (let loop ([project-path (read-line f)])
@@ -52,11 +52,11 @@
            (loop (read-line f))]))
       (close-input-port f))
 
-  (define (run)
-    (auto-setup-configuration-env)
-    (load-projs)
-    (send this center 'both)
-    (send this show #t))
+    (define (run)
+      (auto-setup-configuration-env)
+      (load-projs)
+      (send this center 'both)
+      (send this show #t))
 
     ;;; load projects
     (if open-path
@@ -65,6 +65,6 @@
 
 (module+ main
   (new starter%
-    [label "select a project"]
-    [width 300] [height 300]
-    [open-ide #f]))
+       [label "select a project"]
+       [width 300] [height 300]
+       [open-ide #f]))
