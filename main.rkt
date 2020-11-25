@@ -3,6 +3,7 @@
 (require framework)
 (require "editor.rkt"
          "starter.rkt"
+         "panel/editor.rkt"
          "panel/project-files.rkt"
          "panel/repl.rkt"
          "panel/version-control.rkt")
@@ -27,19 +28,14 @@
   (define ide (new panel:horizontal-dragable% [parent ide-frame]))
 
   ;; editor instance
-  (define editor (new editor%))
-  (send editor show-line-numbers! #t)
+  (define editor-panel (new editor-panel% [parent ide]
+                            [dir cur-project-path]))
 
   ;;; Project Files
   (new project-files% [parent ide]
        [dir cur-project-path]
-       [editor editor])
-
-  ;;; Editor canvas
-  (new editor-canvas% [parent ide]
-       [min-width 800]
-       [editor editor]
-       [style '(no-hscroll)])
+       [editor-panel editor-panel])
+  (send editor-panel reparent ide)
 
   ;;; Right Panel
   (define invisible-frame (new frame% [label "invisible"]))
@@ -71,8 +67,7 @@
   (show-repl right-panel)
 
   (define menu-bar (new menu-bar% [parent ide-frame]))
-  (append-editor-operation-menu-items
-   (new menu% [label "Edit"] [parent menu-bar]) #f)
+  (append-editor-operation-menu-items (new menu% [label "Edit"] [parent menu-bar]) #f)
   (let ([m-file (new menu% [label "File"] [parent menu-bar])])
     (new menu-item%
          [label "Open"]
@@ -81,7 +76,7 @@
           (λ (i e)
             (define path (get-file #f ide-frame))
             (when path
-              (send editor load-file path 'text)))]
+              (send editor-panel edit-file path)))]
          [shortcut #\o]
          [shortcut-prefix (get-default-shortcut-prefix)])
     (new menu-item%
@@ -89,12 +84,7 @@
          [parent m-file]
          [callback
           (λ (i e)
-            (send* editor
-              ; reindent all expressions before save to file
-              (tabify-all)
-              (save-file #f 'text)
-              ; enforce renew cached environment
-              (update-env)))]
+            (send editor-panel formatting))]
          [shortcut #\s]
          [shortcut-prefix (get-default-shortcut-prefix)])
     (void))
@@ -105,7 +95,7 @@
          [callback (λ (i e)
                      (send right-panel set-selection 0)
                      (show-repl right-panel)
-                     (send repl run-module (send editor get-text)))]
+                     (send repl run-module (send editor-panel get-text)))]
          [shortcut #\e]
          [shortcut-prefix (get-default-shortcut-prefix)])
     (void))
@@ -121,15 +111,7 @@
          [shortcut-prefix (get-default-shortcut-prefix)])
     (void))
 
-  (pre-insert-text editor)
-  (send editor set-max-undo-history 100)
-
   (send ide-frame maximize #t)
   (send ide-frame show #t))
 
-(define (pre-insert-text text)
-  (define pre-inserted #<<EOS
-#lang racket
-EOS
-    )
-  (send text insert (make-object string-snip% pre-inserted)))
+
