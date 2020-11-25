@@ -1,5 +1,8 @@
 ### To Release(v0.2.0)
 
+* Editor Buffer
+    * c+w would close current buffer
+    * c+[0..9] would select tab
 * Project Files Panel
     * interactive with files
     * open file via double click
