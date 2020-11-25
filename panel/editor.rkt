@@ -3,6 +3,29 @@
 (require "../editor.rkt"
          "project-files.rkt")
 
+(define spec-canvas%
+  (class editor-canvas%
+    (init-field parent)
+    (super-new [parent parent]
+               [min-width 800]
+               [style '(no-hscroll)])
+
+    (define/override (on-char e)
+      (let ([select-n? (match (send e get-key-code)
+                         [c #:when (and (send e get-meta-down)
+                                        (member c (list #\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)))
+                            (match (- (char->integer c) 48)
+                              [0 9]
+                              [n (- n 1)])]
+                         [#\w #:when (send e get-meta-down)
+                              (send parent update-buffer
+                                    (send parent current-editing-file) 'close)
+                              #f]
+                         [else (super on-char e) #f])])
+        (when select-n?
+          (send parent set-selection select-n?)
+          (send this set-editor (send parent current-selected-editor)))))))
+
 (provide editor-panel%)
 (define editor-panel%
   (class tab-panel% (init dir)
@@ -11,14 +34,9 @@
     (super-new
      [choices '()]
      [alignment '(left top)]
-     [callback
-      (λ (panel event)
-        (send editor-canvas set-editor (current-selected-editor))
-        (void))])
+     [callback (λ (panel event) (send editor-canvas set-editor (current-selected-editor)))])
 
-    (define editor-canvas (new editor-canvas% [parent this]
-                               [min-width 800]
-                               [style '(no-hscroll)]))
+    (define editor-canvas (new spec-canvas% [parent this]))
     (define editing-file* (make-hash))
 
     (define/public (edit-file file)
@@ -31,13 +49,18 @@
 
     (define/public (update-buffer file action)
       (match action
-        ['open
-         (set! opened-buffer* (append opened-buffer* (list file)))
-         (send this append (path->string (file-name-from-path file)))
-         (send this set-selection (- (length opened-buffer*) 1))]
-        ['close
-         (set! opened-buffer* (filter-map (λ (e) (not (equal? file e))) opened-buffer*))
-         (send this set (map (λ (e) (file-name-from-path e)) opened-buffer*))]))
+        ['open #:when (= (send this get-number) 10)
+               (set! opened-buffer* (cons file (cdr opened-buffer*)))]
+        ['open (set! opened-buffer* (append opened-buffer* (list file)))]
+        ['close (set! opened-buffer* (remove file opened-buffer*))])
+      (send this set (map (λ (e) (path->string (file-name-from-path e))) opened-buffer*))
+      (when (> (length opened-buffer*) 0)
+        (send this set-selection (- (length opened-buffer*) 1)))
+      (send editor-canvas set-editor (current-selected-editor)))
+
+    (define/override (set-selection n)
+      (when (< n (send this get-number))
+        (super set-selection n)))
 
     (define/private (get-editor-for-file file)
       (let* ([editor? (hash-ref editing-file* file #f)]
@@ -52,8 +75,10 @@
         editor))
 
     ;;; util
-    (define/private (current-selected-editor)
-      (get-editor-for-file (list-ref opened-buffer* (send this get-selection))))
+    (define/public (current-editing-file)
+      (list-ref opened-buffer* (send this get-selection)))
+    (define/public (current-selected-editor)
+      (get-editor-for-file (current-editing-file)))
     (define/public (formatting)
       (send* (current-selected-editor)
         ; reindent all expressions before save to file

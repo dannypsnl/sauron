@@ -67,8 +67,7 @@
   (show-repl right-panel)
 
   (define menu-bar (new menu-bar% [parent ide-frame]))
-  (append-editor-operation-menu-items
-   (new menu% [label "Edit"] [parent menu-bar]) #f)
+  (append-editor-operation-menu-items (new menu% [label "Edit"] [parent menu-bar]) #f)
   (let ([m-file (new menu% [label "File"] [parent menu-bar])])
     (new menu-item%
          [label "Open"]
