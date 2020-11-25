@@ -3,6 +3,7 @@
 (require "../editor.rkt"
          "project-files.rkt")
 
+(provide editor-panel%)
 (define editor-panel%
   (class tab-panel% (init dir)
     (define opened-buffer* '())
@@ -12,8 +13,7 @@
      [alignment '(left top)]
      [callback
       (λ (panel event)
-        (send editor-canvas set-editor
-              (get-editor-for-file (list-ref opened-buffer* (send panel get-selection))))
+        (send editor-canvas set-editor (current-selected-editor))
         (void))])
 
     (define editor-canvas (new editor-canvas% [parent this]
@@ -45,9 +45,31 @@
                          editor?
                          (let ([editor (new editor%)])
                            (hash-set! editing-file* file editor)
+                           (send editor show-line-numbers! #t)
+                           (send editor set-max-undo-history 100)
                            (send editor load-file file 'text)
                            editor))])
-        editor))))
+        editor))
+
+    ;;; util
+    (define/private (current-selected-editor)
+      (get-editor-for-file (list-ref opened-buffer* (send this get-selection))))
+    (define/public (formatting)
+      (send* (current-selected-editor)
+        ; reindent all expressions before save to file
+        (tabify-all)
+        (save-file #f 'text)
+        ; enforce renew cached environment
+        (update-env)))
+    (define/public (get-text)
+      (send (current-selected-editor) get-text))))
+
+(define (pre-insert-text text)
+  (define pre-inserted #<<EOS
+#lang racket
+EOS
+    )
+  (send text insert (make-object string-snip% pre-inserted)))
 
 (module+ main
   (require framework)
