@@ -5,6 +5,6 @@
 (define build-deps '("scribble-lib" "racket-doc" "rackunit-lib"
                      "gui-doc"))
 (define scribblings '(("scribblings/sauron.scrbl" ())))
-(define pkg-desc "Description Here")
-(define version "0.1.0")
+(define pkg-desc "A Racket IDE")
+(define version "0.2.0")
 (define pkg-authors '(dannypsnl))
