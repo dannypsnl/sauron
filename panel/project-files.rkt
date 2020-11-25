@@ -20,9 +20,9 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
 (provide project-files%)
 (define project-files%
-  (class hierarchical-list% (init dir editor)
+  (class hierarchical-list% (init dir editor-panel)
     (define the-dir dir)
-    (define the-editor editor)
+    (define the-editor-panel editor-panel)
     ; new-item : create new item for a file or directory
     (define (new-item parent directory subpath)
       (let ([cur-path (build-path directory subpath)])
@@ -46,7 +46,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
         (new-item top-dir-list dir i)))
     (define/override (on-double-select i)
       (when (send i user-data) ;; when double-click a file, open it in editor
-        (send the-editor load-file (send i user-data) 'text)))
+        (send the-editor-panel edit-file (send i user-data))))
     ;;; init
     (super-new)
     ; top item in hierlist
