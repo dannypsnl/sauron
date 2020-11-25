@@ -89,13 +89,6 @@
     (define/public (get-text)
       (send (current-selected-editor) get-text))))
 
-(define (pre-insert-text text)
-  (define pre-inserted #<<EOS
-#lang racket
-EOS
-    )
-  (send text insert (make-object string-snip% pre-inserted)))
-
 (module+ main
   (require framework)
 
