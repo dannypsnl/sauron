@@ -1,5 +1,11 @@
 ### To Release(v0.3.0)
 
+* c+e improve eval module behavior
+    * would run submodule test and main
+    * work with project path, not path where user run executable **sauron**
+    * allow GUI
+    * change error output way
+
 ### v0.2.0
 
 * Editor Buffer

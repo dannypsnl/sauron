@@ -47,7 +47,8 @@
   (define repl-panel (new panel% [parent invisible-frame]))
   (define repl-canvas (new editor-canvas% [parent repl-panel]
                            [style '(no-hscroll)]))
-  (define repl (new repl-text%))
+  (define repl (new repl-text%
+                    [project-directory cur-project-path]))
   (send repl-canvas set-editor repl)
   ; show selection
   (define (show-repl show-panel)

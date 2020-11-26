@@ -13,6 +13,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
 (define repl-text%
   (class common:text%
+    (init-field project-directory)
     (super-new)
     (inherit insert get-text erase
              get-start-position last-position set-position
@@ -26,15 +27,17 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (parameterize ([current-custodian (make-custodian)]
                      [current-namespace (make-gui-namespace)])
         (make-eventspace)))
-    (define user-output-port (make-output-port
-                              'eqs
-                              always-evt
-                              ;; string printer:
-                              (lambda (bstr start end buffer? enable-break?)
-                                (output (bytes->string/utf-8 bstr))
-                                (- end start))
-                              ;; closer:
-                              (lambda () 'nothing-to-close)))
+    (define (make-port) (make-output-port
+                         'eqs
+                         always-evt
+                         ;; string printer:
+                         (lambda (bstr start end buffer? enable-break?)
+                           (output (bytes->string/utf-8 bstr))
+                           (- end start))
+                         ;; closer:
+                         (lambda () 'nothing-to-close)))
+    (define user-output-port (make-port))
+    (define user-error-output-port (make-port))
     ;;; these two prevent users accidentally remove `> ` or typed commands
     (define/augment can-insert?
       (lambda (start len)
@@ -60,11 +63,18 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define/public (run-module module-str)
       (reset)
       (set! repl-eval
-            (with-handlers ([(λ (e) #t)
-                             (λ (e) (output (exn-message e)))])
-              (parameterize ([sandbox-output user-output-port]
-                             [current-eventspace user-eventspace])
-                (make-module-evaluator module-str))))
+            (parameterize ([sandbox-output user-output-port]
+                           [sandbox-error-output user-error-output-port]
+                           ;; print error to error-output
+                           [sandbox-propagate-exceptions #f]
+                           ;; allow GUI
+                           [sandbox-gui-available #t]
+                           [sandbox-run-submodules '(test main)]
+                           ;; to work under project directory
+                           [sandbox-path-permissions `((execute ,project-directory))]
+                           [current-directory project-directory]
+                           [current-eventspace user-eventspace])
+              (make-module-evaluator module-str)))
       (new-prompt))
     ; util
     (define/private (evaluate str)
