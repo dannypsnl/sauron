@@ -1,5 +1,7 @@
 ### To Release(v0.3.0)
 
+### v0.2.1
+
 * c+w close last tab correctly
 * c+e improve eval module behavior
     * would run submodule test and main
