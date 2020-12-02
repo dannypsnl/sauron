@@ -54,9 +54,12 @@
         ['open (set! opened-buffer* (append opened-buffer* (list file)))]
         ['close (set! opened-buffer* (remove file opened-buffer*))])
       (send this set (map (λ (e) (path->string (file-name-from-path e))) opened-buffer*))
-      (when (> (length opened-buffer*) 0)
-        (send this set-selection (- (length opened-buffer*) 1)))
-      (send editor-canvas set-editor (current-selected-editor)))
+      (if (> (length opened-buffer*) 0)
+        (let ()
+          (send this set-selection (- (length opened-buffer*) 1))
+          (send editor-canvas set-editor (current-selected-editor))
+          (send editor-canvas show #t))
+        (send editor-canvas show #f)))
 
     (define/override (set-selection n)
       (when (< n (send this get-number))
