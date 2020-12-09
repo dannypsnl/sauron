@@ -59,11 +59,14 @@
     (define/public (invalid-message)
       message)))
 
-;;; FIXME: Don't invoke `read` without handler
+(define (safe-read text)
+  (with-handlers ([(λ (e) #t)
+                   (λ (e) #f)])
+    (read (open-input-string text))))
 (define (identifier? text)
-  (symbol? (read (open-input-string text))))
+  (symbol? (safe-read text)))
 (define (expression? text)
-  (read (open-input-string text)))
+  (safe-read text))
 
 ;; FIXME: add for struct insertion
 #;'("#:mutable" "#:super" "#:inspector" "#:auto-value" "#:guard" "#:property" "#:transparent" "#:prefab"
