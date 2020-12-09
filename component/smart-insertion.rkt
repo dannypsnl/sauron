@@ -92,6 +92,20 @@
     [insert ")"])
 
   (send editor set-caret-owner snip))
+(define (smart/define-function editor)
+  (define snip (new smart-insertion-snip% [parent editor]))
+  (send* (send snip get-editor)
+    [insert "(define ("]
+    [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
+                       [validator identifier?]
+                       [message "not an indentifier"])]
+    [insert ") "]
+    [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
+                       [validator expression?]
+                       [message "not an expression"])]
+    [insert ")"])
+
+  (send editor set-caret-owner snip))
 
 (module+ main
   (define test-frame (new frame%
@@ -104,7 +118,7 @@
   (define editor (new racket:text%))
   (send editor-canvas set-editor editor)
 
-  (smart/define-value editor)
+  (smart/define-function editor)
 
   (send test-frame center)
   (send test-frame show #t))
