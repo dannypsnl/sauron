@@ -59,6 +59,40 @@
     (define/public (invalid-message)
       message)))
 
+(define (identifier? text)
+  (symbol? (read (open-input-string text))))
+(define (expression? text)
+  (read (open-input-string text)))
+
+(define (smart/struct editor)
+  (define snip (new smart-insertion-snip% [parent editor]))
+  (send* (send snip get-editor)
+    [insert "(struct "]
+    [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
+                       [validator identifier?]
+                       [message "not an indentifier"])]
+    [insert " ("]
+    [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
+                       [validator identifier?]
+                       [message "not an indentifier"])]
+    [insert "))"])
+
+  (send editor set-caret-owner snip))
+(define (smart/define-value editor)
+  (define snip (new smart-insertion-snip% [parent editor]))
+  (send* (send snip get-editor)
+    [insert "(define "]
+    [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
+                       [validator identifier?]
+                       [message "not an indentifier"])]
+    [insert " "]
+    [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
+                       [validator expression?]
+                       [message "not an expression"])]
+    [insert ")"])
+
+  (send editor set-caret-owner snip))
+
 (module+ main
   (define test-frame (new frame%
                           [label "Smart Insertion component"]
@@ -70,19 +104,7 @@
   (define editor (new racket:text%))
   (send editor-canvas set-editor editor)
 
-  (define snip (new smart-insertion-snip% [parent editor]))
-  (send* (send snip get-editor)
-    [insert "(struct "]
-    [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
-                       [validator (λ (result) (> (string-length (car (regexp-match #rx"[a-z]*" result))) 0))]
-                       [message "not an indentifier"])]
-    [insert " ("]
-    [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
-                       [validator (λ (result) (> (string-length (car (regexp-match #rx"[a-z]*" result))) 0))]
-                       [message "not an indentifier"])]
-    [insert "))"])
-
-  (send editor set-caret-owner snip)
+  (smart/define-value editor)
 
   (send test-frame center)
   (send test-frame show #t))
