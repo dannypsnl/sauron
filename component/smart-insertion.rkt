@@ -2,14 +2,10 @@
 
 (require framework)
 
-;; FIXME: add for struct insertion
-#;'("#:mutable" "#:super" "#:inspector" "#:auto-value" "#:guard" "#:property" "#:transparent" "#:prefab"
-                "#:authentic" "#:name" "#:extra-name" "#:constructor-name" "#:extra-constructor-name"
-                "#:reflection-name" "#:methods" "#:omit-define-syntaxes" "#:omit-define-values")
-
 (define smart-insertion-editor%
   (class racket:text%
     (init-field parent
+                [tab-action #f]
                 [completion-suggestions '()])
     (super-new)
 
@@ -21,6 +17,8 @@
 
     (define/override (on-char e)
       (match (send e get-key-code)
+        [#\tab #:when tab-action
+               (tab-action this)]
         [#\return #:when (not (empty? smart-insert*))
                   (let ([cur-si (car smart-insert*)])
                     (define result (send (send cur-si get-editor) get-text))
@@ -48,9 +46,11 @@
 (define smart-insertion-snip%
   (class editor-snip%
     (init-field parent
+                [tab-action #f]
                 [validator (λ (text) #t)]
                 [message ""])
-    (define editor (new smart-insertion-editor% [parent parent]))
+    (define editor (new smart-insertion-editor% [parent parent]
+                        [tab-action tab-action]))
     (super-new [editor editor])
     (send parent insert this)
 
@@ -59,11 +59,16 @@
     (define/public (invalid-message)
       message)))
 
+;;; FIXME: Don't invoke `read` without handler
 (define (identifier? text)
   (symbol? (read (open-input-string text))))
 (define (expression? text)
   (read (open-input-string text)))
 
+;; FIXME: add for struct insertion
+#;'("#:mutable" "#:super" "#:inspector" "#:auto-value" "#:guard" "#:property" "#:transparent" "#:prefab"
+                "#:authentic" "#:name" "#:extra-name" "#:constructor-name" "#:extra-constructor-name"
+                "#:reflection-name" "#:methods" "#:omit-define-syntaxes" "#:omit-define-values")
 (define (smart/struct editor)
   (define snip (new smart-insertion-snip% [parent editor]))
   (send* (send snip get-editor)
@@ -71,11 +76,7 @@
     [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
                        [validator identifier?]
                        [message "not an indentifier"])]
-    [insert " ("]
-    [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
-                       [validator identifier?]
-                       [message "not an indentifier"])]
-    [insert "))"])
+    [insert " ())"])
 
   (send editor set-caret-owner snip))
 (define (smart/define-value editor)
@@ -107,7 +108,20 @@
 
   (send editor set-caret-owner snip))
 (define (smart/match editor)
-  (define snip (new smart-insertion-snip% [parent editor]))
+  (define snip (new smart-insertion-snip% [parent editor]
+                    [tab-action
+                     (λ (editor)
+                       (send editor set-position (send editor line-end-position 0))
+                       (send* editor
+                         [insert "\n  ["]
+                         [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
+                                            [validator expression?]
+                                            [message "not an expression"])]
+                         [insert " "]
+                         [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
+                                            [validator expression?]
+                                            [message "not an expression"])]
+                         [insert "]"]))]))
   (send* (send snip get-editor)
     [insert "(match "]
     [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
@@ -121,7 +135,20 @@
 
   (send editor set-caret-owner snip))
 (define (smart/cond editor)
-  (define snip (new smart-insertion-snip% [parent editor]))
+  (define snip (new smart-insertion-snip% [parent editor]
+                    [tab-action
+                     (λ (editor)
+                       (send editor set-position (send editor line-end-position 0))
+                       (send* editor
+                         [insert "\n  ["]
+                         [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
+                                            [validator expression?]
+                                            [message "not an expression"])]
+                         [insert " "]
+                         [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
+                                            [validator expression?]
+                                            [message "not an expression"])]
+                         [insert "]"]))]))
   (send* (send snip get-editor)
     [insert "(cond"]
     [insert "\n  [else "]
