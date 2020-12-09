@@ -113,7 +113,17 @@
     [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
                        [validator expression?]
                        [message "not an expression"])]
-    [insert ""]
+    [insert "\n  [else "]
+    [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
+                       [validator expression?]
+                       [message "not an expression"])]
+    [insert "])"])
+
+  (send editor set-caret-owner snip))
+(define (smart/cond editor)
+  (define snip (new smart-insertion-snip% [parent editor]))
+  (send* (send snip get-editor)
+    [insert "(cond"]
     [insert "\n  [else "]
     [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
                        [validator expression?]
@@ -133,7 +143,7 @@
   (define editor (new racket:text%))
   (send editor-canvas set-editor editor)
 
-  (smart/match editor)
+  (smart/cond editor)
 
   (send test-frame center)
   (send test-frame show #t))
