@@ -2,45 +2,62 @@
 
 (require framework)
 
-(define (insert editor text #:apply-styles [styles '()])
-  (let ((start (send editor last-position)))
-    (send editor insert (make-object string-snip% text))
-    (define end (send editor last-position))
-    (for ([style (in-list styles)])
-      (send editor change-style style start end #f))))
+;; FIXME: add for struct insertion
+#;'("#:mutable" "#:super" "#:inspector" "#:auto-value" "#:guard" "#:property" "#:transparent" "#:prefab"
+                "#:authentic" "#:name" "#:extra-name" "#:constructor-name" "#:extra-constructor-name"
+                "#:reflection-name" "#:methods" "#:omit-define-syntaxes" "#:omit-define-values")
 
-(define struct-insertion:text%
+(define smart-insertion-editor%
   (class racket:text%
-    (init-field parent)
-    (inherit auto-complete)
+    (init-field parent
+                [completion-suggestions '()])
     (super-new)
 
-    (insert this "(")
-    (insert this "struct")
-    (insert this " ()")
-    (insert this ")")
+    (define smart-insert* '())
+    (define/public (insert/smart si)
+      (set! smart-insert* (append smart-insert* (list si)))
+      (send this set-caret-owner (car smart-insert*))
+      (send this insert si))
 
     (define/override (on-char e)
       (match (send e get-key-code)
-        ;[#\# (auto-complete)]
+        [#\return #:when (not (empty? smart-insert*))
+                  (let ([cur-si (car smart-insert*)])
+                    (define result (send (send cur-si get-editor) get-text))
+                    (if (send cur-si valid? result)
+                        (let* ([x (box 0)]
+                               [y (box 0)])
+                          (send this get-snip-location cur-si x y)
+                          (send* this
+                            [release-snip cur-si]
+                            [set-position (send this find-position (unbox x) (unbox y))]
+                            [insert result])
+                          (set! smart-insert* (cdr smart-insert*))
+                          (when (not (empty? smart-insert*))
+                            (send this set-caret-owner (car smart-insert*))))
+                        (message-box "invalid" (send cur-si invalid-message))))]
         [#\return #:when (send e get-meta-down)
-                  (define this-snip (send parent get-focus-snip))
+                  (define result (send this get-text))
                   (send* parent
-                    [release-snip this-snip]
-                    [insert (send this get-text)])]
+                    [release-snip (send parent get-focus-snip)]
+                    [insert result])]
         [else (super on-char e)]))
 
-    ;; FIXME: auto-complete won't work in editor-snip%
-    (define/override (get-all-words)
-      '("#:mutable" "#:super" "#:inspector" "#:auto-value" "#:guard" "#:property" "#:transparent" "#:prefab"
-                    "#:authentic" "#:name" "#:extra-name" "#:constructor-name" "#:extra-constructor-name"
-                    "#:reflection-name" "#:methods" "#:omit-define-syntaxes" "#:omit-define-values"))))
+    (define/override (get-all-words) completion-suggestions)))
 
 (define smart-insertion-snip%
   (class editor-snip%
-    (init-field parent)
-    (define editor (new struct-insertion:text% [parent parent]))
-    (super-new [editor editor])))
+    (init-field parent
+                [validator (λ (text) #t)]
+                [message ""])
+    (define editor (new smart-insertion-editor% [parent parent]))
+    (super-new [editor editor])
+    (send parent insert this)
+
+    (define/public (valid? text)
+      (validator text))
+    (define/public (invalid-message)
+      message)))
 
 (module+ main
   (define test-frame (new frame%
@@ -53,11 +70,18 @@
   (define editor (new racket:text%))
   (send editor-canvas set-editor editor)
 
-  (define snip-editor (new struct-insertion:text% [parent editor]))
-  
-  (define snip (new editor-snip% [editor snip-editor]))
+  (define snip (new smart-insertion-snip% [parent editor]))
+  (send* (send snip get-editor)
+    [insert "(struct "]
+    [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
+                       [validator (λ (result) (> (string-length (car (regexp-match #rx"[a-z]*" result))) 0))]
+                       [message "not an indentifier"])]
+    [insert " ("]
+    [insert/smart (new smart-insertion-snip% [parent (send snip get-editor)]
+                       [validator (λ (result) (> (string-length (car (regexp-match #rx"[a-z]*" result))) 0))]
+                       [message "not an indentifier"])]
+    [insert "))"])
 
-  (send editor insert snip)
   (send editor set-caret-owner snip)
 
   (send test-frame center)
