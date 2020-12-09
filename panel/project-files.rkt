@@ -56,7 +56,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     ;; open top dir-list by default
     (send top-dir-list open)))
 
-(module+ test
+(module+ main
   (require framework)
   (require "../editor.rkt")
 
