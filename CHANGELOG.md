@@ -1,5 +1,10 @@
 ### To Release(v0.3.0)
 
+* smart insertion
+    * prepare for advanced auto complete
+    * c+enter complete the insertion
+    * customizable tab action
+
 ### v0.2.1
 
 * c+w close last tab correctly
