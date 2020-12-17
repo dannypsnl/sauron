@@ -52,7 +52,7 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
 REPL panel helps users quickly testing their ideas, it has a few key bindings can work on it:
 
     @itemlist[
-      @item{<enter> evaluate and save expression into history(also reset selected status to no selection)}
+      @item{<enter> evaluate and save expression into evaluated history(also reset selected status to no selection)}
       @item{<up> switch to previous expression in history}
       @item{<down> switch to next expression in history}
     ]

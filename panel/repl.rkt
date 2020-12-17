@@ -47,7 +47,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
         (and (>= start prompt-pos) (not locked?))))
 
     ;; previous-command-history*: (Listof String)
-    (define previous-command-history* '())
+    (define evaluated-history '())
     ;; current-selected-index: Integer
     (define current-selected-index -1)
     (define (decrease-selected-index)
@@ -56,16 +56,16 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
           (set! current-selected-index new-val))))
     (define (increase-selected-index)
       (let ([new-val (add1 current-selected-index)])
-        (when (< new-val (length previous-command-history*))
+        (when (< new-val (length evaluated-history))
           (set! current-selected-index new-val))))
-    (define (current-command)
+    (define (current-selected-expression)
       (if (not (eq? current-selected-index -1))
-        (list-ref previous-command-history* current-selected-index)
+        (list-ref evaluated-history current-selected-index)
         ""))
 
-    (define/private (refresh-command)
+    (define/private (refresh-prompt)
       (send this set-position prompt-pos (last-position))
-      (send this insert (current-command)))
+      (send this insert (current-selected-expression)))
 
     ;;; hajack special keys
     (define/override (on-char c)
@@ -77,12 +77,12 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                     (set! locked? #t)
                     (let ([command (get-text prompt-pos (- (last-position) 1))])
                       (evaluate (read (open-input-string command)))
-                      (set! previous-command-history* (cons command previous-command-history*))
+                      (set! evaluated-history (cons command evaluated-history))
                       (set! current-selected-index -1)))]
         ['up (increase-selected-index)
-             (refresh-command)]
+             (refresh-prompt)]
         ['down (decrease-selected-index)
-               (refresh-command)]
+               (refresh-prompt)]
         ['left (super on-char c)
                (let ([new-pos (get-start-position)])
                  (when (< new-pos prompt-pos)
