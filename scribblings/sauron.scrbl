@@ -47,6 +47,16 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   @item{c+0..9 would select tab, at most 10 tabs, 1 maps to the first, and 0 maps to the last when all 10 tabs are showed}
   @item{c+w would close current tab})
 
+@subsection{Panel: REPL}
+
+REPL panel helps users quickly testing their ideas, it has a few key bindings can work on it:
+
+    @itemlist[
+      @item{<enter> evaluate and save expression into history(also reset selected status to no selection)}
+      @item{<up> switch to previous expression in history}
+      @item{<down> switch to next expression in history}
+    ]
+
 @subsection{Panel: Version Control}
 
 You can use c+k open version control panel, once open the panel, it has two part:
