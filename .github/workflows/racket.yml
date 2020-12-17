@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        racket-variant: [ 'BC', 'CS' ]
         racket-version: [ '7.8', '7.9', 'current' ]
     steps:
     - uses: actions/checkout@master
@@ -26,6 +27,7 @@ jobs:
       uses: Bogdanp/setup-racket@v0.8
       with:
         architecture: 'x64'   # (x64 or x86), ignored on Linux
+        variant: ${{ matrix.racket-variant }}
         version: ${{ matrix.racket-version }}        # or 'current' for the latest snapshot
     - run: raco pkg install --auto
     - run: raco test ./pos-range.rkt
