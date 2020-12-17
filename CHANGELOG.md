@@ -1,5 +1,9 @@
 ### To Release(v0.3.0)
 
+* [repl] switching expression from evaluated history
+    * up select previous
+    * down select next
+    * enter evaluate, record history and reset selection status
 * smart insertion
     * prepare for advanced auto complete
     * c+enter complete the insertion
