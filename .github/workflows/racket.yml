@@ -24,7 +24,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Setup Racket
-      uses: Bogdanp/setup-racket@v0.8
+      uses: Bogdanp/setup-racket@v0.12
       with:
         architecture: 'x64'   # (x64 or x86), ignored on Linux
         variant: ${{ matrix.racket-variant }}
