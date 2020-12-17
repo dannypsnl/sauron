@@ -45,6 +45,28 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define/augment can-delete?
       (lambda (start end)
         (and (>= start prompt-pos) (not locked?))))
+
+    ;; previous-command-history*: (Listof String)
+    (define previous-command-history* '())
+    ;; current-selected-index: Integer
+    (define current-selected-index -1)
+    (define (decrease-selected-index)
+      (let ([new-val (sub1 current-selected-index)])
+        (when (>= new-val -1)
+          (set! current-selected-index new-val))))
+    (define (increase-selected-index)
+      (let ([new-val (add1 current-selected-index)])
+        (when (< new-val (length previous-command-history*))
+          (set! current-selected-index new-val))))
+    (define (current-command)
+      (if (not (eq? current-selected-index -1))
+        (list-ref previous-command-history* current-selected-index)
+        ""))
+
+    (define/private (refresh-command)
+      (send this set-position prompt-pos (last-position))
+      (send this insert (current-command)))
+
     ;;; hajack special keys
     (define/override (on-char c)
       (match (send c get-key-code)
@@ -53,7 +75,14 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                   (super on-char c)
                   (when (not locked?)
                     (set! locked? #t)
-                    (evaluate (read (open-input-string (get-text prompt-pos (last-position))))))]
+                    (let ([command (get-text prompt-pos (- (last-position) 1))])
+                      (evaluate (read (open-input-string command)))
+                      (set! previous-command-history* (cons command previous-command-history*))
+                      (set! current-selected-index -1)))]
+        ['up (increase-selected-index)
+             (refresh-command)]
+        ['down (decrease-selected-index)
+               (refresh-command)]
         ['left (super on-char c)
                (let ([new-pos (get-start-position)])
                  (when (< new-pos prompt-pos)
@@ -121,7 +150,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
   (define repl-canvas (new editor-canvas%
                            [parent test-frame]
                            [style '(no-hscroll)]))
-  (define repl (new repl-text%))
+  (define repl (new repl-text% [project-directory ""]))
   (send repl-canvas set-editor repl)
 
   (send test-frame show #t))
