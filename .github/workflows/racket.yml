@@ -30,4 +30,4 @@ jobs:
         variant: ${{ matrix.racket-variant }}
         version: ${{ matrix.racket-version }}        # or 'current' for the latest snapshot
     - run: raco pkg install --auto
-    - run: raco test ./pos-range.rkt
+    - run: make test
