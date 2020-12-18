@@ -1,7 +1,7 @@
 #lang info
 (define collection "sauron")
 (define deps '("base" "gui-lib" "net-lib"
-               "drracket-tool-lib"))
+               "drracket-tool-lib" "sandbox-lib"))
 (define build-deps '("scribble-lib" "racket-doc" "rackunit-lib"
                      "gui-doc"))
 (define scribblings '(("scribblings/sauron.scrbl" ())))
