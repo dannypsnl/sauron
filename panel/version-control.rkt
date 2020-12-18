@@ -1,6 +1,6 @@
 #lang racket/gui
 
-(require "../component/common-editor.rkt")
+(require "../component/common-text.rkt")
 
 (provide version-control%)
 (define version-control%

@@ -7,7 +7,7 @@
 (require net/sendurl)
 (require drracket/check-syntax
          drracket/private/tooltip)
-(require "component/common-editor.rkt"
+(require "component/common-text.rkt"
          "meta.rkt"
          "pos-range.rkt")
 

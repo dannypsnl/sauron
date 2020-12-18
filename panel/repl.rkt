@@ -9,7 +9,8 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
 (require framework)
 (require racket/sandbox)
-(require "../component/common-editor.rkt")
+(require "../component/common-text.rkt"
+         "repl/history.rkt")
 
 (define repl-text%
   (class common:text%
@@ -46,23 +47,6 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (lambda (start end)
         (and (>= start prompt-pos) (not locked?))))
 
-    ;; previous-command-history*: (Listof String)
-    (define evaluated-history '())
-    ;; current-selected-index: Integer
-    (define current-selected-index -1)
-    (define (decrease-selected-index)
-      (let ([new-val (sub1 current-selected-index)])
-        (when (>= new-val -1)
-          (set! current-selected-index new-val))))
-    (define (increase-selected-index)
-      (let ([new-val (add1 current-selected-index)])
-        (when (< new-val (length evaluated-history))
-          (set! current-selected-index new-val))))
-    (define (current-selected-expression)
-      (if (not (eq? current-selected-index -1))
-        (list-ref evaluated-history current-selected-index)
-        ""))
-
     (define/private (refresh-prompt)
       (send this set-position prompt-pos (last-position))
       (send this insert (current-selected-expression)))
@@ -75,10 +59,9 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                   (super on-char c)
                   (when (not locked?)
                     (set! locked? #t)
-                    (let ([command (get-text prompt-pos (- (last-position) 1))])
-                      (evaluate (read (open-input-string command)))
-                      (set! evaluated-history (cons command evaluated-history))
-                      (set! current-selected-index -1)))]
+                    (let ([e (get-text prompt-pos (- (last-position) 1))])
+                      (evaluate (read (open-input-string e)))
+                      (new-history e)))]
         ['up (increase-selected-index)
              (refresh-prompt)]
         ['down (decrease-selected-index)
