@@ -4,7 +4,7 @@ SCRBL=scribblings/sauron.scrbl
 .PHONY: test docs publish clean
 
 test:
-	@raco test ./pos-range.rkt
+	@raco test ./pos-range.rkt ./panel/repl/history.rkt
 
 clean:
 	find . -name compiled -type d | xargs rm -rf
