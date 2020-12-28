@@ -3,9 +3,7 @@
 (provide starter%)
 (define starter%
   (class frame%
-    (init-field open-ide
-                ;;; for debugging
-                [open-path #f])
+    (init-field [open-ide (λ (path) (message-box "dummy" (format "~a opened" path)))])
     (super-new)
 
     ;;; auto setup configuration
@@ -52,19 +50,18 @@
            (loop (read-line f))]))
       (close-input-port f))
 
-    (define (run)
+    (define/public (run)
       (auto-setup-configuration-env)
       (load-projs)
       (send this center 'both)
       (send this show #t))
 
-    ;;; load projects
-    (if open-path
-        (open-ide open-path)
-        (run))))
+    (send* this
+      [center 'both]
+      [run])))
 
 (module+ main
-  (new starter%
-       [label "select a project"]
-       [width 300] [height 300]
-       [open-ide #f]))
+  (define starter (new starter%
+                       [label "select a project"]
+                       [width 300] [height 300]))
+  (send starter show #t))

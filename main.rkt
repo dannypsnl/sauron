@@ -16,7 +16,6 @@
                        [width 300]
                        [height 300]
                        [open-ide ide-main]))
-  (send starter center 'both)
   (send starter show #t))
 
 (define (ide-main cur-project-path)
