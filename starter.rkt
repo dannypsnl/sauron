@@ -23,8 +23,12 @@
                           [choices '()]
                           [callback
                            (λ (starter event)
-                             (send this show #f)
-                             (open-ide (string->path (send starter get-string (send starter get-selection)))))]))
+                             (let ([path (string->path (send starter get-string-selection))])
+                               (if (directory-exists? path)
+                                   (begin
+                                     (send this show #f)
+                                     (open-ide path))
+                                   (message-box "Failed" "project not existed"))))]))
 
     (new button% [parent this]
          [label "add project"]
@@ -35,7 +39,9 @@
               (call-with-output-file projects-file
                 (λ (port)
                   (parameterize ([current-output-port port])
+                    ; put path into config
                     (displayln path)
+                    ; append into current selectable list
                     (send list-box append (path->string path))))
                 #:exists 'append)))])
 
