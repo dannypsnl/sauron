@@ -47,10 +47,12 @@
         (close-input-port err)))
 
     (define ready-zone-cache (make-hash))
-    (define ready-zone (new vertical-panel% [parent this]
+    (define ready-zone (new group-box-panel% [parent this]
+                            [label "ready"]
                             [alignment '(left top)]))
     (define changes-zone-cache (make-hash))
-    (define changes-zone (new vertical-panel% [parent this]
+    (define changes-zone (new group-box-panel% [parent this]
+                              [label "changes"]
                               [alignment '(left top)]))
 
     (define/public (update-status)
@@ -95,7 +97,7 @@
                 [?remove-button-action #f]
                 [?add-button-action #f]
                 [stretchable-width #f] [stretchable-height #f])
-    (super-new)
+    (super-new [alignment '(left top)])
 
     (define msg (new message% [parent this] [label filename]))
     (when ?remove-button-action

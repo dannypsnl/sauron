@@ -1,5 +1,6 @@
 ### To Release(v0.3.0)
 
+* [vc] add ready and changes view block and reduce space between items
 * [starter:fix] non-existed project would popup warning message and won't open IDE
 * [repl] switching expression from evaluated history
     * up select previous
