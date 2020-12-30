@@ -23,10 +23,10 @@
             [#\return #:when (send e get-meta-down)
                       (run (format "git commit -m '~a'" (get-text)))
                       (erase)
-                      ;;; after commit, we need to refresh the ready zone
-                      (set! ready-zone-cache (make-hash))
-                      (for ([f (send ready-zone get-children)])
-                        (send ready-zone delete-child f))
+                      ;;; after commit, we need to refresh files
+                      ; it's ok to commit without any ready files, in this case, all files be removed and added back later
+                      (for ([f (send files-zone get-children)])
+                        (send files-zone delete-child f))
                       (update-status)]
             [else (super on-char e)]))))
     (define commit-message-editor (new commit-editor%))
@@ -34,28 +34,23 @@
 
     ;;; ready/changes zone
     (define (run cmd [callback #f])
-      (match-let ([(list out in pid err invoke)
-                   (parameterize ([current-directory project-folder])
-                     (process cmd))])
-        (invoke 'wait)
+      (parameterize ([current-directory project-folder])
+        (match-let ([(list out in pid err invoke) (process cmd)])
+          (invoke 'wait)
 
-        (when callback
-          (callback out in err))
+          (when callback
+            (callback out in err))
 
-        (close-output-port in)
-        (close-input-port out)
-        (close-input-port err)))
+          (close-output-port in)
+          (close-input-port out)
+          (close-input-port err))))
 
-    (define ready-zone-cache (make-hash))
-    (define ready-zone (new group-box-panel% [parent this]
-                            [label "ready"]
+    (define files-zone (new group-box-panel% [parent this]
+                            [label "files"]
                             [alignment '(left top)]))
-    (define changes-zone-cache (make-hash))
-    (define changes-zone (new group-box-panel% [parent this]
-                              [label "changes"]
-                              [alignment '(left top)]))
 
     (define/public (update-status)
+      ; show current status one file one line
       (run "git status --short --untracked-files=all"
            (λ (out in err)
              (let loop ([output (read-line out)])
@@ -63,29 +58,15 @@
                  [(eof-object? output) (void)]
                  [else
                   (match-let ([(cons kind filename) (parse-git-output output)])
-                    (match kind
-                      ['ready
-                       (when (not (hash-ref ready-zone-cache filename #f))
-                         (new file-object% [parent ready-zone]
-                              [filename filename]
-                              [?remove-button-action
-                               (λ (this filename)
-                                 (run (format "git reset HEAD ~a" (build-path project-folder filename)))
-                                 (send ready-zone delete-child this)
-                                 (hash-remove! ready-zone-cache filename)
-                                 (update-status))]))
-                       (hash-set! ready-zone-cache filename #t)]
-                      ['changes
-                       (when (not (hash-ref changes-zone-cache filename #f))
-                         (new file-object% [parent changes-zone]
-                              [filename filename]
-                              [?add-button-action
-                               (λ (this filename)
-                                 (run (format "git add ~a" (build-path project-folder filename)))
-                                 (send changes-zone delete-child this)
-                                 (hash-remove! changes-zone-cache filename)
-                                 (update-status))]))
-                       (hash-set! changes-zone-cache filename #t)]))
+                    (new file-object% [parent files-zone]
+                         [filename filename]
+                         [add-to-ready
+                          (λ (this filename)
+                            (run (format "git add ~a" (build-path project-folder filename))))]
+                         [remove-from-ready
+                          (λ (this filename)
+                            (run (format "git reset HEAD ~a" (build-path project-folder filename))))]
+                         [status kind]))
                   (loop (read-line out))])))))
 
     ;;; init
@@ -94,24 +75,23 @@
 (define file-object%
   (class horizontal-panel%
     (init-field filename
-                [?remove-button-action #f]
-                [?add-button-action #f]
-                [stretchable-width #f] [stretchable-height #f])
+                add-to-ready
+                remove-from-ready
+                status)
     (super-new [alignment '(left top)])
 
-    (define msg (new message% [parent this] [label filename]))
-    (when ?remove-button-action
-      (new button% [parent this]
-           [label "-"]
-           [callback
-            (λ (btn e)
-              (?remove-button-action this filename))]))
-    (when ?add-button-action
-      (new button% [parent this]
-           [label "+"]
-           [callback
-            (λ (btn e)
-              (?add-button-action this filename))]))))
+    (new check-box% [parent this]
+         [label filename]
+         [value (match status
+                  ['ready #t]
+                  ['changes #f])]
+         [callback
+          (λ (check-box event)
+            (define clicked? (send check-box get-value))
+            (displayln clicked?)
+            (if clicked?
+                (add-to-ready this filename)
+                (remove-from-ready this filename)))])))
 
 (define (parse-git-output output)
   (cons
