@@ -91,6 +91,10 @@ For example:
 
 Type @code[#:lang "racket"]{i} would trigger completion.
 
+@subsubsection{smart insertion}
+
+Smart insertion is an interactive insert mode for creating correct input of program. For example, it would check identifier of `define` form.
+
 @subsection{LaTeX input}
 
 Sauron also supports convert input \all to ∀. This is helpful for PLT or Math researchers. Full list can refer to @code[#:lang "racket"]{latex-complete} in @(link "https://github.com/racket-tw/sauron/blob/master/meta.rkt" "meta.rkt").

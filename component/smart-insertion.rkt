@@ -1,12 +1,13 @@
 #lang racket/gui
 
+(provide (all-defined-out))
+
 (require framework)
 
 (define smart-insertion-editor%
   (class racket:text%
     (init-field parent
-                [tab-action #f]
-                [completion-suggestions '()])
+                [tab-action #f])
     (super-new)
 
     (define smart-insert* '())
@@ -38,10 +39,9 @@
                   (define result (send this get-text))
                   (send* parent
                     [release-snip (send parent get-focus-snip)]
-                    [insert result])]
-        [else (super on-char e)]))
-
-    (define/override (get-all-words) completion-suggestions)))
+                    [insert result]
+                    [on-focus #t])]
+        [else (super on-char e)]))))
 
 (define smart-insertion-snip%
   (class editor-snip%

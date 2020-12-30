@@ -1,5 +1,6 @@
 ### To Release(v0.3.0)
 
+* [editor] autocomplete invoke smart insertion
 * [vc] let changed files clickable, when clicked means ready to commit, else is not
 * [vc] remove ready/changes zone concept
 * [starter:fix] non-existed project would popup warning message and won't open IDE

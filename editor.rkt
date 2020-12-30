@@ -8,6 +8,7 @@
 (require drracket/check-syntax
          drracket/private/tooltip)
 (require "component/common-text.rkt"
+         "component/autocomplete.rkt"
          "meta.rkt"
          "pos-range.rkt")
 
@@ -27,11 +28,12 @@
              ; from common:text%
              will-do-nothing-with)
 
-    (field [user-defined-complete (make-hash)]
-           [jumping-map (make-hash)]
+    (field [jumping-map (make-hash)]
            [all-occurs-map (make-hash)]
            [open-document-map (make-hash)]
-           [mouse-over-status-map (make-hash)])
+           [mouse-over-status-map (make-hash)]
+           [word=>action (make-hash)]
+           [word* '()])
     (super-new)
 
     (define tooltip (new tooltip-frame%))
@@ -100,7 +102,8 @@
                  (send-url/file document-path?)))]
         [#\b #:when (send e get-meta-down)
              (jump-to-definition (get-start-position))]
-        [key-code #:when (and (not (or (send e get-meta-down)
+        [key-code #:when (and (send this has-focus?)
+                              (not (or (send e get-meta-down)
                                        (send e get-control-down)
                                        (send e get-shift-down)
                                        (send e get-alt-down)
@@ -119,7 +122,7 @@
 
     ; new user defined
     (define/private (add-user-defined id range-start range-end binding-range)
-      (hash-set! user-defined-complete id binding-range)
+      (add-completion id id)
       (for ([pos (in-range range-start (+ 1 range-end))])
         (hash-set! jumping-map pos binding-range))
       ; binding backtracing occurs
@@ -139,11 +142,12 @@
 
     (define/public (update-env)
       ;;; renew environment
-      (set! user-defined-complete (make-hash))
       (set! jumping-map (make-hash))
       (set! all-occurs-map (make-hash))
       (set! open-document-map (make-hash))
       (set! mouse-over-status-map (make-hash))
+      (set! word=>action (make-hash))
+      (set! word* '())
 
       (let ([text (get-filename)])
         ;;; TODO: show-content reports error via exception, catch and show
@@ -175,16 +179,42 @@
             [(vector syncheck:add-jump-to-definition start end id filename submods) (void)]
             [else (printf "else: ~a~n" e)]))))
 
-    ;;; auto complete words
-    (define/override (get-all-words)
-      (flatten
-       (append racket-builtin-form*
-               (hash-keys user-defined-complete))))
     ;;; get current sexp range
     (define/private (get-cur-sexp-range pos)
       (let* ([start (get-backward-sexp (+ 1 pos))]
              [end (get-forward-sexp start)])
-        (pos-range start end)))))
+        (pos-range start end)))
+
+    ;;; auto complete
+    (define autocomplete-awake? #f)
+    (for ([(word action) racket-builtin-form*])
+      (add-completion word action))
+
+    ; word : string?
+    ; action : (or string? smart-insertion?)
+    (define/private (add-completion word action)
+      ; avoid duplicate
+      (unless (hash-ref word=>action word #f)
+        (set! word* (cons word word*)))
+      ; only add action for need
+      (hash-set! word=>action word action))
+
+    (define/augment (after-insert start len)
+      (when autocomplete-awake?
+        (define inserted-word (get-text start (+ start len)))
+        (define action (hash-ref word=>action inserted-word #f))
+        (when action
+          (if (symbol? action)
+            (void)
+            (let ()
+              (send this set-position start (+ start len))
+              ; action expected current editor
+              (action this)))))
+      (set! autocomplete-awake? #f))
+
+    (define/override (get-all-words)
+      (set! autocomplete-awake? #t)
+      word*)))
 
 (module+ main
   (define test-frame (new frame%
