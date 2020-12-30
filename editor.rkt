@@ -148,6 +148,8 @@
       (set! mouse-over-status-map (make-hash))
       (set! word=>action (make-hash))
       (set! word* '())
+      (for ([(word action) racket-builtin-form*])
+        (add-completion word action))
 
       (let ([text (get-filename)])
         ;;; TODO: show-content reports error via exception, catch and show
@@ -205,11 +207,11 @@
         (define action (hash-ref word=>action inserted-word #f))
         (when action
           (if (string? action)
-            (void)
-            (let ()
-              (send this set-position start (+ start len))
-              ; action expected current editor
-              (action this)))))
+              (void)
+              (let ()
+                (send this set-position start (+ start len))
+                ; action expected current editor
+                (action this)))))
       (set! autocomplete-awake? #f))
 
     (define/override (get-all-words)
