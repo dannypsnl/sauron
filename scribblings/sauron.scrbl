@@ -65,9 +65,9 @@ You can use c+k open version control panel, once open the panel, it has two part
 
 You can type commit message in this editor, use c+<enter> to commit.
 
-@subsubsection{ready/changes zone}
+@subsubsection{Changed files}
 
-ready zone would be commit, you can move objects to changes zone by click remove button, objects in changes zone can be add into ready zone.
+Changed files would show below of the commit editor, they were clickable. Clicked means ready to commit, else is not.
 
 @subsection{Panel: Project Files}
 
