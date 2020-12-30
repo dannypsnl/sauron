@@ -204,7 +204,7 @@
         (define inserted-word (get-text start (+ start len)))
         (define action (hash-ref word=>action inserted-word #f))
         (when action
-          (if (symbol? action)
+          (if (string? action)
             (void)
             (let ()
               (send this set-position start (+ start len))
