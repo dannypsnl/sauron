@@ -71,7 +71,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
   (new project-files% [parent panel]
        [dir (build-path (find-system-path 'home-dir) "racket.tw" "developing")]
-       [editor editor])
+       [editor-panel editor])
 
   (new editor-canvas% [parent panel]
        [editor editor]
