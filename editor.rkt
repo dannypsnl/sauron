@@ -8,7 +8,7 @@
 (require drracket/check-syntax
          drracket/private/tooltip)
 (require "component/common-text.rkt"
-         "component/autocomplete.rkt"
+         "env/autocomplete.rkt"
          "meta.rkt"
          "pos-range.rkt")
 
@@ -32,8 +32,8 @@
            [all-occurs-map (make-hash)]
            [open-document-map (make-hash)]
            [mouse-over-status-map (make-hash)]
-           [word=>action (make-hash)]
-           [word* '()])
+           [word=>action racket-builtin-form*]
+           [word* racket-builtin-form*-word])
     (super-new)
 
     (define tooltip (new tooltip-frame%))
@@ -146,10 +146,8 @@
       (set! all-occurs-map (make-hash))
       (set! open-document-map (make-hash))
       (set! mouse-over-status-map (make-hash))
-      (set! word=>action (make-hash))
-      (set! word* '())
-      (for ([(word action) racket-builtin-form*])
-        (add-completion word action))
+      (set! word=>action racket-builtin-form*)
+      (set! word* racket-builtin-form*-word)
 
       (let ([text (get-filename)])
         ;;; TODO: show-content reports error via exception, catch and show
@@ -189,8 +187,6 @@
 
     ;;; auto complete
     (define autocomplete-awake? #f)
-    (for ([(word action) racket-builtin-form*])
-      (add-completion word action))
 
     ; word : string?
     ; action : (or string? smart-insertion?)
