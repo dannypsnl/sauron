@@ -134,7 +134,6 @@
            (pos-range-end binding-range)))))
 
     (define/public (update-env)
-      ;;; renew environment
       (refresh-env)
 
       (let ([text (get-filename)])
