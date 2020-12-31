@@ -1,4 +1,6 @@
-### To Release(v0.3.0)
+### To Release v0.4.0
+
+### v0.3.0
 
 * [editor] autocomplete invoke smart insertion
 * [vc] let changed files clickable, when clicked means ready to commit, else is not
