@@ -8,7 +8,7 @@
 (require drracket/check-syntax
          drracket/private/tooltip)
 (require "component/common-text.rkt"
-         "env/autocomplete.rkt"
+         "env/top-level.rkt"
          "meta.rkt"
          "pos-range.rkt")
 
@@ -20,20 +20,13 @@
              get-text set-position insert
              get-backward-sexp get-forward-sexp
              position-locations
-             position-line line-start-position line-end-position
-             uncomment-selection comment-out-selection
+             position-line line-end-position
              get-filename
              set-clickback
              auto-complete
              ; from common:text%
              will-do-nothing-with)
 
-    (field [jumping-map (make-hash)]
-           [all-occurs-map (make-hash)]
-           [open-document-map (make-hash)]
-           [mouse-over-status-map (make-hash)]
-           [word=>action racket-builtin-form*]
-           [word* racket-builtin-form*-word])
     (super-new)
 
     (define tooltip (new tooltip-frame%))
@@ -142,12 +135,7 @@
 
     (define/public (update-env)
       ;;; renew environment
-      (set! jumping-map (make-hash))
-      (set! all-occurs-map (make-hash))
-      (set! open-document-map (make-hash))
-      (set! mouse-over-status-map (make-hash))
-      (set! word=>action racket-builtin-form*)
-      (set! word* racket-builtin-form*-word)
+      (refresh-env)
 
       (let ([text (get-filename)])
         ;;; TODO: show-content reports error via exception, catch and show
@@ -187,15 +175,6 @@
 
     ;;; auto complete
     (define autocomplete-awake? #f)
-
-    ; word : string?
-    ; action : (or string? smart-insertion?)
-    (define/private (add-completion word action)
-      ; avoid duplicate
-      (unless (hash-ref word=>action word #f)
-        (set! word* (cons word word*)))
-      ; only add action for need
-      (hash-set! word=>action word action))
 
     (define/augment (after-insert start len)
       (when autocomplete-awake?
