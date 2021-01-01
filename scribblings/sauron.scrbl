@@ -15,23 +15,10 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
 @subsection{Shortcut}
 
 @(itemlist
-  ;;; file
-  @item{c+o open file}
-  @item{c+s save file(would auto indent code)}
   ;;; program
   @item{c+e run REPL}
   ;;; version control
   @item{c+k open version control panel}
-  ;;; edit
-  @item{c+a select all}
-  @item{c+c copy}
-  @item{c+v paste}
-  @item{c+z undo}
-  @item{c+x cut}
-  ;;; move cursor
-  @item{c+<up>/<down>/<left>/<right> move to most up/down/left/right}
-  @item{o+<left> move left by a token/s-exp}
-  @item{o+<right> move right by a token/s-exp}
   ; jump to definition
   @item{c+b or <click> jump to definition(notice that only identifier is clickable to trigger this)}
   ; open document
@@ -42,10 +29,7 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   @item{c+; comment selected text or line if uncommented, uncomment if commented}
   ;;; misc
   @item{c+f open text searcher}
-  @item|{(/[/{/" when has selected text, wrap selected text automatically}|
-  ;;; For Editor Tabs
-  @item{c+0..9 would select tab, at most 10 tabs, 1 maps to the first, and 0 maps to the last when all 10 tabs are showed}
-  @item{c+w would close current tab})
+  @item|{(/[/{/" when has selected text, wrap selected text automatically}|)
 
 @subsection{Panel: REPL}
 
