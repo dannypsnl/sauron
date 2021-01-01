@@ -25,8 +25,6 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   @item{c+d open document}
   ; refactor
   @item{c+r rename all bound}
-  ;;; comment/uncomment
-  @item{c+; comment selected text or line if uncommented, uncomment if commented}
   ;;; misc
   @item{c+f open text searcher}
   @item|{(/[/{/" when has selected text, wrap selected text automatically}|)
@@ -90,6 +88,8 @@ New user guide, most features should move to here in the end.
 @itemlist[
     @item{c+backspace delete whole line from current position}
     @item{o+backspace delete previous sexp}
+    ;;; comment/uncomment
+    @item{c+; comment selected text or line if uncommented, uncomment if commented}
 ]
 
 @section{Develop}
