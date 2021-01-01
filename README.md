@@ -10,5 +10,4 @@ Sauron is an IDE for Racket language.
 
 ```sh
 raco pkg install --auto sauron
-racket -l sauron
 ```
