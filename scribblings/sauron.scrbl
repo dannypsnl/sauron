@@ -26,7 +26,6 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   ; refactor
   @item{c+r rename all bound}
   ;;; misc
-  @item{c+f open text searcher}
   @item|{(/[/{/" when has selected text, wrap selected text automatically}|)
 
 @subsection{Panel: REPL}
