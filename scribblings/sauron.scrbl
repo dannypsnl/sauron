@@ -99,6 +99,15 @@ Smart insertion is an interactive insert mode for creating correct input of prog
 
 Sauron also supports convert input \all to ∀. This is helpful for PLT or Math researchers. Full list can refer to @code[#:lang "racket"]{latex-complete} in @(link "https://github.com/racket-tw/sauron/blob/master/meta.rkt" "meta.rkt").
 
+@section{As DrRacket Plugin}
+
+New user guide, most features should move to here in the end.
+
+@itemlist[
+    @item{c+backspace delete whole line from current position}
+    @item{o+backspace delete previous sexp}
+]
+
 @section{Develop}
 
 ctrl/command and alt/option just rely on this function from racket/gui @code{get-default-shortcut-prefix}.

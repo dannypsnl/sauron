@@ -1,5 +1,8 @@
 ### To Release v0.4.0
 
+* o+backspace delete previous sexp
+* c+backspace delete whole line from current position
+
 ### v0.3.0
 
 * [editor] autocomplete invoke smart insertion
