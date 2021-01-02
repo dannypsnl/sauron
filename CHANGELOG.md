@@ -1,5 +1,10 @@
 ### To Release v0.4.0
 
+* the following pairs would complete and wrap selected text automatically
+    * `()`
+    * `[]`
+    * `{}`
+    * `""`
 * c+; comment selected text(or that line if no selected text) if uncommented, uncomment if commented
 * o+backspace delete previous sexp
 * c+backspace delete whole line from current position
