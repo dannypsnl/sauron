@@ -14,7 +14,15 @@
     ['macosx (format "a:~a" k)]
     ;; `~c` is alt
     [_ (string-append "~c:" k)]))
+(define (rebind key command)
+  (keybinding
+   key
+   (λ (editor event)
+     (send (send editor get-keymap) call-function
+           command editor event #t))))
 
+;;; c+e run REPL
+(rebind (c+ "e") "run")
 ;;; delete whole thing from current position to the start of line
 (keybinding (c+ "backspace")
             (lambda (editor event)
