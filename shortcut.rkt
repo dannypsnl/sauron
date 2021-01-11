@@ -92,10 +92,7 @@
                                  [label "Version Control: Commit"]
                                  [width 300]
                                  [height 600]))
-              ;; FIXME: create a parameter like `current-project-directory` to handle this
-              (define home-dir (find-system-path 'home-dir))
-              (define testing-dir (build-path home-dir "racket.tw" "developing"))
               (define vc (new version-control% [parent frame]
-                              [project-folder testing-dir]))
+                              [project-folder (preferences:get 'project:directory)]))
               (send frame center)
               (send frame show #t)))

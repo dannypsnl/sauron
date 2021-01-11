@@ -46,7 +46,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
         (new-item top-dir-list dir i)))
     (define/override (on-double-select i)
       (when (send i user-data) ;; when double-click a file, open it in editor
-        (send the-editor-panel edit-file (send i user-data))))
+        (send the-editor-panel change-to-file (send i user-data))))
     ;;; init
     (super-new)
     ; top item in hierlist
