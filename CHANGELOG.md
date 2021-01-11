@@ -1,5 +1,6 @@
 ### To Release v0.4.0
 
+* c+x cut line if no selection, else cut selection
 * [migrate] c+b/click jump to definition
 * [migrate] c+r rename refactoring
 

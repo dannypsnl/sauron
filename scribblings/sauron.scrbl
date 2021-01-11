@@ -74,6 +74,7 @@ New user guide, most features should move to here in the end.
     ;;; edit
     @item{c+backspace delete whole line from current position}
     @item{o+backspace delete previous sexp}
+    @item{c+x cut line if no selection, else cut selection}
     ; comment/uncomment
     @item{c+; comment selected text or line if uncommented, uncomment if commented}
     ; auto complete pair

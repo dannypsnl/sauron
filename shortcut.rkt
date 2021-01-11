@@ -17,16 +17,30 @@
 (define (send-command command editor event)
   (send (send editor get-keymap) call-function
         command editor event #t))
-(define (rebind key command)
-  (keybinding
-   key
-   (λ (editor event)
-     (send-command command editor event))))
+(define (rebind key f)
+  (keybinding key f))
 
 ;;; c+e run REPL
-(rebind (c+ "e") "run")
+(rebind (c+ "e")
+        (λ (editor event)
+          (send-command "run" editor event)))
 ;;; c+r rename identifier
-(rebind (c+ "r") "Rename Identifier")
+(rebind (c+ "r")
+        (λ (editor event)
+          (send-command "Rename Identifier" editor event)))
+;;; c+x cut line if no selection, else cut selection
+(rebind (c+ "x")
+        (λ (editor event)
+          (let* ([s (send editor get-start-position)]
+                 [e (send editor get-end-position)]
+                 [select? (not (= s e))])
+            (unless select?
+              (let* ([start-line (send editor position-line (send editor get-start-position))]
+                     [end-line (send editor position-line (send editor get-end-position))]
+                     [start (send editor line-start-position start-line)]
+                     [end (send editor line-end-position end-line)])
+                (send editor set-position start end)))
+            (send-command "cut-clipboard" editor event))))
 ;;; c+b jump to definition
 (define (jump-to-definition editor event)
   (send-command "Jump to Definition (in Other File)" editor event)
