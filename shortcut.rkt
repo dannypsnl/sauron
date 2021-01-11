@@ -2,8 +2,21 @@
 
 (require "panel/version-control.rkt")
 
+(define (c+ k)
+  (match (system-type 'os)
+    ;; `d` is command
+    ['macosx (format "d:~a" k)]
+    ;; `c` is ctrl
+    [_ (format "c:~a" k)]))
+(define (o+ k)
+  (match (system-type 'os)
+    ;; `a` is option
+    ['macosx (format "a:~a" k)]
+    ;; `~c` is alt
+    [_ (string-append "~c:" k)]))
+
 ;;; delete whole thing from current position to the start of line
-(keybinding "d:backspace"
+(keybinding (c+ "backspace")
             (lambda (editor event)
               (define end (send editor get-start-position))
               (define line (send editor position-line end))
@@ -11,7 +24,7 @@
               (send editor delete start end)))
 
 ;;; delete previous sexp
-(keybinding "a:backspace"
+(keybinding (o+ "backspace")
             (lambda (editor event)
               (define cur-pos (send editor get-start-position))
               (define pre-sexp-pos (send editor get-backward-sexp cur-pos))
@@ -20,7 +33,7 @@
                 (send editor delete pre-sexp-pos cur-pos))))
 
 ;;; comment/uncomment selected text, if no selected text, target is current line
-(keybinding "d:semicolon"
+(keybinding (c+ "semicolon")
             (lambda (editor event)
               ; NOTE: get-start-position and get-end-position would have same value when no selected text
               ; following code comment all lines of selected text(or automatically select cursor line)
@@ -44,7 +57,7 @@
 (keybinding "{" (auto-wrap-with "{" "}"))
 (keybinding "\"" (auto-wrap-with "\"" "\""))
 
-(keybinding "d:k"
+(keybinding (c+ "k")
             (lambda (editor event)
               (define frame (new frame%
                                  [label "Version Control: Commit"]

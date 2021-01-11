@@ -17,8 +17,6 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
 @(itemlist
   ;;; program
   @item{c+e run REPL}
-  ;;; version control
-  @item{c+k open version control panel}
   ; jump to definition
   @item{c+b or <click> jump to definition(notice that only identifier is clickable to trigger this)}
   ; open document
@@ -84,6 +82,8 @@ Sauron also supports convert input \all to ∀. This is helpful for PLT or Math 
 New user guide, most features should move to here in the end.
 
 @itemlist[
+    ;;; version control
+    @item{c+k version control, open commit editor}
     @item{c+backspace delete whole line from current position}
     @item{o+backspace delete previous sexp}
     ;;; comment/uncomment
