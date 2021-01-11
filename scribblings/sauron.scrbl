@@ -19,8 +19,6 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   @item{c+b or <click> jump to definition(notice that only identifier is clickable to trigger this)}
   ; open document
   @item{c+d open document}
-  ; refactor
-  @item{c+r rename all bound}
   )
 
 @subsection{Panel: REPL}
@@ -83,10 +81,14 @@ New user guide, most features should move to here in the end.
     @item{c+e run REPL}
     ;;; version control
     @item{c+k version control, open commit editor}
+    ;;; refactor
+    @item{c+r rename all bound}
+    ;;; edit
     @item{c+backspace delete whole line from current position}
     @item{o+backspace delete previous sexp}
-    ;;; comment/uncomment
+    ; comment/uncomment
     @item{c+; comment selected text or line if uncommented, uncomment if commented}
+    ; auto complete pair
     @item|{(/[/{/" when has selected text, wrap selected text automatically}|
 ]
 

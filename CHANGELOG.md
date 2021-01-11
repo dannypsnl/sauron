@@ -1,5 +1,9 @@
 ### To Release v0.4.0
 
+* [migrate] c+r rename refactoring
+
+    NOTE: haven't support cross-file refactoring since this simply rebind "Rename Identifier" action in DrRacket
+
 * [migrate] c+e run REPL
 * [vc:migrate] c+k show commit editor
 * [migrate] the following pairs would complete and wrap selected text automatically

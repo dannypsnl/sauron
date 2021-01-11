@@ -23,6 +23,8 @@
 
 ;;; c+e run REPL
 (rebind (c+ "e") "run")
+;;; c+r rename identifier
+(rebind (c+ "r") "Rename Identifier")
 ;;; delete whole thing from current position to the start of line
 (keybinding (c+ "backspace")
             (lambda (editor event)
