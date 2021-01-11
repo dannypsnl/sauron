@@ -21,7 +21,7 @@
   (keybinding
    key
    (λ (editor event)
-     (send-command editor command event))))
+     (send-command command editor event))))
 
 ;;; c+e run REPL
 (rebind (c+ "e") "run")
@@ -35,6 +35,7 @@
 (keybinding (c+ "leftbutton")
             ;; TODO: improvement, use mouse position, not cursor position
             jump-to-definition)
+
 ;;; delete whole thing from current position to the start of line
 (keybinding (c+ "backspace")
             (lambda (editor event)
