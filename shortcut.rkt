@@ -14,17 +14,27 @@
     ['macosx (format "a:~a" k)]
     ;; `~c` is alt
     [_ (string-append "~c:" k)]))
+(define (send-command command editor event)
+  (send (send editor get-keymap) call-function
+        command editor event #t))
 (define (rebind key command)
   (keybinding
    key
    (λ (editor event)
-     (send (send editor get-keymap) call-function
-           command editor event #t))))
+     (send-command editor command event))))
 
 ;;; c+e run REPL
 (rebind (c+ "e") "run")
 ;;; c+r rename identifier
 (rebind (c+ "r") "Rename Identifier")
+;;; c+b jump to definition
+(define (jump-to-definition editor event)
+  (send-command "Jump to Definition (in Other File)" editor event)
+  (send-command "Jump to Binding Occurrence" editor event))
+(keybinding (c+ "b") jump-to-definition)
+(keybinding (c+ "leftbutton")
+            ;; TODO: improvement, use mouse position, not cursor position
+            jump-to-definition)
 ;;; delete whole thing from current position to the start of line
 (keybinding (c+ "backspace")
             (lambda (editor event)

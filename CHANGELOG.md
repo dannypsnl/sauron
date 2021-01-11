@@ -1,5 +1,6 @@
 ### To Release v0.4.0
 
+* [migrate] c+b/click jump to definition
 * [migrate] c+r rename refactoring
 
     NOTE: haven't support cross-file refactoring since this simply rebind "Rename Identifier" action in DrRacket

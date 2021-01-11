@@ -15,8 +15,6 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
 @subsection{Shortcut}
 
 @(itemlist
-  ; jump to definition
-  @item{c+b or <click> jump to definition(notice that only identifier is clickable to trigger this)}
   ; open document
   @item{c+d open document}
   )
@@ -83,6 +81,8 @@ New user guide, most features should move to here in the end.
     @item{c+k version control, open commit editor}
     ;;; refactor
     @item{c+r rename all bound}
+    ;;; jump to definition
+    @item{c+b or <click> jump to definition(notice that only identifier is clickable could trigger this)}
     ;;; edit
     @item{c+backspace delete whole line from current position}
     @item{o+backspace delete previous sexp}
