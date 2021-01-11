@@ -81,16 +81,10 @@
                     (send editor uncomment-selection start end)
                     (send editor comment-out-selection start end)))))
 
-(define (auto-wrap-with open close)
-  (lambda (editor event)
-    (let* ([origin-start (send editor get-start-position)]
-           [selected-text (send editor get-text origin-start (send editor get-end-position))])
-      (send editor insert (string-join (list open (if selected-text selected-text "") close) ""))
-      (send editor set-position (+ 1 origin-start)))))
-(keybinding "(" (auto-wrap-with "(" ")"))
-(keybinding "[" (auto-wrap-with "[" "]"))
-(keybinding "{" (auto-wrap-with "{" "}"))
-(keybinding "\"" (auto-wrap-with "\"" "\""))
+(keybinding "(" (lambda (editor event) (send-command "insert-()-pair" editor event)))
+(keybinding "[" (lambda (editor event) (send-command "insert-[]-pair" editor event)))
+(keybinding "{" (lambda (editor event) (send-command "insert-{}-pair" editor event)))
+(keybinding "\"" (lambda (editor event) (send-command "insert-\"\"-pair" editor event)))
 
 (keybinding (c+ "k")
             (lambda (editor event)
