@@ -1,5 +1,6 @@
 ### To Release v0.4.0
 
+* [vc] c+k show commit editor
 * the following pairs would complete and wrap selected text automatically
     * `()`
     * `[]`

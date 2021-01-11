@@ -1,5 +1,7 @@
 #lang s-exp framework/keybinding-lang
 
+(require "panel/version-control.rkt")
+
 ;;; delete whole thing from current position to the start of line
 (keybinding "d:backspace"
             (lambda (editor event)
@@ -41,3 +43,17 @@
 (keybinding "[" (auto-wrap-with "[" "]"))
 (keybinding "{" (auto-wrap-with "{" "}"))
 (keybinding "\"" (auto-wrap-with "\"" "\""))
+
+(keybinding "d:k"
+            (lambda (editor event)
+              (define frame (new frame%
+                                 [label "Version Control: Commit"]
+                                 [width 300]
+                                 [height 600]))
+              ;; FIXME: create a parameter like `current-project-directory` to handle this
+              (define home-dir (find-system-path 'home-dir))
+              (define testing-dir (build-path home-dir "racket.tw" "developing"))
+              (define vc (new version-control% [parent frame]
+                              [project-folder testing-dir]))
+              (send frame center)
+              (send frame show #t)))
