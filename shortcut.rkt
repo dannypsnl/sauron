@@ -52,7 +52,7 @@
 
 ;;; delete whole thing from current position to the start of line
 (keybinding (c+ "backspace")
-            (lambda (editor event)
+            (λ (editor event)
               (define end (send editor get-start-position))
               (define line (send editor position-line end))
               (define start (send editor line-start-position line))
@@ -60,7 +60,7 @@
 
 ;;; delete previous sexp
 (keybinding (o+ "backspace")
-            (lambda (editor event)
+            (λ (editor event)
               (define cur-pos (send editor get-start-position))
               (define pre-sexp-pos (send editor get-backward-sexp cur-pos))
               ; ensure pre-sexp existed
@@ -69,7 +69,7 @@
 
 ;;; comment/uncomment selected text, if no selected text, target is current line
 (keybinding (c+ "semicolon")
-            (lambda (editor event)
+            (λ (editor event)
               ; NOTE: get-start-position and get-end-position would have same value when no selected text
               ; following code comment all lines of selected text(or automatically select cursor line)
               (let* ([start-line (send editor position-line (send editor get-start-position))]
@@ -81,13 +81,13 @@
                     (send editor uncomment-selection start end)
                     (send editor comment-out-selection start end)))))
 
-(keybinding "(" (lambda (editor event) (send-command "insert-()-pair" editor event)))
-(keybinding "[" (lambda (editor event) (send-command "insert-[]-pair" editor event)))
-(keybinding "{" (lambda (editor event) (send-command "insert-{}-pair" editor event)))
-(keybinding "\"" (lambda (editor event) (send-command "insert-\"\"-pair" editor event)))
+(keybinding "(" (λ (editor event) (send-command "insert-()-pair" editor event)))
+(keybinding "[" (λ (editor event) (send-command "insert-[]-pair" editor event)))
+(keybinding "{" (λ (editor event) (send-command "insert-{}-pair" editor event)))
+(keybinding "\"" (λ (editor event) (send-command "insert-\"\"-pair" editor event)))
 
 (keybinding (c+ "k")
-            (lambda (editor event)
+            (λ (editor event)
               (define frame (new frame%
                                  [label "Version Control: Commit"]
                                  [width 300]
