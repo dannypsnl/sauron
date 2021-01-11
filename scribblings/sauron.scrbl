@@ -29,18 +29,6 @@ REPL panel helps users quickly testing their ideas, it has a few key bindings ca
       @item{<down> switch to next expression in history}
     ]
 
-@subsection{Panel: Version Control}
-
-You can use c+k open version control panel, once open the panel, it has two part:
-
-@subsubsection{commit message editor}
-
-You can type commit message in this editor, use c+<enter> to commit.
-
-@subsubsection{Changed files}
-
-Changed files would show below of the commit editor, they were clickable. Clicked means ready to commit, else is not.
-
 @subsection{Panel: Project Files}
 
 @itemlist[
@@ -91,6 +79,18 @@ New user guide, most features should move to here in the end.
     ; auto complete pair
     @item|{(/[/{/" when has selected text, wrap selected text automatically}|
 ]
+
+@subsection{Version Control}
+
+You can use c+k open version control panel, once open the panel, it has two part:
+
+@subsubsection{commit message editor}
+
+You can type commit message in this editor, use c+<enter> to commit.
+
+@subsubsection{Changed files}
+
+Changed files would show below of the commit editor, they were clickable. Clicked means ready to commit, else is not.
 
 @section{Develop}
 
