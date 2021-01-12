@@ -20,8 +20,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
 (provide project-files%)
 (define project-files%
-  (class hierarchical-list% (init dir editor-panel)
-    (define the-dir dir)
+  (class hierarchical-list% (init editor-panel)
     (define the-editor-panel editor-panel)
     ; new-item : create new item for a file or directory
     (define (new-item parent directory subpath)
@@ -43,18 +42,16 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (send top-dir-list set-text (path->string dir))
       ; add new-item for each member of dir
       (for ([i (directory-list dir)])
-        (new-item top-dir-list dir i)))
+        (new-item top-dir-list dir i))
+      ;; open top dir-list by default
+      (send top-dir-list open))
     (define/override (on-double-select i)
       (when (send i user-data) ;; when double-click a file, open it in editor
         (send the-editor-panel change-to-file (send i user-data))))
     ;;; init
     (super-new)
     ; top item in hierlist
-    (define top-dir-list (send this new-list set-text-mixin))
-    ; initialise directory-list% instance
-    (set-directory the-dir)
-    ;; open top dir-list by default
-    (send top-dir-list open)))
+    (define top-dir-list (send this new-list set-text-mixin))))
 
 (module+ main
   (require framework)

@@ -1,5 +1,8 @@
 ### To Release v0.4.0
 
+* project manager
+    * when no project selected, ask to choose one to open project files viewer
+    * by default hiding project files viewer
 * c+x cut line if no selection, else cut selection
 * [migrate] c+b/click jump to definition
 * [migrate] c+r rename refactoring
