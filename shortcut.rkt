@@ -1,6 +1,8 @@
 #lang s-exp framework/keybinding-lang
 
-(require "panel/version-control.rkt")
+(require "panel/version-control.rkt"
+         "starter.rkt"
+         "project-manager.rkt")
 
 (define (c+ k)
   (match (system-type 'os)
@@ -95,3 +97,13 @@
               (define vc (new version-control% [parent frame]))
               (send frame center)
               (send frame show #t)))
+
+(keybinding (c+ "m")
+            (λ (editor event)
+              (new starter%
+                   [label "select a project"]
+                   [width 300]
+                   [height 300]
+                   [open-ide
+                    (λ (path)
+                      (current-project path))])))

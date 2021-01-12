@@ -45,7 +45,8 @@
           (define (show-real-area)
             (set! show? #t)
             (send panel change-children
-                  (λ (x) (cons real-area x))))
+                  (λ (x) (cons real-area x)))
+            (send viewer set-directory (current-project)))
 
           (new menu-item%
                [label (if show? "Hide the Project Viewer" "Show the Project Viewer")]
@@ -59,18 +60,15 @@
                           (let ()
                             (show-real-area)
                             (send c set-label "Hide the Project Viewer")))
-                      (let ([starter (new starter%
-                                          [label "select a project"]
-                                          [width 300]
-                                          [height 300]
-                                          [open-ide
-                                           (λ (path)
-                                             ; initialise directory-list% instance
-                                             (current-project path)
-                                             (send viewer set-directory (current-project))
-                                             (show-real-area)
-                                             (send c set-label "Hide the Project Viewer"))])])
-                        (send starter show #t))))]
+                      (new starter%
+                           [label "select a project"]
+                           [width 300]
+                           [height 300]
+                           [open-ide
+                            (λ (path)
+                              (current-project path)
+                              (show-real-area)
+                              (send c set-label "Hide the Project Viewer"))])))]
                [parent (send this get-show-menu)])
 
           (unless show?
