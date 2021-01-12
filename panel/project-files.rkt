@@ -52,27 +52,3 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (super-new)
     ; top item in hierlist
     (define top-dir-list (send this new-list set-text-mixin))))
-
-(module+ main
-  (require framework)
-  (require "../editor.rkt")
-
-  (define test-frame (new frame%
-                          [label "REPL component"]
-                          [width 1000]
-                          [height 600]))
-  (define panel (new panel:horizontal-dragable% [parent test-frame]))
-
-  (define editor (new editor%))
-  (send editor show-line-numbers! #t)
-
-  (new project-files% [parent panel]
-       [dir (build-path (find-system-path 'home-dir) "racket.tw" "developing")]
-       [editor-panel editor])
-
-  (new editor-canvas% [parent panel]
-       [editor editor]
-       [style '(no-hscroll)])
-
-  (send test-frame center)
-  (send test-frame show #t))

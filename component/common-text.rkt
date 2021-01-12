@@ -3,8 +3,7 @@
 (provide common:text%)
 
 (require framework
-         "latex-text.rkt"
-         "search-text.rkt")
+         "latex-text.rkt")
 
 (define common:text%
   (class (text:searching-mixin
@@ -19,10 +18,6 @@
 
     (define/override (on-char e)
       (match (send e get-key-code)
-        ;;; c+f search text
-        [#\f #:when (send e get-meta-down)
-             (define searcher (new-searcher this))
-             (send searcher show #t)]
         ;;; c+; for comment/uncomment
         [#\; #:when (send e get-meta-down)
              ; NOTE: get-start-position and get-end-position would have same value when no selected text
