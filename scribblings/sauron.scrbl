@@ -29,13 +29,6 @@ REPL panel helps users quickly testing their ideas, it has a few key bindings ca
       @item{<down> switch to next expression in history}
     ]
 
-@subsection{Panel: Project Files}
-
-@itemlist[
-@item{interactive with files}
-@item{open file via double click}
-]
-
 @subsection{Auto complete}
 
 Warning: Only consider #lang racket currently, would try to support more variant in the future.
@@ -92,6 +85,13 @@ You can type commit message in this editor, use c+<enter> to commit.
 @subsubsection{Changed files}
 
 Changed files would show below of the commit editor, they were clickable. Clicked means ready to commit, else is not.
+
+@subsection{Panel: Project Files}
+
+@itemlist[
+    @item{interactive with files}
+    @item{open file via double click}
+]
 
 @section{Develop}
 
