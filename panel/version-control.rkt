@@ -1,11 +1,11 @@
 #lang racket/gui
 
-(require "../component/common-text.rkt")
+(require "../component/common-text.rkt"
+         "../project-manager.rkt")
 
 (provide version-control%)
 (define version-control%
   (class vertical-panel%
-    (init-field project-folder)
     (super-new)
 
     ;;; commit editor
@@ -34,7 +34,7 @@
 
     ;;; ready/changes zone
     (define (run cmd [callback #f])
-      (parameterize ([current-directory project-folder])
+      (parameterize ([current-directory (current-project)])
         (match-let ([(list out in pid err invoke) (process cmd)])
           (invoke 'wait)
 
@@ -62,10 +62,10 @@
                          [filename filename]
                          [add-to-ready
                           (λ (this filename)
-                            (run (format "git add ~a" (build-path project-folder filename))))]
+                            (run (format "git add ~a" (build-path (current-project) filename))))]
                          [remove-from-ready
                           (λ (this filename)
-                            (run (format "git reset HEAD ~a" (build-path project-folder filename))))]
+                            (run (format "git reset HEAD ~a" (build-path (current-project) filename))))]
                          [status kind]))
                   (loop (read-line out))])))))
 
@@ -116,8 +116,8 @@
   (unless (directory-exists? testing-dir)
     (error 'file "no such dir"))
 
-  (define vc (new version-control%
-                  [parent test-frame]
-                  [project-folder testing-dir]))
+  (define vc (parameterize ([current-project testing-dir])
+               (new version-control%
+                  [parent test-frame])))
 
   (send test-frame show #t))

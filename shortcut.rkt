@@ -92,7 +92,6 @@
                                  [label "Version Control: Commit"]
                                  [width 300]
                                  [height 600]))
-              (define vc (new version-control% [parent frame]
-                              [project-folder (preferences:get 'project:directory)]))
+              (define vc (new version-control% [parent frame]))
               (send frame center)
               (send frame show #t)))

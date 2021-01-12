@@ -7,6 +7,7 @@
          racket/runtime-path
          racket/gui/base
          "starter.rkt"
+         "project-manager.rkt"
          "panel/project-files.rkt")
 
 (define-runtime-path file "shortcut.rkt")
@@ -25,7 +26,6 @@
     (define drracket-frame-mixin
       (mixin (drracket:unit:frame<%> (class->interface drracket:unit:frame%)) ()
         (define show? #f)
-        (define current-project-? (preferences:get 'project:directory))
 
         (super-new)
 
@@ -51,7 +51,7 @@
                [label (if show? "Hide the Project Viewer" "Show the Project Viewer")]
                [callback
                 (λ (c e)
-                  (if current-project-?
+                  (if (current-project)
                       (if show?
                           (let ()
                             (close-real-area)
@@ -66,8 +66,8 @@
                                           [open-ide
                                            (λ (path)
                                              ; initialise directory-list% instance
-                                             (set! current-project-? path)
-                                             (send viewer set-directory current-project-?)
+                                             (current-project path)
+                                             (send viewer set-directory (current-project))
                                              (show-real-area)
                                              (send c set-label "Hide the Project Viewer"))])])
                         (send starter show #t))))]
