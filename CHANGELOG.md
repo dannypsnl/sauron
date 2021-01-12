@@ -1,5 +1,6 @@
 ### To Release v0.4.0
 
+* [editor] auto wrap the text over view range
 * [shortcut] c+m invoke project manager
 * project manager
     * when no project selected, ask to choose one to open project files viewer

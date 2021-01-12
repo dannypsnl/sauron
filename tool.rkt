@@ -18,9 +18,7 @@
     (export drracket:tool-exports^)
 
     (define (phase1)
-      (preferences:set-default 'project:directory
-                               #f
-                               (λ (path) (or (not path) (directory-exists? path)))))
+      (preferences:set 'framework:auto-set-wrap? #t))
     (define (phase2) (void))
 
     (define drracket-frame-mixin
