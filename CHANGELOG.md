@@ -1,5 +1,6 @@
 ### To Release v0.4.0
 
+* [shortcut] c+y show/hide project files viewer
 * [editor] auto wrap the text over view range
 * [shortcut] c+m invoke project manager
 * project manager

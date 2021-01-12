@@ -46,7 +46,7 @@
                   (λ (x) (cons real-area x)))
             (send viewer set-directory (current-project)))
 
-          (new menu-item%
+          (new menu-item% [parent (send this get-show-menu)]
                [label (if show? "Hide the Project Viewer" "Show the Project Viewer")]
                [callback
                 (λ (c e)
@@ -67,7 +67,9 @@
                               (current-project path)
                               (show-real-area)
                               (send c set-label "Hide the Project Viewer"))])))]
-               [parent (send this get-show-menu)])
+               ;;; c+p open project viewer
+               [shortcut #\y]
+               [shortcut-prefix (get-default-shortcut-prefix)])
 
           (unless show?
             (send panel change-children

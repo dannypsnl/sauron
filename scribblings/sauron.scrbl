@@ -58,7 +58,9 @@ New user guide, most features should move to here in the end.
 
 @itemlist[
     @item{c+e run REPL}
+    ;;; project management
     @item{c+m invoke project manager}
+    @item{c+y show/hide project files viewer}
     ;;; version control
     @item{c+k version control, open commit editor}
     ;;; refactor
