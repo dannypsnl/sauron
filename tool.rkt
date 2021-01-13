@@ -30,6 +30,7 @@
         (define/override (get-definitions/interactions-panel-parent)
           (define panel (new panel:horizontal-dragable% [parent (super get-definitions/interactions-panel-parent)]))
           (define real-area (new vertical-panel% [parent panel]))
+
           (define viewer
             (new project-files% [parent real-area]
                  [editor-panel this]))
@@ -44,6 +45,7 @@
             (set! show? #t)
             (send panel change-children
                   (λ (x) (cons real-area x)))
+            (send panel set-percentages (list 1/10 9/10))
             (send viewer set-directory (current-project)))
 
           (new menu-item% [parent (send this get-show-menu)]
