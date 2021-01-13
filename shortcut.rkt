@@ -1,7 +1,6 @@
 #lang s-exp framework/keybinding-lang
 
 (require "panel/version-control.rkt"
-         "starter.rkt"
          "project-manager.rkt")
 
 (define (c+ k)
@@ -100,10 +99,10 @@
 
 (keybinding (c+ "m")
             (λ (editor event)
-              (new starter%
+              (new project-manager%
                    [label "select a project"]
                    [width 300]
                    [height 300]
-                   [open-ide
+                   [on-select
                     (λ (path)
                       (current-project path))])))
