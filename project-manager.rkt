@@ -24,14 +24,20 @@
     (define list-box (new list-box% [parent this]
                           [label "projects"]
                           [choices '()]
+                          [style '(single )]
                           [callback
-                           (λ (starter event)
-                             (let ([path (string->path (send starter get-string-selection))])
-                               (if (directory-exists? path)
-                                   (begin
-                                     (send this show #f)
-                                     (on-select path))
-                                   (message-box "Failed" "project not existed"))))]))
+                           (λ (proj-manager event)
+                             (define evt-type (send event get-event-type))
+                             (match evt-type
+                               ['list-box-dclick
+                                (let ([path (string->path (send proj-manager get-string-selection))])
+                                  (if (directory-exists? path)
+                                      (begin
+                                        (send this show #f)
+                                        (on-select path))
+                                      (message-box "Failed" "project not existed")))]
+                               ['list-box
+                                (void)]))]))
 
     (new button% [parent this]
          [label "add project"]
@@ -40,13 +46,33 @@
             (define path (get-directory #f this))
             (when (directory-exists? path)
               (call-with-output-file projects-file
+                #:exists 'append
                 (λ (port)
                   (parameterize ([current-output-port port])
                     ; put path into config
                     (displayln path)
                     ; append into current selectable list
-                    (send list-box append (path->string path))))
-                #:exists 'append)))])
+                    (send list-box append (path->string path)))))))])
+
+    (new button% [parent this]
+         [label "remove project"]
+         [callback
+          (λ (btn event)
+            ; for current single selection list-box, this method always returns a list contains one number or a null
+            (define selection* (send list-box get-selections))
+            (unless (null? selection*)
+              (let ([n (first selection*)])
+                ; 1. remove to delete item from list-box
+                (send list-box delete n)
+                (call-with-output-file projects-file
+                  #:exists 'truncate ; 2. truncate removes all data from config
+                  (λ (port)
+                    (parameterize ([current-output-port port])
+                      ; 3. now write all paths in list-box back into config
+                      (for ([n (range (send list-box get-number))])
+                        (displayln (send list-box get-string n))))))
+                ))
+            (void))])
 
     (define (load-projs)
       ;;; load projects

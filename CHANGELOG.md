@@ -1,9 +1,10 @@
 ### To Release v0.4.0
 
+* [project] remove project button
 * [shortcut] c+y show/hide project files viewer
 * [editor] auto wrap the text over view range
 * [shortcut] c+m invoke project manager
-* project manager
+* [project] manager
     * when no project selected, ask to choose one to open project files viewer
     * by default hiding project files viewer
 * c+x cut line if no selection, else cut selection
