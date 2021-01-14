@@ -47,7 +47,11 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (send top-dir-list open))
     (define/override (on-double-select i)
       (when (send i user-data) ;; when double-click a file, open it in editor
-        (send the-editor-panel change-to-file (send i user-data))))
+        (define path (send i user-data))
+        (let ([tab-<?> (send the-editor-panel find-matching-tab path)])
+          (if tab-<?>
+              (send the-editor-panel change-to-tab tab-<?>)
+              (send the-editor-panel open-in-new-tab path)))))
     ;;; init
     (super-new)
     ; top item in hierlist

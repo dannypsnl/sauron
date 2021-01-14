@@ -1,5 +1,6 @@
 ### To Release v0.4.0
 
+* [project] open file on editing in existed tab, else in new tab
 * [project] remove project button
 * [shortcut] c+y show/hide project files viewer
 * [editor] auto wrap the text over view range
