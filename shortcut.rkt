@@ -78,9 +78,10 @@
                      [start (send editor line-start-position start-line)]
                      [end (send editor line-end-position end-line)]
                      [selected-text (send editor get-text start end)])
-                (if (string-prefix? selected-text ";")
+                (if (string-contains? selected-text ";")
                     (send editor uncomment-selection start end)
-                    (send editor comment-out-selection start end)))))
+                    (send editor comment-out-selection start end))
+                (send editor set-position start))))
 
 (keybinding "(" (λ (editor event) (send-command "insert-()-pair" editor event)))
 (keybinding "[" (λ (editor event) (send-command "insert-[]-pair" editor event)))
