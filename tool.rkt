@@ -50,7 +50,7 @@
                     (send panel change-children
                           (λ (x) (cons real-area x)))
                     (send c set-label "Hide the Project Viewer")
-                    (send panel set-percentages (list 1/10 9/10))
+                    (send panel set-percentages (list 2/11 9/11))
                     (send viewer set-directory (current-project)))
                   (if (current-project)
                       (if show?
