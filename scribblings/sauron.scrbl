@@ -83,11 +83,19 @@ You can use c+k open version control panel, once open the panel, it has two part
 
 @subsubsection{commit message editor}
 
-You can type commit message in this editor, use c+<enter> to commit.
+You can type commit message in this editor, use c+<enter> to commit all ready files.
 
 @subsubsection{Changed files}
 
 Changed files would show below of the commit editor, they were clickable. Clicked means ready to commit, else is not.
+
+It has three buttons for quick modify as the following list.
+
+@itemlist[
+    @item{select all}
+    @item{unselect all}
+    @item{clean up}
+]
 
 @subsection{Project Management}
 

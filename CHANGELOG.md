@@ -1,5 +1,9 @@
 ### To Release v0.4.0
 
+* [vc] buttons to quick modify
+    * select all
+    * unselect all
+    * clean up
 * [project] open file on editing in existed tab, else in new tab
 * [project] remove project button
 * [shortcut] c+y show/hide project files viewer
