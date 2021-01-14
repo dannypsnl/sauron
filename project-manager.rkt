@@ -70,9 +70,7 @@
                     (parameterize ([current-output-port port])
                       ; 3. now write all paths in list-box back into config
                       (for ([n (range (send list-box get-number))])
-                        (displayln (send list-box get-string n))))))
-                ))
-            (void))])
+                        (displayln (send list-box get-string n)))))))))])
 
     (define (load-projs)
       ;;; load projects
