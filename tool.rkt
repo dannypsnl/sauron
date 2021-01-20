@@ -58,8 +58,6 @@
                           (show-real-area))
                       (new project-manager%
                            [label "select a project"]
-                           [width 300]
-                           [height 300]
                            [on-select
                             (λ (path)
                               (current-project path)

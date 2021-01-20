@@ -7,7 +7,7 @@
 (define project-manager%
   (class frame%
     (init-field [on-select (λ (path) (message-box "dummy" (format "~a opened" path)))])
-    (super-new)
+    (super-new [width 600] [height 600])
 
     ;;; auto setup configuration
     (define config-dir (build-path (find-system-path 'home-dir) ".sauron"))
@@ -95,6 +95,5 @@
 
 (module+ main
   (define starter (new project-manager%
-                       [label "select a project"]
-                       [width 300] [height 300]))
-  (send starter show #t)) 
+                       [label "select a project"]))
+  (send starter show #t))
