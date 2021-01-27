@@ -1,5 +1,7 @@
 ### To Release v0.5.0
 
+* [repl] support special symbol input in repl
+
 ### v0.4.0
 
 * [editor:migrate] special symbol input like: `\all`, `\->`
