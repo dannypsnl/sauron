@@ -1,4 +1,6 @@
-### To Release v0.4.0
+### To Release v0.5.0
+
+### v0.4.0
 
 * [editor:migrate] special symbol input like: `\all`, `\->`
 * [vc] buttons to quick modify
