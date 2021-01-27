@@ -4,7 +4,7 @@
 
 WARNING: This project still in early stage.
 
-Sauron is an IDE for Racket language.
+Sauron is a plugin of DrRacket to make it be a better Racket IDE.
 
 ### Install and Run
 
