@@ -23,9 +23,7 @@
              position-line line-end-position
              get-filename
              set-clickback
-             auto-complete
-             ; from common:text%
-             will-do-nothing-with)
+             auto-complete)
 
     (super-new)
 
@@ -102,8 +100,7 @@
                                        (send e get-alt-down)
                                        (member key-code control-key-list)
                                        (member key-code '(#\( #\) #\[ #\] #\{ #\} #\" #\, #\' #\` #\; #\# #\| #\\
-                                                              #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\0))))
-                              (not (will-do-nothing-with key-code)))
+                                                              #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\0)))))
                   (super on-char e)
                   (auto-complete)]
         [else (super on-char e)]))

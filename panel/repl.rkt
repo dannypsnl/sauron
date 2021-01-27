@@ -17,9 +17,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (init-field project-directory)
     (super-new)
     (inherit insert get-text erase
-             get-start-position last-position set-position
-             ; from common:text%
-             will-do-nothing-with)
+             get-start-position last-position set-position)
     (define prompt-pos 0)
     (define locked? #f)
     (define repl-eval #f)
@@ -54,8 +52,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     ;;; hajack special keys
     (define/override (on-char c)
       (match (send c get-key-code)
-        [#\return #:when (and (>= (get-start-position) (last-position))
-                              (will-do-nothing-with #\return))
+        [#\return #:when (>= (get-start-position) (last-position))
                   (super on-char c)
                   (when (not locked?)
                     (set! locked? #t)
