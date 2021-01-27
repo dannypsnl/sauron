@@ -6,6 +6,7 @@
          framework
          racket/runtime-path
          racket/gui/base
+         "meta.rkt"
          "project-manager.rkt"
          "panel/project-files.rkt")
 
@@ -73,6 +74,27 @@
                      (λ (x) (not (eq? real-area x))) x))))
           (make-object vertical-panel% panel))))
 
+    (define drracket-editor-mixin
+      (mixin (drracket:unit:definitions-text<%> racket:text<%>) ()
+        (super-new)
+        (inherit get-start-position set-position get-backward-sexp get-text insert)
+
+        (define/override (on-char e)
+          (case (send e get-key-code)
+            [(#\space #\tab #\return)
+             (let* ([end (get-start-position)]
+                    [start (get-backward-sexp end)]
+                    [to-complete (get-text start end)])
+               (when (string-prefix? to-complete "\\")
+                 ;;; select previous sexp
+                 (set-position start end)
+                 ;;; replace it with new text
+                 (insert (hash-ref latex-complete (string-trim to-complete "\\" #:right? #f)
+                                   to-complete))))
+             (super on-char e)]
+            [else (super on-char e)]))))
+
     (drracket:get/extend:extend-unit-frame drracket-frame-mixin)
+    (drracket:get/extend:extend-definitions-text drracket-editor-mixin)
 
     (keymap:add-user-keybindings-file file)))

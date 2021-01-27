@@ -48,10 +48,6 @@ Type @code[#:lang "racket"]{i} would trigger completion.
 
 Smart insertion is an interactive insert mode for creating correct input of program. For example, it would check identifier of `define` form.
 
-@subsection{LaTeX input}
-
-Sauron also supports convert input \all to ∀. This is helpful for PLT or Math researchers. Full list can refer to @code[#:lang "racket"]{latex-complete} in @(link "https://github.com/racket-tw/sauron/blob/master/meta.rkt" "meta.rkt").
-
 @section{As DrRacket Plugin}
 
 New user guide, most features should move to here in the end.
@@ -112,6 +108,10 @@ It has three buttons for quick modify as the following list.
     @item{interactive with files}
     @item{open file via double click}
 ]
+
+@subsection{Special symbol(LaTeX/Agda like) support}
+
+Sauron also supports convert input \all to ∀. This is helpful for PLT/Math researchers. Full list can refer to @code[#:lang "racket"]{latex-complete} in @(link "https://github.com/racket-tw/sauron/blob/master/meta.rkt" "meta.rkt").
 
 @section{Develop}
 

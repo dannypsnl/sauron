@@ -2,12 +2,11 @@
 
 (provide common:text%)
 
-(require framework
-         "latex-text.rkt")
+(require framework)
 
 (define common:text%
   (class (text:searching-mixin
-          latex:text%)
+          racket:text%)
     (super-new)
     (inherit get-start-position get-end-position
              get-text set-position insert

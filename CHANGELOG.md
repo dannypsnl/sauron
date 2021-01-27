@@ -1,5 +1,6 @@
 ### To Release v0.4.0
 
+* [editor:migrate] special symbol input like: `\all`, `\->`
 * [vc] buttons to quick modify
     * select all
     * unselect all
