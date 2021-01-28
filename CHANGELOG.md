@@ -1,5 +1,10 @@
 ### To Release v0.5.0
 
+* [repl:migrate] cursor would be fixed to prompt start position
+* [repl:migrate] select executed history via up/down key
+
+    NOTE: only work at prompt start position to prevent affect editing expression
+
 * [repl] support special symbol input in repl
 
 ### v0.4.0

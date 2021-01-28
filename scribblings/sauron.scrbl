@@ -19,16 +19,6 @@ In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
   @item{c+d open document}
   )
 
-@subsection{Panel: REPL}
-
-REPL panel helps users quickly testing their ideas, it has a few key bindings can work on it:
-
-    @itemlist[
-      @item{<enter> evaluate and save expression into evaluated history(also reset selected status to no selection)}
-      @item{<up> switch to previous expression in history}
-      @item{<down> switch to next expression in history}
-    ]
-
 @subsection{Auto complete}
 
 Warning: Only consider #lang racket currently, would try to support more variant in the future.
@@ -48,7 +38,7 @@ Type @code[#:lang "racket"]{i} would trigger completion.
 
 Smart insertion is an interactive insert mode for creating correct input of program. For example, it would check identifier of `define` form.
 
-@section{As DrRacket Plugin}
+@section{User Guide: As DrRacket Plugin}
 
 New user guide, most features should move to here in the end.
 
@@ -72,6 +62,16 @@ New user guide, most features should move to here in the end.
     ; auto complete pair
     @item|{(/[/{/" when has selected text, wrap selected text automatically}|
 ]
+
+@subsection{Panel: REPL}
+
+REPL panel helps users quickly testing their ideas, it has a few key bindings can work on it:
+
+    @itemlist[
+      @item{<enter> evaluate and save expression into evaluated history(also reset selected status to no selection)}
+      @item{<up> switch to previous expression in history}
+      @item{<down> switch to next expression in history}
+    ]
 
 @subsection{Version Control}
 
