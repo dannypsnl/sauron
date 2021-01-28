@@ -94,19 +94,16 @@
             [#\return #:when (= (send this last-position) (send this get-start-position))
                       (new-history (send this get-text prompt-pos (send this last-position)))
                       (super on-char e)]
-            ['up
-             (when (= prompt-pos (send this get-start-position))
-               (increase-selected-index)
-               (refresh-prompt))]
-            ['down
-             (when (= prompt-pos (send this get-start-position))
-               (decrease-selected-index)
-               (refresh-prompt))]
-            ['left (super on-char e)
-                   (let ([new-pos (send this get-start-position)])
-                     (when (< new-pos prompt-pos)
-                       (send this set-position prompt-pos)))]
-            [else (super on-char e)]))
+            ['up #:when (= prompt-pos (send this get-start-position))
+                 (increase-selected-index)
+                 (refresh-prompt)]
+            ['down #:when (= prompt-pos (send this get-start-position))
+                   (decrease-selected-index)
+                   (refresh-prompt)]
+            [else (super on-char e)
+                  (let ([new-pos (send this get-start-position)])
+                    (when (< new-pos prompt-pos)
+                      (send this set-position prompt-pos)))]))
 
         (define/override (insert-prompt)
           (super insert-prompt)
