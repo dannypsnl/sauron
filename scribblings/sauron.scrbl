@@ -8,7 +8,9 @@
 
 @defmodule[sauron]
 
-@section{User Guide}
+@section{User Guide(Outdated)}
+
+This section leave as migration note, it would get removed once migration complete.
 
 In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
 
