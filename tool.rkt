@@ -8,7 +8,8 @@
          racket/gui/base
          "meta.rkt"
          "project-manager.rkt"
-         "panel/project-files.rkt")
+         "panel/project-files.rkt"
+         "panel/repl/history.rkt")
 
 (define-runtime-path file "shortcut.rkt")
 
@@ -76,15 +77,40 @@
 
     (define drracket-editor-mixin
       (mixin (drracket:unit:definitions-text<%> racket:text<%>) ()
-        (super-new)
-
-        ))
+        (super-new)))
 
     (define drracket-repl-mixin
       (mixin (drracket:rep:text<%> (class->interface drracket:rep:text%)) ()
         (super-new)
 
-        ))
+        (define prompt-pos 0)
+
+        (define/private (refresh-prompt)
+          (send this set-position prompt-pos (send this last-position))
+          (send this insert (current-selected-expression)))
+
+        (define/override (on-char e)
+          (match (send e get-key-code)
+            [#\return #:when (= (send this last-position) (send this get-start-position))
+                      (new-history (send this get-text prompt-pos (send this last-position)))
+                      (super on-char e)]
+            ['up
+             (when (= prompt-pos (send this get-start-position))
+               (increase-selected-index)
+               (refresh-prompt))]
+            ['down
+             (when (= prompt-pos (send this get-start-position))
+               (decrease-selected-index)
+               (refresh-prompt))]
+            ['left (super on-char e)
+                   (let ([new-pos (send this get-start-position)])
+                     (when (< new-pos prompt-pos)
+                       (send this set-position prompt-pos)))]
+            [else (super on-char e)]))
+
+        (define/override (insert-prompt)
+          (super insert-prompt)
+          (set! prompt-pos (send this last-position)))))
 
     (drracket:get/extend:extend-unit-frame drracket-frame-mixin)
     (drracket:get/extend:extend-definitions-text drracket-editor-mixin)
