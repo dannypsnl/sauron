@@ -112,6 +112,7 @@
               (let* ([end (send editor get-start-position)]
                      [start (send editor get-backward-sexp end)]
                      [to-complete (send editor get-text start end)])
+				;; FIXME: ensure start is not #f
                 (when (string-prefix? to-complete "\\")
                   ;;; select previous sexp
                   (send editor set-position start end)
