@@ -67,6 +67,15 @@
                ;;; c+p open project viewer
                [shortcut #\y]
                [shortcut-prefix (get-default-shortcut-prefix)])
+          (new menu-item% [parent (send this get-show-menu)]
+               [label "Push Commits"]
+               [callback (λ (c e)
+                           ; TODO: create something
+                           (void))]
+               ;;; c+s+k 
+               [shortcut #\k]
+               [shortcut-prefix (cons 'shift
+                                      (get-default-shortcut-prefix))])
 
           (unless show?
             (send panel change-children
