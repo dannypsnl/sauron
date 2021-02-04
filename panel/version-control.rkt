@@ -2,7 +2,8 @@
 
 (require framework
          "../component/common-text.rkt"
-         "../project-manager.rkt")
+         "../project-manager.rkt"
+         "../execute-cmd.rkt")
 
 (provide version-control%)
 (define version-control%
@@ -111,18 +112,6 @@
     (define/public (remove-from-ready)
       (λ-remove-from-ready this filename)
       (send check-box set-value #f))))
-
-(define (run cmd [callback #f])
-  (parameterize ([current-directory (current-project)])
-    (match-let ([(list out in pid err invoke) (process cmd)])
-      (invoke 'wait)
-
-      (when callback
-        (callback out in err))
-
-      (close-output-port in)
-      (close-input-port out)
-      (close-input-port err))))
 
 (define (parse-git-output output)
   (cons
