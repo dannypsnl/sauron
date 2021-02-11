@@ -8,6 +8,7 @@
          racket/gui/base
          "meta.rkt"
          "project-manager.rkt"
+         "commit-pusher.rkt"
          "panel/project-files.rkt"
          "panel/repl/history.rkt")
 
@@ -70,9 +71,8 @@
           (new menu-item% [parent (send this get-show-menu)]
                [label "Push Commits"]
                [callback (λ (c e)
-                           ; TODO: create something
-                           (void))]
-               ;;; c+s+k 
+                           (commit-pusher c))]
+               ;;; c+s+k open commit pusher
                [shortcut #\k]
                [shortcut-prefix (cons 'shift
                                       (get-default-shortcut-prefix))])

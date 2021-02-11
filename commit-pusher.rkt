@@ -1,11 +1,10 @@
 #lang racket/gui
 
-(provide commit-pusher%)
+(provide commit-pusher)
 
-(require framework
-         "execute-cmd.rkt")
+(require "execute-cmd.rkt")
 
-(define (commit-pusher% parent)
+(define (commit-pusher parent)
   (run "git log fetch_head..head --oneline"
        (λ (out in err)
          (define logs
@@ -30,4 +29,4 @@
 
   (define frame (new frame% [label "test-commit-pusher"]))
 
-  (commit-pusher% frame))
+  (commit-pusher frame))
