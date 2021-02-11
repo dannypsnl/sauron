@@ -1,6 +1,7 @@
 #lang s-exp framework/keybinding-lang
 
 (require "meta.rkt"
+         "commit-pusher.rkt"
          "panel/version-control.rkt"
          "project-manager.rkt")
 
@@ -98,6 +99,10 @@
               (define vc (new version-control% [parent frame]))
               (send frame center)
               (send frame show #t)))
+(keybinding (c+ "s:k")
+            (λ (editor event) (commit-pusher "push")))
+(keybinding (c+ "s:p")
+            (λ (editor event) (commit-pusher "pull")))
 
 (keybinding (c+ "m")
             (λ (editor event)
@@ -112,7 +117,7 @@
               (let* ([end (send editor get-start-position)]
                      [start (send editor get-backward-sexp end)]
                      [to-complete (send editor get-text start end)])
-				;; FIXME: ensure start is not #f
+                ;; FIXME: ensure start is not #f
                 (when (string-prefix? to-complete "\\")
                   ;;; select previous sexp
                   (send editor set-position start end)
