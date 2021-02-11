@@ -8,7 +8,6 @@
          racket/gui/base
          "meta.rkt"
          "project-manager.rkt"
-         "commit-pusher.rkt"
          "panel/project-files.rkt"
          "panel/repl/history.rkt")
 
@@ -68,14 +67,6 @@
                ;;; c+p open project viewer
                [shortcut #\y]
                [shortcut-prefix (get-default-shortcut-prefix)])
-          (new menu-item% [parent (send this get-show-menu)]
-               [label "Push Commits"]
-               [callback (λ (c e)
-                           (commit-pusher c))]
-               ;;; c+s+k open commit pusher
-               [shortcut #\k]
-               [shortcut-prefix (cons 'shift
-                                      (get-default-shortcut-prefix))])
 
           (unless show?
             (send panel change-children
