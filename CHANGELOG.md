@@ -1,5 +1,7 @@
 ### To Release v0.5.0
 
+* [vc] c+s+p commits pull
+* [vc] c+s+k commits push
 * [repl:migrate] cursor would be fixed to prompt start position
 * [repl:migrate] select executed history via up/down key
 

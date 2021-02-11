@@ -51,6 +51,8 @@ New user guide, most features should move to here in the end.
     @item{c+y show/hide project files viewer}
     ;;; version control
     @item{c+k version control, open commit editor}
+    @item{c+s+k commits push}
+    @item{c+s+p commits pull}
     ;;; refactor
     @item{c+r rename all bound}
     ;;; jump to definition
@@ -93,6 +95,13 @@ It has three buttons for quick modify as the following list.
     @item{select all}
     @item{unselect all}
     @item{clean up}
+]
+
+@subsubsection{Push/Pull}
+
+@itemlist[
+    @item{c+s+k commits push}
+    @item{c+s+p commits pull}
 ]
 
 @subsection{Project Management}
