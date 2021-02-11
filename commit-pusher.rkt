@@ -4,7 +4,7 @@
 
 (require "execute-cmd.rkt")
 
-(define (commit-pusher)
+(define (commit-pusher command)
   (run "git log fetch_head..head --oneline"
        (λ (out in err)
          (define logs
@@ -14,11 +14,11 @@
          (define result
            (message-box/custom "Push Commits"
                                logs
-                               "push"
+                               command
                                "cancel"
                                #f))
          (match result
-           [1 (run "git push")]
+           [1 (run (format "git ~a" command))]
            [2 (void)]))))
 
 (module+ main
@@ -26,4 +26,4 @@
 
   (current-project (current-directory))
 
-  (commit-pusher))
+  (commit-pusher "git push"))
