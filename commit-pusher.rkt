@@ -4,7 +4,7 @@
 
 (require "execute-cmd.rkt")
 
-(define (commit-pusher parent)
+(define (commit-pusher)
   (run "git log fetch_head..head --oneline"
        (λ (out in err)
          (define logs
@@ -16,8 +16,7 @@
                                logs
                                "push"
                                "cancel"
-                               #f
-                               parent))
+                               #f))
          (match result
            [1 (run "git push")]
            [2 (void)]))))
@@ -27,6 +26,4 @@
 
   (current-project (current-directory))
 
-  (define frame (new frame% [label "test-commit-pusher"]))
-
-  (commit-pusher frame))
+  (commit-pusher))
