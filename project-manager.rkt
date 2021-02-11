@@ -6,7 +6,7 @@
 
 (define project-manager%
   (class frame%
-    (init-field [on-select (λ (path) (message-box "dummy" (format "~a opened" path)))])
+    (init-field on-select)
     (super-new [width 600] [height 600])
 
     ;;; auto setup configuration
@@ -95,5 +95,6 @@
 
 (module+ main
   (define starter (new project-manager%
-                       [label "select a project"]))
+                       [label "select a project"]
+                       [on-select (λ (path) (message-box "dummy" (format "~a opened" path)))]))
   (send starter show #t))
