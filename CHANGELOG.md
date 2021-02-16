@@ -1,5 +1,6 @@
 ### To Release v0.5.0
 
+* [shortcut] c+f search by selection automatically(if any)
 * [editor] fix "tab space when no backward sexp throws unexpected exception"
 * [vc] c+s+p commits pull
 * [vc] c+s+k commits push
