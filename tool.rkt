@@ -64,9 +64,24 @@
                             (λ (path)
                               (current-project path)
                               (show-real-area))])))]
-               ;;; c+p open project viewer
+               ;;; c+y open project viewer
                [shortcut #\y]
                [shortcut-prefix (get-default-shortcut-prefix)])
+
+          (let ([edit-menu (send this get-edit-menu)])
+            (for ([item (send edit-menu get-items)])
+              (when (and (is-a? item labelled-menu-item<%>) (equal? "Find" (send item get-label)))
+                (send item delete)))
+            (new menu-item% [parent edit-menu]
+               [label "Find"]
+               [callback (λ (c e)
+                           (if (send this search-hidden?)
+                               (send this unhide-search #f
+                                     #:new-search-string-from-selection? #t)
+                               (send this hide-search)))]
+               ;;; c+f search text
+               [shortcut #\f]
+               [shortcut-prefix (get-default-shortcut-prefix)]))
 
           (unless show?
             (send panel change-children
