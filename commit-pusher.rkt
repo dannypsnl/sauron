@@ -1,10 +1,10 @@
 #lang racket/gui
 
-(provide commit-pusher)
+(provide make-commit-pusher)
 
 (require "execute-cmd.rkt")
 
-(define (commit-pusher command)
+(define (make-commit-pusher command)
   (run "git log fetch_head..head --oneline"
        (λ (out in err)
          (define logs
@@ -26,4 +26,4 @@
 
   (current-project (current-directory))
 
-  (commit-pusher "git push"))
+  (make-commit-pusher "git push"))

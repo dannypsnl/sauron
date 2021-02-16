@@ -100,9 +100,9 @@
               (send frame center)
               (send frame show #t)))
 (keybinding (c+ "s:k")
-            (λ (editor event) (commit-pusher "push")))
+            (λ (editor event) (make-commit-pusher "push")))
 (keybinding (c+ "s:p")
-            (λ (editor event) (commit-pusher "pull")))
+            (λ (editor event) (make-commit-pusher "pull")))
 
 (keybinding (c+ "m")
             (λ (editor event)
