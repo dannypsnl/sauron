@@ -20,11 +20,11 @@ jobs:
     strategy:
       matrix:
         racket-variant: [ 'BC', 'CS' ]
-        racket-version: [ '7.8', '7.9', 'current' ]
+        racket-version: [ '7.9', '8.0', 'current' ]
     steps:
     - uses: actions/checkout@master
     - name: Setup Racket
-      uses: Bogdanp/setup-racket@v0.12
+      uses: Bogdanp/setup-racket@v0.14
       with:
         architecture: 'x64'   # (x64 or x86), ignored on Linux
         variant: ${{ matrix.racket-variant }}
