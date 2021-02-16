@@ -1,5 +1,6 @@
 ### To Release v0.5.0
 
+* [editor] fix "tab space when no backward sexp throws unexpected exception"
 * [vc] c+s+p commits pull
 * [vc] c+s+k commits push
 * [repl:migrate] cursor would be fixed to prompt start position
