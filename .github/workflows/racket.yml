@@ -12,7 +12,7 @@ on:
     branches:
     - '*'
     paths:
-    - '**.rkt'
+    - '**.(rkt|scrbl)'
 
 jobs:
   test:
