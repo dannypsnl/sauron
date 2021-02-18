@@ -20,12 +20,12 @@ Steps to reproduce the behavior:
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
+**Screenshots(or error message)**
 If applicable, add screenshots to help explain your problem.
 
 **Desktop (please complete the following information):**
  - OS: [e.g. MacOS, Linux, Windows]
- - Version [e.g. 0.1.0]
+ - Version: [e.g. 0.1.0]
 
-**Additional context**
+**Additional context(or any ideas)**
 Add any other context about the problem here.
