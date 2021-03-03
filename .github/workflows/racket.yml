@@ -19,15 +19,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        racket-variant: [ 'BC', 'CS' ]
-        racket-version: [ '7.9', '8.0', 'current' ]
+        variant: [ 'BC', 'CS' ]
+        version: [ '7.7', '7.8', '7.9', '8.0' ]
     steps:
     - uses: actions/checkout@master
     - name: Setup Racket
-      uses: Bogdanp/setup-racket@v0.14
+      uses: Bogdanp/setup-racket@v1.1
       with:
-        architecture: 'x64'   # (x64 or x86), ignored on Linux
-        variant: ${{ matrix.racket-variant }}
-        version: ${{ matrix.racket-version }}        # or 'current' for the latest snapshot
+        architecture: 'x64' # (x64 or x86), ignored on Linux
+        variant: ${{ matrix.variant }}
+        version: ${{ matrix.version }}
     - run: raco pkg install --auto
     - run: make test
