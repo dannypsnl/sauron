@@ -100,9 +100,10 @@
 
         (define prompt-pos 0)
 
-        (define/private (refresh-prompt)
-          (send this set-position prompt-pos (send this last-position))
-          (send this insert (current-selected-expression)))
+        (define (refresh-prompt repl)
+          (send repl set-position prompt-pos (send this last-position))
+          (send repl insert (current-selected-expression))
+          (send repl set-position prompt-pos))
 
         (define/override (on-char e)
           (match (send e get-key-code)
@@ -111,10 +112,10 @@
                       (super on-char e)]
             ['up #:when (= prompt-pos (send this get-start-position))
                  (increase-selected-index)
-                 (refresh-prompt)]
+                 (refresh-prompt this)]
             ['down #:when (= prompt-pos (send this get-start-position))
                    (decrease-selected-index)
-                   (refresh-prompt)]
+                   (refresh-prompt this)]
             [else (super on-char e)
                   (let ([new-pos (send this get-start-position)])
                     (when (< new-pos prompt-pos)
