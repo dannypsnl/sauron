@@ -90,15 +90,21 @@
 (keybinding "{" (λ (editor event) (send-command "insert-{}-pair" editor event)))
 (keybinding "\"" (λ (editor event) (send-command "insert-\"\"-pair" editor event)))
 
+(define vc-open? #f)
 (keybinding (c+ "k")
             (λ (editor event)
-              (define frame (new frame%
-                                 [label "Version Control: Commit"]
-                                 [width 300]
-                                 [height 600]))
-              (define vc (new version-control% [parent frame]))
-              (send frame center)
-              (send frame show #t)))
+              (define vc-frame%
+                (class frame%
+                  (super-new [label "Version Control: Commit"] [width 300] [height 600])
+
+                  (define/augment (on-close)
+                    (set! vc-open? #f))))
+              (unless vc-open?
+                (set! vc-open? #t)
+                (define frame (new vc-frame%))
+                (define vc (new version-control% [parent frame]))
+                (send frame center)
+                (send frame show #t))))
 (keybinding (c+ "s:k")
             (λ (editor event) (make-commit-pusher "push")))
 (keybinding (c+ "s:p")
