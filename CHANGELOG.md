@@ -1,4 +1,6 @@
-### To Release v0.5.0
+### To Release v0.6.0
+
+### v0.5.0
 
 * [vc:fix] c+k can trigger repeated commit editor
 * [fix] press space in search bar won't get exception now
