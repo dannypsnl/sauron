@@ -5,6 +5,7 @@
 (require "execute-cmd.rkt")
 
 (define (make-commit-pusher command)
+  (run "git fetch")
   (run "git log fetch_head..head --oneline"
        (λ (out in err)
          (define logs
