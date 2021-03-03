@@ -92,7 +92,23 @@
 
     (define drracket-editor-mixin
       (mixin (drracket:unit:definitions-text<%> racket:text<%>) ()
-        (super-new)))
+        (super-new)
+
+        (define/override (on-char e)
+          (match (send e get-key-code)
+            [#\space
+              (let* ([end (send this get-start-position)]
+                     [start (send this get-backward-sexp end)])
+                (when start
+                  (let ([to-complete (send this get-text start end)])
+                    (when (string-prefix? to-complete "\\")
+                      ;;; select previous sexp
+                      (send this set-position start end)
+                      ;;; replace it with new text
+                      (send this insert (hash-ref latex-complete (string-trim to-complete "\\" #:right? #f)
+                                                  to-complete))))))
+              (send this insert " ")]
+            [else (super on-char e)]))))
 
     (define drracket-repl-mixin
       (mixin (drracket:rep:text<%> (class->interface drracket:rep:text%)) ()

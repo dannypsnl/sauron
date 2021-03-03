@@ -111,17 +111,3 @@
                    [on-select
                     (λ (path)
                       (current-project path))])))
-
-(keybinding "space"
-            (λ (editor event)
-              (let* ([end (send editor get-start-position)]
-                     [start (send editor get-backward-sexp end)])
-                (when start
-                  (let ([to-complete (send editor get-text start end)])
-                    (when (string-prefix? to-complete "\\")
-                      ;;; select previous sexp
-                      (send editor set-position start end)
-                      ;;; replace it with new text
-                      (send editor insert (hash-ref latex-complete (string-trim to-complete "\\" #:right? #f)
-                                                    to-complete))))))
-              (send editor insert " ")))

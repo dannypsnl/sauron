@@ -1,5 +1,6 @@
 ### To Release v0.5.0
 
+* [fix] press space in search bar won't get exception now
 * [shortcut] c+f search by selection automatically(if any)
 * [editor] fix "tab space when no backward sexp throws unexpected exception"
 * [vc] c+s+p commits pull
