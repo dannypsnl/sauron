@@ -8,39 +8,9 @@
 
 @defmodule[sauron]
 
-@section{User Guide(Outdated)}
-
-This section leave as migration note, it would get removed once migration complete.
+@section{User Guide: As DrRacket Plugin}
 
 In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
-
-@subsection{Shortcut}
-
-@(itemlist
-  ; open document
-  @item{c+d open document}
-  )
-
-@subsection{Auto complete}
-
-Warning: Only consider #lang racket currently, would try to support more variant in the future.
-
-Sauron try to improve experience when programming Racket, one of the important features was auto completion, Sauron provides several builtin form.
-Full list can refer to @code[#:lang "racket"]{racket-builtin-form*} in @(link "https://github.com/racket-tw/sauron/blob/master/meta.rkt" "meta.rkt").
-When you introduce identifier, Sauron would record it to provide completion.
-
-For example:
-
-@(racketblock
-  (define (id x) x))
-
-Type @code[#:lang "racket"]{i} would trigger completion.
-
-@subsubsection{smart insertion}
-
-Smart insertion is an interactive insert mode for creating correct input of program. For example, it would check identifier of `define` form.
-
-@section{User Guide: As DrRacket Plugin}
 
 New user guide, most features should move to here in the end.
 
