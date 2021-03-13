@@ -12,7 +12,8 @@ on:
     branches:
     - '*'
     paths:
-    - '**.(rkt|scrbl)'
+    - '**.rkt'
+    - '**.scrbl'
 
 jobs:
   test:
