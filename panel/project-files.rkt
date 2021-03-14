@@ -57,8 +57,9 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (displayln (format "on-select ~a" dir))
       (super on-select i))
     (define/override (on-double-select i)
-      (when (send i user-data) ;; when double-click a file, open it in editor
+      (when (file-exists? (send i user-data)) ;; when double-click a file, open it in editor
         (define path (send i user-data))
+        ; find-matching-tab will open existed tab else create a new tab
         (let ([tab-<?> (send the-editor-panel find-matching-tab path)])
           (if tab-<?>
               (send the-editor-panel change-to-tab tab-<?>)
