@@ -31,7 +31,9 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                 [set-text (path->string subpath)]
                 [user-data (build-path directory subpath)]))
             (let ([item (send parent new-list set-text-mixin)])
-              (send item set-text (path->string subpath))
+              (send* item
+                [set-text (path->string subpath)]
+                [user-data (build-path directory subpath)])
               (for ([i (directory-list cur-path)])
                 (new-item item cur-path i))))))
     ; Set the top level item, and populate it with an entry
@@ -45,6 +47,15 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
         (new-item top-dir-list dir i))
       ;; open top dir-list by default
       (send top-dir-list open))
+
+    (define/override (on-select i)
+      (define f (send i user-data))
+      (define dir (if (file-exists? f)
+                      (let-values ([(d f b) (split-path f)])
+                        d)
+                      f))
+      (displayln (format "on-select ~a" dir))
+      (super on-select i))
     (define/override (on-double-select i)
       (when (send i user-data) ;; when double-click a file, open it in editor
         (define path (send i user-data))
@@ -52,7 +63,20 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
           (if tab-<?>
               (send the-editor-panel change-to-tab tab-<?>)
               (send the-editor-panel open-in-new-tab path)))))
+
     ;;; init
     (super-new)
     ; top item in hierlist
     (define top-dir-list (send this new-list set-text-mixin))))
+
+(module+ main
+  (define frame (new frame% [label "test: project files"]
+                     [width 300] [height 300]))
+  (define viewer
+    (new project-files% [parent frame]
+         [editor-panel #f]))
+
+  (send viewer set-directory (current-directory))
+
+  (send frame center)
+  (send frame show #t))
