@@ -10,46 +10,46 @@
 
 @section{User Guide: As DrRacket Plugin}
 
-In sauron, all `cmd`/`ctrl` would be called `c`, `alt`/`option` called `o`.
+In sauron, all @litchar{cmd}/@litchar{ctrl} would be called @litchar{c}, @litchar{alt}/@litchar{option} called @litchar{o}.
 
 New user guide, most features should move to here in the end.
 
 @itemlist[
-    @item{c+e run REPL}
-    ;;; project management
-    @item{c+m open project manager}
-    @item{c+y show/hide project files viewer}
-    ;;; version control
-    @item{c+k version control, open commit editor}
-    @item{c+s+k commits push}
-    @item{c+s+p commits pull}
-    ;;; refactor
-    @item{c+r rename all bound}
-    ;;; jump to definition
-    @item{c+b or <click> jump to definition(notice that only identifier is clickable could trigger this)}
-    ;;; edit
-    @item{c+backspace delete whole line from current position}
-    @item{o+backspace delete previous sexp}
-    @item{c+x cut line if no selection, else cut selection}
-    ; comment/uncomment
-    @item{c+; comment selected text or line if uncommented, uncomment if commented}
-    ; auto complete pair
-    @item|{(/[/{/" when has selected text, wrap selected text automatically}|
-]
+ @item{@litchar{c+e} run REPL}
+ ;;; project management
+ @item{@litchar{c+m} open project manager}
+ @item{@litchar{c+y} show/hide project files viewer}
+ ;;; version control
+ @item{@litchar{c+k} version control, open commit editor}
+ @item{@litchar{c+s+k} commits push}
+ @item{@litchar{c+s+p} commits pull}
+ ;;; refactor
+ @item{@litchar{c+r} rename all bound}
+ ;;; jump to definition
+ @item{@litchar{c+b} or @litchar{<click>} jump to definition(notice that only identifier is clickable could trigger this)}
+ ;;; edit
+ @item{@litchar{c+backspace} delete whole line from current position}
+ @item{@litchar{o+backspace} delete previous sexp}
+ @item{@litchar{c+x} cut line if no selection, else cut selection}
+ ; comment/uncomment
+ @item{@litchar{c+;} comment selected text or line if uncommented, uncomment if commented}
+ ; auto complete pair
+ @item{@litchar["("]/@litchar["["]/@litchar["{"]/@litchar{"} when has selected text, wrap selected text automatically}
+ ]
 
 @subsection{Panel: REPL}
 
 REPL panel helps users quickly testing their ideas, it has a few key bindings can work on it:
 
-    @itemlist[
-      @item{<enter> evaluate and save expression into evaluated history(also reset selected status to no selection)}
-      @item{<up> switch to previous expression in history}
-      @item{<down> switch to next expression in history}
-    ]
+@itemlist[
+ @item{@litchar{<enter>} evaluate and save expression into evaluated history(also reset selected status to no selection)}
+ @item{@litchar{<up>} switch to previous expression in history}
+ @item{@litchar{<down>} switch to next expression in history}
+ ]
 
 @subsection{Version Control}
 
-You can use c+k open version control panel, once open the panel, it has two part:
+You can use @litchar{c+k} open version control panel, once open the panel, it has two part:
 
 @subsubsection{commit message editor}
 
@@ -62,33 +62,33 @@ Changed files would show below of the commit editor, they were clickable. Clicke
 It has three buttons for quick modify as the following list.
 
 @itemlist[
-    @item{select all}
-    @item{unselect all}
-    @item{clean up}
-]
+ @item{select all}
+ @item{unselect all}
+ @item{clean up}
+ ]
 
 @subsubsection{Push/Pull}
 
 @itemlist[
-    @item{c+s+k commits push}
-    @item{c+s+p commits pull}
-]
+ @item{@litchar{c+s+k} commits push}
+ @item{@litchar{c+s+p} commits pull}
+ ]
 
 @subsection{Project Management}
 
 @subsubsection{Manager}
 
 @itemlist[
-    @item{add project}
-    @item{remove project}
-]
+ @item{add project}
+ @item{remove project}
+ ]
 
 @subsubsection{Viewer}
 
 @itemlist[
-    @item{interactive with files}
-    @item{open file via double click}
-]
+ @item{interactive with files}
+ @item{open file via double click}
+ ]
 
 @subsection{Special symbol(LaTeX/Agda like) support}
 
