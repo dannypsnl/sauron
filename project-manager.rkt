@@ -2,7 +2,11 @@
 
 (provide (all-defined-out))
 
-(define current-project (make-parameter #f))
+(require framework/notify)
+
+(define current-project
+  (new notify:notify-box%
+       [value #f]))
 
 (define project-manager%
   (class frame%

@@ -4,10 +4,11 @@
 
 (require racket/match
          racket/system
+         racket/class
          "project-manager.rkt")
 
 (define (run cmd [callback #f])
-  (parameterize ([current-directory (current-project)])
+  (parameterize ([current-directory (send current-project get)])
     (match-let ([(list out in pid err invoke) (process cmd)])
       (invoke 'wait)
 

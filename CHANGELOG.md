@@ -1,5 +1,7 @@
 ### To Release v0.6.0
 
+* [project] refresh project files viewer when select a new project
+
 ### v0.5.0
 
 * [vc:fix] c+k can trigger repeated commit editor

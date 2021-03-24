@@ -5,7 +5,8 @@ origin author: https://github.com/racket/gui/graphs/contributors
 modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 |#
 
-(require mrlib/hierlist)
+(require mrlib/hierlist
+         "../project-manager.rkt")
 
 (define set-text-mixin
   (mixin (hierarchical-list-item<%>)
@@ -55,4 +56,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     ;;; init
     (super-new)
     ; top item in hierlist
-    (define top-dir-list (send this new-list set-text-mixin))))
+    (define top-dir-list (send this new-list set-text-mixin))
+    (send current-project listen
+          (λ (new-dir)
+            (send this set-directory new-dir)))))
