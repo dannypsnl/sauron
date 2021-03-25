@@ -12,8 +12,6 @@
 
 In sauron, all @litchar{cmd}/@litchar{ctrl} would be called @litchar{c}, @litchar{alt}/@litchar{option} called @litchar{o}.
 
-New user guide, most features should move to here in the end.
-
 @itemlist[
  @item{@litchar{c+e} run REPL}
  ;;; project management
