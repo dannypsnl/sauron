@@ -23,7 +23,7 @@ jobs:
         version: [ '7.7', '7.8', '7.9', '8.0' ]
     steps:
     - uses: actions/checkout@master
-    - name: Cache multiple paths
+    - name: Cache installed packages
       uses: actions/cache@v2
       with:
         path: |
