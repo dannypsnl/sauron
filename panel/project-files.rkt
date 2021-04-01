@@ -48,6 +48,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     ; Set the top level item, and populate it with an entry
     ; for each item in the directory.
     (define/public (set-directory dir)
+      (send this delete-item top-dir-list)
       (set! top-dir-list (send this new-list set-text-mixin))
       (send top-dir-list set-text (path->string dir))
       ; add new-item for each member of dir
@@ -65,7 +66,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
               (send the-editor-panel open-in-new-tab path)))))
     ;;; init
     (super-new)
-    (define top-dir-list #f)
+    (define top-dir-list (send this new-list set-text-mixin))
     (send current-project listen
           (λ (new-dir)
             (send this set-directory new-dir)))))
