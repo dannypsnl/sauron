@@ -4,8 +4,10 @@ NOTICE: modify from example in https://github.com/racket/gui/blob/master/gui-doc
 origin author: https://github.com/racket/gui/graphs/contributors
 modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 |#
+(provide project-files%)
 
 (require mrlib/hierlist
+         file/glob
          "../project-manager.rkt")
 
 (define set-text-mixin
@@ -19,33 +21,39 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (send t erase)
       (send t insert str))))
 
-(provide project-files%)
+(define ignore-list
+  '(".git"
+    "compiled"
+    "doc"
+    ".DS_Store"))
+
 (define project-files%
   (class hierarchical-list% (init editor-panel)
     (define the-editor-panel editor-panel)
     ; new-item : create new item for a file or directory
     (define (new-item parent directory subpath)
       (let ([cur-path (build-path directory subpath)])
-        (if (file-exists? cur-path)
-            (let ([item (send parent new-item set-text-mixin)])
-              (send* item
-                [set-text (path->string subpath)]
-                [user-data (build-path directory subpath)]))
-            (let ([item (send parent new-list set-text-mixin)])
-              (send* item
-                [set-text (path->string subpath)]
-                [user-data (build-path directory subpath)])
-              (for ([i (directory-list cur-path)])
-                (new-item item cur-path i))))))
+        (when (not (glob-match? ignore-list subpath))
+          (match (file-or-directory-type cur-path #t)
+            ['file
+             (let ([item (send parent new-item set-text-mixin)])
+               (send* item
+                 [set-text (path->string subpath)]
+                 [user-data (build-path directory subpath)]))]
+            ['directory
+             (let ([item (send parent new-list set-text-mixin)])
+               (send item set-text (path->string subpath))
+               (for ([i (directory-list cur-path)])
+                 (new-item item cur-path i)))]))))
     ; Set the top level item, and populate it with an entry
     ; for each item in the directory.
     (define/public (set-directory dir)
-      (send this delete-item top-dir-list) ; remove previous top item
+      (send this delete-item top-dir-list)
       (set! top-dir-list (send this new-list set-text-mixin))
       (send top-dir-list set-text (path->string dir))
       ; add new-item for each member of dir
-      (for ([i (directory-list dir)])
-        (new-item top-dir-list dir i))
+      (for ([sub (directory-list dir)])
+        (new-item top-dir-list dir sub))
       ;; open top dir-list by default
       (send top-dir-list open))
 
@@ -66,7 +74,6 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
     ;;; init
     (super-new)
-    ; top item in hierlist
     (define top-dir-list (send this new-list set-text-mixin))
     (send current-project listen
           (λ (new-dir)
