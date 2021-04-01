@@ -1,5 +1,6 @@
 ### To Release v0.6.0
 
+* [project] ignore some useless files/directories
 * [vc:fix] handle AM/UU/MM prefix as changes
 * [project] refresh project files viewer when select a new project
 
