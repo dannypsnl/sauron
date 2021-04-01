@@ -25,6 +25,6 @@
 (module+ main
   (require "project-manager.rkt")
 
-  (current-project (current-directory))
+  (send current-project set (current-directory))
 
   (make-commit-pusher "git push"))

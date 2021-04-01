@@ -7,13 +7,12 @@ on:
     branches:
     - '*'
     paths:
-    - '**.rkt'
+    - '**.(rkt|scrbl)'
   pull_request:
     branches:
     - '*'
     paths:
-    - '**.rkt'
-    - '**.scrbl'
+    - '**.(rkt|scrbl)'
 
 jobs:
   test:
@@ -24,6 +23,12 @@ jobs:
         version: [ '7.7', '7.8', '7.9', '8.0' ]
     steps:
     - uses: actions/checkout@master
+    - name: Cache installed packages
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.racket
+        key: ${{ runner.os }}-primes
     - name: Setup Racket
       uses: Bogdanp/setup-racket@v1.1
       with:

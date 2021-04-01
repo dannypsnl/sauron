@@ -5,7 +5,8 @@ origin author: https://github.com/racket/gui/graphs/contributors
 modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 |#
 
-(require mrlib/hierlist)
+(require mrlib/hierlist
+         "../project-manager.rkt")
 
 (define set-text-mixin
   (mixin (hierarchical-list-item<%>)
@@ -48,14 +49,6 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       ;; open top dir-list by default
       (send top-dir-list open))
 
-    (define/override (on-select i)
-      (define f (send i user-data))
-      (define dir (if (file-exists? f)
-                      (let-values ([(d f b) (split-path f)])
-                        d)
-                      f))
-      (displayln (format "on-select ~a" dir))
-      (super on-select i))
     (define/override (on-double-select i)
       (when (file-exists? (send i user-data)) ;; when double-click a file, open it in editor
         (define path (send i user-data))
@@ -65,10 +58,19 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
               (send the-editor-panel change-to-tab tab-<?>)
               (send the-editor-panel open-in-new-tab path)))))
 
+    (define/override (on-event e)
+      (when (send e get-right-down)
+        (displayln (send e get-x))
+        (displayln (send e get-y)))
+      (super on-event e))
+
     ;;; init
     (super-new)
     ; top item in hierlist
-    (define top-dir-list (send this new-list set-text-mixin))))
+    (define top-dir-list (send this new-list set-text-mixin))
+    (send current-project listen
+          (λ (new-dir)
+            (send this set-directory new-dir)))))
 
 (module+ main
   (define frame (new frame% [label "test: project files"]

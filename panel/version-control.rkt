@@ -75,10 +75,10 @@
                         [filename filename]
                         [λ-add-to-ready
                          (λ (this filename)
-                           (run (format "git add ~a" (build-path (current-project) filename))))]
+                           (run (format "git add ~a" (build-path (send current-project get) filename))))]
                         [λ-remove-from-ready
                          (λ (this filename)
-                           (run (format "git reset HEAD ~a" (build-path (current-project) filename))))]
+                           (run (format "git reset HEAD ~a" (build-path (send current-project get) filename))))]
                         [status kind]))
                  (loop (read-line out)))))))
 
@@ -121,6 +121,7 @@
           (string-prefix? output "A  ")) 'ready]
      [(or (string-prefix? output " M ")
           (string-prefix? output " D ")
+          (string-prefix? output "AM ")
           (string-prefix? output "?? ")) 'changes]
      [else (error 'unknown-format output)])
    (substring output 3)))
@@ -130,7 +131,7 @@
   (unless (directory-exists? testing-dir)
     (error 'file "no such dir"))
 
-  (current-project testing-dir)
+  (send current-project set testing-dir)
   (define test-frame (new frame%
                           [label "Version Control Panel"]
                           [width 300]

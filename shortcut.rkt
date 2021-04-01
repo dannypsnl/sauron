@@ -116,4 +116,4 @@
                    [label "select a project"]
                    [on-select
                     (λ (path)
-                      (current-project path))])))
+                      (send current-project set path))])))

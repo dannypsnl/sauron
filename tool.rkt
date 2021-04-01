@@ -36,34 +36,36 @@
             (new project-files% [parent real-area]
                  [editor-panel this]))
 
+          (define (close-real-area)
+            (set! show? #f)
+            (send panel change-children
+                  (λ (x)
+                    (filter
+                     (λ (x) (not (eq? real-area x))) x))))
+          (define (show-real-area)
+            (set! show? #t)
+            (send panel change-children
+                  (λ (x) (cons real-area x)))
+            (send panel set-percentages (list 2/11 9/11)))
           (new menu-item% [parent (send this get-show-menu)]
                [label (if show? "Hide the Project Viewer" "Show the Project Viewer")]
                [callback
                 (λ (c e)
-                  (define (close-real-area)
-                    (set! show? #f)
-                    (send panel change-children
-                          (λ (x)
-                            (filter
-                             (λ (x) (not (eq? real-area x))) x)))
-                    (send c set-label "Show the Project Viewer"))
-                  (define (show-real-area)
-                    (set! show? #t)
-                    (send panel change-children
-                          (λ (x) (cons real-area x)))
-                    (send c set-label "Hide the Project Viewer")
-                    (send panel set-percentages (list 2/11 9/11))
-                    (send viewer set-directory (current-project)))
-                  (if (current-project)
+                  (if (send current-project get)
                       (if show?
-                          (close-real-area)
-                          (show-real-area))
+                          (let ()
+                            (close-real-area)
+                            (send c set-label "Show the Project Viewer"))
+                          (let ()
+                            (show-real-area)
+                            (send c set-label "Hide the Project Viewer")))
                       (new project-manager%
                            [label "select a project"]
                            [on-select
                             (λ (path)
-                              (current-project path)
-                              (show-real-area))])))]
+                              (send current-project set path)
+                              (show-real-area)
+                              (send c set-label "Hide the Project Viewer"))])))]
                ;;; c+y open project viewer
                [shortcut #\y]
                [shortcut-prefix (get-default-shortcut-prefix)])
