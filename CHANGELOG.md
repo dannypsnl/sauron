@@ -1,6 +1,6 @@
 ### To Release v0.6.0
 
-* [vc:fix] handle AM prefix as changes
+* [vc:fix] handle AM/UU/MM prefix as changes
 * [project] refresh project files viewer when select a new project
 
 ### v0.5.0

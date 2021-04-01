@@ -122,6 +122,8 @@
      [(or (string-prefix? output " M ")
           (string-prefix? output " D ")
           (string-prefix? output "AM ")
+          (string-prefix? output "MM ")
+          (string-prefix? output "UU ")
           (string-prefix? output "?? ")) 'changes]
      [else (error 'unknown-format output)])
    (substring output 3)))
