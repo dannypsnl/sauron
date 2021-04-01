@@ -7,12 +7,14 @@ on:
     branches:
     - '*'
     paths:
-    - '**.(rkt|scrbl)'
+    - '**.rkt'
+    - '**.scrbl'
   pull_request:
     branches:
     - '*'
     paths:
-    - '**.(rkt|scrbl)'
+    - '**.rkt'
+    - '**.scrbl'
 
 jobs:
   test:
