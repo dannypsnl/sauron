@@ -6,10 +6,11 @@
          framework
          racket/runtime-path
          racket/gui/base
-         "meta.rkt"
-         "project-manager.rkt"
-         "panel/project-files.rkt"
-         "panel/repl/history.rkt")
+
+         sauron/meta
+         sauron/project-manager
+         sauron/repl/history
+         sauron/panel/project-files)
 
 (define-runtime-path file "shortcut.rkt")
 
