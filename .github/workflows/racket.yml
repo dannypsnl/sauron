@@ -9,12 +9,14 @@ on:
     paths:
     - '**.rkt'
     - '**.scrbl'
+    - '**.yml'
   pull_request:
     branches:
     - '*'
     paths:
     - '**.rkt'
     - '**.scrbl'
+    - '**.yml'
 
 jobs:
   test:
