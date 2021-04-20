@@ -9,14 +9,14 @@ on:
     paths:
     - '**.rkt'
     - '**.scrbl'
-    - '**.yml'
   pull_request:
     branches:
     - '*'
     paths:
     - '**.rkt'
     - '**.scrbl'
-    - '**.yml'
+  # allow you to run this workflow manually from tab
+  workflow_dispatch:
 
 jobs:
   test:
