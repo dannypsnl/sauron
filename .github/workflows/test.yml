@@ -1,4 +1,4 @@
-name: Racket
+name: Test
 
 on:
   schedule:
@@ -34,7 +34,7 @@ jobs:
           ~/.racket
         key: ${{ runner.os }}-primes
     - name: Setup Racket
-      uses: Bogdanp/setup-racket@v1.1
+      uses: Bogdanp/setup-racket@v1.2.1
       with:
         architecture: 'x64' # (x64 or x86), ignored on Linux
         variant: ${{ matrix.variant }}
