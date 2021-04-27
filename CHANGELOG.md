@@ -1,5 +1,6 @@
 ### To Release v0.6.0
 
+* [vc] c+k will push commit editor to front
 * [project] ignore some useless files/directories
 * [vc:fix] handle AM/UU/MM prefix as changes
 * [project] refresh project files viewer when select a new project
