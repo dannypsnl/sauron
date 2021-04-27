@@ -5,18 +5,18 @@
          "panel/version-control.rkt"
          "project-manager.rkt")
 
-(define (c+ k)
+(define (c+ key)
   (match (system-type 'os)
     ;; `d` is command
-    ['macosx (format "d:~a" k)]
+    ['macosx (format "d:~a" key)]
     ;; `c` is ctrl
-    [_ (format "c:~a" k)]))
-(define (o+ k)
+    [_ (format "c:~a" key)]))
+(define (o+ key)
   (match (system-type 'os)
     ;; `a` is option
-    ['macosx (format "a:~a" k)]
+    ['macosx (format "a:~a" key)]
     ;; `~c` is alt
-    [_ (string-append "~c:" k)]))
+    [_ (string-append "~c:" key)]))
 (define (send-command command editor event)
   (send (send editor get-keymap) call-function
         command editor event #t))
