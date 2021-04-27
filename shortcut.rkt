@@ -91,6 +91,7 @@
 (keybinding "\"" (λ (editor event) (send-command "insert-\"\"-pair" editor event)))
 
 (define vc-open? #f)
+(define frame-<?> #f)
 (keybinding (c+ "k")
             (λ (editor event)
               (define vc-frame%
@@ -101,10 +102,11 @@
                     (set! vc-open? #f))))
               (unless vc-open?
                 (set! vc-open? #t)
-                (define frame (new vc-frame%))
-                (define vc (new version-control% [parent frame]))
-                (send frame center)
-                (send frame show #t))))
+                (set! frame-<?> (new vc-frame%))
+                (define vc (new version-control% [parent frame-<?>]))
+                (send frame-<?> center))
+              (when frame-<?>
+                (send frame-<?> show #t))))
 (keybinding (c+ "s:k")
             (λ (editor event) (make-commit-pusher "push")))
 (keybinding (c+ "s:p")
