@@ -18,7 +18,7 @@ before_install: # Install Racket
 install: raco pkg install --deps search-auto $TRAVIS_BUILD_DIR # install dependencies
 
 script:
-  - xvfb-run raco test .
+  - make test
 
 after_success:
   - raco pkg install --deps search-auto cover cover-codecov
