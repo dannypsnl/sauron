@@ -1,0 +1,22 @@
+# .travis.yml
+language: c
+sudo: false
+env:
+  global:
+    - RACKET_DIR=~/racket
+  matrix:
+    - RACKET_VERSION=8.0
+
+before_install: # Install Racket
+  - git clone https://github.com/greghendershott/travis-racket.git ../travis-racket
+  - cat ../travis-racket/install-racket.sh | bash
+  - export PATH="${RACKET_DIR}/bin:${PATH}"
+
+install: raco pkg install --deps search-auto $TRAVIS_BUILD_DIR # install dependencies
+
+script:
+  - make test
+
+after_success:
+  - raco pkg install --deps search-auto cover cover-codecov
+  - raco cover -f codecov -d $TRAVIS_BUILD_DIR/coverage .
