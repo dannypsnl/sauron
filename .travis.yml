@@ -1,7 +1,4 @@
 # .travis.yml
-dist: xenial
-services:
-  - xvfb
 language: c
 sudo: false
 env:
