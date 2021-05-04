@@ -4,7 +4,7 @@ NOTICE: modify from example in https://github.com/racket/gui/blob/master/gui-doc
 origin author: https://github.com/racket/gui/graphs/contributors
 modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 |#
-(provide project-files%)
+(provide project-files-pane%)
 
 (require mrlib/hierlist
          file/glob
@@ -46,13 +46,12 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
              (let ([item (send parent new-list set-text-mixin)])
                (send item set-text (path->string subpath))
                (for ([i (directory-list cur-path)])
-                 (new-item item cur-path i)))]))))
+                 (new-item item cur-path i)))]
+            ['link (void)]))))
     ; Set the top level item, and populate it with an entry
     ; for each item in the directory.
     (define/public (reset-directory dir)
-      (filesystem-change-evt dir
-                             (λ ()
-                               (send this reset-directory dir)))
+      (set! cur-selected-dir dir)
       (send this delete-item top-dir-list)
       (set! top-dir-list (send this new-list set-text-mixin))
       (send top-dir-list set-text (path->string dir))
@@ -80,36 +79,40 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     ;;; init
     (super-new)
     (define top-dir-list (send this new-list set-text-mixin))
-    (define cur-selected-dir (send current-project get))
+    (define cur-selected-dir #f)
     (define cur-selected-file #f)
     (send current-project listen
           (λ (new-dir)
             (send this reset-directory new-dir)))))
 
+(define project-files-pane%
+  (class horizontal-pane%
+    (init-field parent editor-panel)
+    (super-new [parent parent])
+
+    (define viewer (new project-files% [parent parent]
+                        [editor-panel editor-panel]))
+    (new button% [parent this]
+         [label "add"]
+         [callback (λ (btn event)
+                     (define filename (get-text-from-user "New File" ""))
+                     (define path (build-path (send viewer get-cur-selected-dir) filename))
+                     (make-parent-directory* path)
+                     (define out (open-output-file path #:exists 'append))
+                     (close-output-port out)
+                     (send viewer reset-directory (send current-project get)))])
+    (new button% [parent this]
+         [label "remove"]
+         [callback (λ (btn event)
+                     (define path (send viewer get-cur-selected-file))
+                     (delete-file path)
+                     (send viewer reset-directory (send current-project get)))])))
+
 (module+ main
   (define frame (new frame% [label "test: project files"]
                      [width 300] [height 300]))
 
-  (define h-pane (new horizontal-pane% [parent frame]))
-  (define viewer (new project-files% [parent frame]
-                      [editor-panel #f]))
-  (new button% [parent h-pane]
-       [label "add"]
-       [callback (λ (btn event)
-                   (define filename (get-text-from-user	"New File" ""))
-                   (define path (build-path (send viewer get-cur-selected-dir) filename))
-                   (make-parent-directory* path)
-                   (define out (open-output-file path))
-                   (close-output-port out)
-                   (send viewer reset-directory (current-directory)))])
-  (new button% [parent h-pane]
-       [label "remove"]
-       [callback (λ (btn event)
-                   (define path (send viewer get-cur-selected-file))
-                   (delete-file path)
-                   (send viewer reset-directory (current-directory)))])
-
-  (send viewer reset-directory (current-directory))
+  (new project-files-pane% [parent frame] [editor-panel #f])
 
   (send frame center)
   (send frame show #t))

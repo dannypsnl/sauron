@@ -33,9 +33,8 @@
           (define panel (new panel:horizontal-dragable% [parent (super get-definitions/interactions-panel-parent)]))
           (define real-area (new vertical-panel% [parent panel]))
 
-          (define viewer
-            (new project-files% [parent real-area]
-                 [editor-panel this]))
+          (new project-files-pane% [parent real-area]
+               [editor-panel this])
 
           (define (close-real-area)
             (set! show? #f)
