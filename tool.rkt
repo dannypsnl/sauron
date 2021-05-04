@@ -31,10 +31,11 @@
 
         (define/override (get-definitions/interactions-panel-parent)
           (define panel (new panel:horizontal-dragable% [parent (super get-definitions/interactions-panel-parent)]))
-          (define real-area (new vertical-panel% [parent panel]))
+          (define real-area (new panel:vertical-dragable% [parent panel]))
 
           (new project-files-pane% [parent real-area]
                [editor-panel this])
+          (send real-area set-percentages '(1/20 19/20))
 
           (define (close-real-area)
             (set! show? #f)
@@ -46,7 +47,7 @@
             (set! show? #t)
             (send panel change-children
                   (λ (x) (cons real-area x)))
-            (send panel set-percentages (list 2/11 9/11)))
+            (send panel set-percentages '(2/11 9/11)))
           (new menu-item% [parent (send this get-show-menu)]
                [label (if show? "Hide the Project Viewer" "Show the Project Viewer")]
                [callback
