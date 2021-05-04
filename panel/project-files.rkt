@@ -105,7 +105,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          [label "remove"]
          [callback (λ (btn event)
                      (define path (send viewer get-cur-selected-file))
-                     (delete-file path)
+                     (delete-directory/files path #:must-exists? #f)
                      (send viewer reset-directory (send current-project get)))])))
 
 (module+ main
