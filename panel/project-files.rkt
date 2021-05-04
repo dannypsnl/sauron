@@ -4,7 +4,7 @@ NOTICE: modify from example in https://github.com/racket/gui/blob/master/gui-doc
 origin author: https://github.com/racket/gui/graphs/contributors
 modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 |#
-(provide project-files%)
+(provide project-files-pane%)
 
 (require mrlib/hierlist
          file/glob
@@ -33,21 +33,25 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     ; new-item : create new item for a file or directory
     (define (new-item parent directory subpath)
       (let ([cur-path (build-path directory subpath)])
+        (send parent user-data (cons directory #f))
         (when (not (glob-match? ignore-list subpath))
           (match (file-or-directory-type cur-path #t)
             ['file
              (let ([item (send parent new-item set-text-mixin)])
                (send* item
                  [set-text (path->string subpath)]
-                 [user-data (build-path directory subpath)]))]
+                 [user-data (cons directory
+                                  (build-path directory subpath))]))]
             ['directory
              (let ([item (send parent new-list set-text-mixin)])
                (send item set-text (path->string subpath))
                (for ([i (directory-list cur-path)])
-                 (new-item item cur-path i)))]))))
+                 (new-item item cur-path i)))]
+            ['link (void)]))))
     ; Set the top level item, and populate it with an entry
     ; for each item in the directory.
-    (define/public (set-directory dir)
+    (define/public (reset-directory dir)
+      (set! cur-selected-dir dir)
       (send this delete-item top-dir-list)
       (set! top-dir-list (send this new-list set-text-mixin))
       (send top-dir-list set-text (path->string dir))
@@ -57,28 +61,58 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       ;; open top dir-list by default
       (send top-dir-list open))
 
+    (define/public (get-cur-selected-dir) cur-selected-dir)
+    (define/public (get-cur-selected-file) cur-selected-file)
+
+    (define/override (on-select i)
+      (let ([dir (car (send i user-data))]
+            [f (cdr (send i user-data))])
+        (set! cur-selected-dir dir)
+        (set! cur-selected-file f)))
     (define/override (on-double-select i)
-      (when (send i user-data) ;; when double-click a file, open it in editor
-        (define path (send i user-data))
-        (let ([tab-<?> (send the-editor-panel find-matching-tab path)])
-          (if tab-<?>
-              (send the-editor-panel change-to-tab tab-<?>)
-              (send the-editor-panel open-in-new-tab path)))))
+      (let ([path (cdr (send i user-data))])
+        (when path ;; when double-click a file, open it in editor
+          (let ([tab-<?> (send the-editor-panel find-matching-tab path)])
+            (if tab-<?>
+                (send the-editor-panel change-to-tab tab-<?>)
+                (send the-editor-panel open-in-new-tab path))))))
     ;;; init
     (super-new)
     (define top-dir-list (send this new-list set-text-mixin))
+    (define cur-selected-dir #f)
+    (define cur-selected-file #f)
     (send current-project listen
           (λ (new-dir)
-            (send this set-directory new-dir)))))
+            (send this reset-directory new-dir)))))
+
+(define project-files-pane%
+  (class horizontal-pane%
+    (init-field parent editor-panel)
+    (super-new [parent parent])
+
+    (define viewer (new project-files% [parent parent]
+                        [editor-panel editor-panel]))
+    (new button% [parent this]
+         [label "add"]
+         [callback (λ (btn event)
+                     (define filename (get-text-from-user "New File" ""))
+                     (define path (build-path (send viewer get-cur-selected-dir) filename))
+                     (make-parent-directory* path)
+                     (define out (open-output-file path #:exists 'append))
+                     (close-output-port out)
+                     (send viewer reset-directory (send current-project get)))])
+    (new button% [parent this]
+         [label "remove"]
+         [callback (λ (btn event)
+                     (define path (send viewer get-cur-selected-file))
+                     (delete-file path)
+                     (send viewer reset-directory (send current-project get)))])))
 
 (module+ main
   (define frame (new frame% [label "test: project files"]
                      [width 300] [height 300]))
-  (define viewer
-    (new project-files% [parent frame]
-         [editor-panel #f]))
 
-  (send viewer set-directory (current-directory))
+  (new project-files-pane% [parent frame] [editor-panel #f])
 
   (send frame center)
   (send frame show #t))
