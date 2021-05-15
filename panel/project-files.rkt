@@ -108,13 +108,13 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                   (λ (box event)
                     (define selected (first (send box get-selections)))
                     (match selected
-                      [0 (define file-name (get-text-from-user "New File" ""))
+                      [0 (define file-name (get-text-from-user "name of file?" ""))
                          (when file-name
                            (define path (build-path (send viewer get-cur-selected-dir) file-name))
                            (make-parent-directory* path)
                            (close-output-port
                             (open-output-file path #:exists 'append)))]
-                      [1 (define dir-name (get-text-from-user "New File" ""))
+                      [1 (define dir-name (get-text-from-user "name of directory?" ""))
                          (when dir-name
                            (make-directory*
                             (build-path (send viewer get-cur-selected-dir) dir-name)))])
