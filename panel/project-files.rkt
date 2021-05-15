@@ -33,7 +33,6 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     ; new-item : create new item for a file or directory
     (define (new-item parent directory subpath)
       (let ([cur-path (build-path directory subpath)])
-        (send parent user-data (cons directory #f))
         (when (not (glob-match? ignore-list subpath))
           (match (file-or-directory-type cur-path #t)
             ['file
@@ -44,7 +43,9 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                                   (build-path directory subpath))]))]
             ['directory
              (let ([item (send parent new-list set-text-mixin)])
-               (send item set-text (path->string subpath))
+               (send* item
+                 [set-text (path->string subpath)]
+                 [user-data (cons cur-path cur-path)])
                (for ([i (directory-list cur-path)])
                  (new-item item cur-path i)))]
             ['link (void)]))))
@@ -56,6 +57,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (set! top-dir-list (send this new-list set-text-mixin))
       (send top-dir-list set-text (path->string dir))
       ; add new-item for each member of dir
+      (send top-dir-list user-data (cons dir dir))
       (for ([sub (directory-list dir)])
         (new-item top-dir-list dir sub))
       ;; open top dir-list by default
@@ -71,7 +73,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
         (set! cur-selected-file f)))
     (define/override (on-double-select i)
       (let ([path (cdr (send i user-data))])
-        (when path ;; when double-click a file, open it in editor
+        (when (file-exists? path) ;; when double-click a file, open it in editor
           (let ([tab-<?> (send the-editor-panel find-matching-tab path)])
             (if tab-<?>
                 (send the-editor-panel change-to-tab tab-<?>)
@@ -131,6 +133,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                      [width 300] [height 300]))
 
   (new project-files-pane% [parent frame] [editor-panel #f])
+  (send current-project set (current-directory))
 
   (send frame center)
   (send frame show #t))
