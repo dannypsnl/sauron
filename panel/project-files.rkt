@@ -94,14 +94,31 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                         [editor-panel editor-panel]))
     (new button% [parent this]
          [label "add"]
-         [callback (λ (btn event)
-                     (define filename (get-text-from-user "New File" ""))
-                     (when filename
-                       (define path (build-path (send viewer get-cur-selected-dir) filename))
-                       (make-parent-directory* path)
-                       (define out (open-output-file path #:exists 'append))
-                       (close-output-port out)
-                       (send viewer reset-directory (send current-project get))))])
+         [callback
+          (λ (btn event)
+            (define new-frame (new frame% [label "New"]
+                                   [width 300] [height 300]))
+            (send* new-frame
+              [show #t]
+              [center])
+            (new list-box% [parent new-frame]
+                 [label "New"]
+                 [choices '("file" "directory")]
+                 [callback
+                  (λ (box event)
+                    (define selected (first (send box get-selections)))
+                    (match selected
+                      [0 (define file-name (get-text-from-user "New File" ""))
+                         (when file-name
+                           (define path (build-path (send viewer get-cur-selected-dir) file-name))
+                           (make-parent-directory* path)
+                           (close-output-port
+                            (open-output-file path #:exists 'append)))]
+                      [1 (define dir-name (get-text-from-user "New File" ""))
+                         (when dir-name
+                           (make-directory*
+                            (build-path (send viewer get-cur-selected-dir) dir-name)))])
+                    (send viewer reset-directory (send current-project get)))]))])
     (new button% [parent this]
          [label "remove"]
          [callback (λ (btn event)

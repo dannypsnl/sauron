@@ -1,6 +1,6 @@
 ### To Release v0.6.0
 
-* [project] remove directory
+* [project] add/remove directory
 * [project] add/remove file
 * [vc] c+k will push commit editor to front
 * [project] ignore some useless files/directories
