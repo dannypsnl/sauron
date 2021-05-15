@@ -1,9 +1,9 @@
 #lang s-exp framework/keybinding-lang
 
-(require "meta.rkt"
-         "commit-pusher.rkt"
-         "panel/version-control.rkt"
-         "project-manager.rkt")
+(require sauron/meta
+         sauron/commit-pusher
+         sauron/panel/version-control
+         sauron/project-manager)
 
 (define (c+ key)
   (match (system-type 'os)

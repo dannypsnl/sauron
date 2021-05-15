@@ -1,6 +1,6 @@
 #lang info
 
-(define drracket-tools '(("tool-keybinding.rkt")
+(define drracket-tools '(("tool/bind-key.rkt")
                          ("tool/frame.rkt")
                          ("tool/editor.rkt")
                          ("tool/repl.rkt")))
