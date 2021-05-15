@@ -1,4 +1,6 @@
-### To Release v0.6.0
+### To Release
+
+### v1.0.0
 
 * [project] add/remove directory
 * [project] add/remove file
