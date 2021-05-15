@@ -1,8 +1,14 @@
 #lang info
 
-(define drracket-tools '(("tool.rkt")))
-(define drracket-tool-names '("sauron"))
-(define drracket-tool-icons '(#f))
+(define drracket-tools '(("tool.rkt")
+                         ("tool-unit-frame.rkt")
+                         ("tool-editor.rkt")
+                         ("tool-repl.rkt")))
+(define drracket-tool-names '("sauron:keyword"
+                              "sauron:unit"
+                              "sauron:editor"
+                              "sauron:repl"))
+(define drracket-tool-icons '(#f #f #f #f))
 
 (define collection "sauron")
 (define deps '("base" "gui-lib" "net-lib"
