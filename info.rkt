@@ -1,9 +1,9 @@
 #lang info
 
-(define drracket-tools '(("tool.rkt")
-                         ("tool-unit-frame.rkt")
-                         ("tool-editor.rkt")
-                         ("tool-repl.rkt")))
+(define drracket-tools '(("tool-keybinding.rkt")
+                         ("tool/frame.rkt")
+                         ("tool/editor.rkt")
+                         ("tool/repl.rkt")))
 (define drracket-tool-names '("sauron:keyword"
                               "sauron:unit"
                               "sauron:editor"
