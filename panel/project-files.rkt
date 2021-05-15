@@ -96,11 +96,12 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          [label "add"]
          [callback (λ (btn event)
                      (define filename (get-text-from-user "New File" ""))
-                     (define path (build-path (send viewer get-cur-selected-dir) filename))
-                     (make-parent-directory* path)
-                     (define out (open-output-file path #:exists 'append))
-                     (close-output-port out)
-                     (send viewer reset-directory (send current-project get)))])
+                     (when filename
+                       (define path (build-path (send viewer get-cur-selected-dir) filename))
+                       (make-parent-directory* path)
+                       (define out (open-output-file path #:exists 'append))
+                       (close-output-port out)
+                       (send viewer reset-directory (send current-project get))))])
     (new button% [parent this]
          [label "remove"]
          [callback (λ (btn event)
