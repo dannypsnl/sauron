@@ -1,5 +1,7 @@
 ### To Release
 
+* [project:fix] close add choices board after selected
+
 ### v1.0.0
 
 * [project] add/remove directory
