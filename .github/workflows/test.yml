@@ -24,7 +24,7 @@ jobs:
     strategy:
       matrix:
         variant: [ 'BC', 'CS' ]
-        version: [ '7.9', '8.0' ]
+        version: [ '7.9', '8.0', '8.1' ]
     steps:
     - uses: actions/checkout@master
     - name: Cache installed packages
