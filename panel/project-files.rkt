@@ -27,6 +27,10 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     "doc"
     ".DS_Store"))
 
+(struct selected
+  (dir file)
+  #:transparent)
+
 (define project-files%
   (class hierarchical-list% (init editor-panel)
     (define the-editor-panel editor-panel)
@@ -39,36 +43,35 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
              (let ([item (send parent new-item set-text-mixin)])
                (send* item
                  [set-text (path->string subpath)]
-                 [user-data (cons directory
-                                  (build-path directory subpath))]))]
+                 [user-data (selected directory
+                                      (build-path directory subpath))]))]
             ['directory
              (let ([item (send parent new-list set-text-mixin)])
                (send* item
                  [set-text (path->string subpath)]
-                 [user-data (cons cur-path cur-path)])
+                 [user-data (selected cur-path cur-path)])
                (for ([i (directory-list cur-path)])
                  (new-item item cur-path i)))]
             ['link (void)]))))
     ; Set the top level item, and populate it with an entry
     ; for each item in the directory.
     (define/public (reset-directory dir)
-      (set! cur-selected-dir dir)
+      (set! current-selected (selected dir #f))
       (send this delete-item top-dir-list)
       (set! top-dir-list (send this new-list set-text-mixin))
       (send top-dir-list set-text (path->string dir))
       ; add new-item for each member of dir
-      (send top-dir-list user-data (cons dir dir))
+      (send top-dir-list user-data (selected dir dir))
       (for ([sub (directory-list dir)])
         (new-item top-dir-list dir sub))
       ;; open top dir-list by default
       (send top-dir-list open))
 
-    (define/public (get-cur-selected-dir) cur-selected-dir)
-    (define/public (get-cur-selected-file) cur-selected-file)
+    (define/public (get-cur-selected-dir) (selected-dir current-selected))
+    (define/public (get-cur-selected-file) (selected-file current-selected))
 
     (define/override (on-select i)
-      (set! cur-selected-dir (car (send i user-data)))
-      (set! cur-selected-file (cdr (send i user-data))))
+      (set! current-selected (send i user-data)))
     (define/override (on-double-select i)
       (define path (cdr (send i user-data)))
       (when (file-exists? path) ;; when double-click a file, open it in editor
@@ -79,8 +82,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     ;;; init
     (super-new)
     (define top-dir-list (send this new-list set-text-mixin))
-    (define cur-selected-dir #f)
-    (define cur-selected-file #f)
+    (define current-selected #f)
     (send current-project listen
           (λ (new-dir)
             (reset-directory new-dir)))))
