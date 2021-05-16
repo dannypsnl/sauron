@@ -83,7 +83,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define cur-selected-file #f)
     (send current-project listen
           (λ (new-dir)
-            (send this reset-directory new-dir)))))
+            (reset-directory new-dir)))))
 
 (define project-files-pane%
   (class horizontal-pane%
