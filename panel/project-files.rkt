@@ -67,17 +67,15 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define/public (get-cur-selected-file) cur-selected-file)
 
     (define/override (on-select i)
-      (let ([dir (car (send i user-data))]
-            [f (cdr (send i user-data))])
-        (set! cur-selected-dir dir)
-        (set! cur-selected-file f)))
+      (set! cur-selected-dir (car (send i user-data)))
+      (set! cur-selected-file (cdr (send i user-data))))
     (define/override (on-double-select i)
-      (let ([path (cdr (send i user-data))])
-        (when (file-exists? path) ;; when double-click a file, open it in editor
-          (let ([tab-<?> (send the-editor-panel find-matching-tab path)])
-            (if tab-<?>
-                (send the-editor-panel change-to-tab tab-<?>)
-                (send the-editor-panel open-in-new-tab path))))))
+      (define path (cdr (send i user-data)))
+      (when (file-exists? path) ;; when double-click a file, open it in editor
+        (let ([tab-<?> (send the-editor-panel find-matching-tab path)])
+          (if tab-<?>
+              (send the-editor-panel change-to-tab tab-<?>)
+              (send the-editor-panel open-in-new-tab path)))))
     ;;; init
     (super-new)
     (define top-dir-list (send this new-list set-text-mixin))
@@ -108,14 +106,12 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                  [choices '("file" "directory")]
                  [callback
                   (λ (box event)
-                    (define selected (first (send box get-selections)))
-                    (match selected
+                    (match (first (send box get-selections))
                       [0 (define file-name (get-text-from-user "name of file?" ""))
                          (when file-name
                            (define path (build-path (send viewer get-cur-selected-dir) file-name))
                            (make-parent-directory* path)
-                           (close-output-port
-                            (open-output-file path #:exists 'append)))]
+                           (close-output-port (open-output-file path #:exists 'append)))]
                       [1 (define dir-name (get-text-from-user "name of directory?" ""))
                          (when dir-name
                            (make-directory*
@@ -124,8 +120,8 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (new button% [parent this]
          [label "remove"]
          [callback (λ (btn event)
-                     (define path (send viewer get-cur-selected-file))
-                     (delete-directory/files path #:must-exist? #f)
+                     (delete-directory/files (send viewer get-cur-selected-file)
+                                             #:must-exist? #f)
                      (send viewer reset-directory (send current-project get)))])))
 
 (module+ main
