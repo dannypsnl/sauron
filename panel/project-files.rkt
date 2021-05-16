@@ -118,7 +118,8 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                          (when dir-name
                            (make-directory*
                             (build-path (send viewer get-cur-selected-dir) dir-name)))])
-                    (send viewer reset-directory (send current-project get)))]))])
+                    (send viewer reset-directory (send current-project get))
+                    (send new-frame show #f))]))])
     (new button% [parent this]
          [label "remove"]
          [callback (λ (btn event)
