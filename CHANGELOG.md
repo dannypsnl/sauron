@@ -1,5 +1,7 @@
 ### To Release
 
+* [project:fix] open file
+
 ### v1.0.1
 
 * [project:fix] close add choices board after selected
