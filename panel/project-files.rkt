@@ -73,7 +73,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define/override (on-select i)
       (set! current-selected (send i user-data)))
     (define/override (on-double-select i)
-      (define path (cdr (send i user-data)))
+      (define path (selected-file (send i user-data)))
       (when (file-exists? path) ;; when double-click a file, open it in editor
         (let ([tab-<?> (send the-editor-panel find-matching-tab path)])
           (if tab-<?>
