@@ -48,7 +48,7 @@
          [callback
           (λ (btn event)
             (define path (get-directory #f this))
-            (when (directory-exists? path)
+            (when (and path (directory-exists? path))
               (call-with-output-file projects-file
                 #:exists 'append
                 (λ (port)

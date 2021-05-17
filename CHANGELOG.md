@@ -1,5 +1,7 @@
 ### To Release
 
+* [project:fix] add project on cancel
+
 ### v1.0.2
 
 * [project:fix] open file
