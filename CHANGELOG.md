@@ -1,5 +1,7 @@
 ### To Release
 
+### v1.0.2
+
 * [project:fix] open file
 
 ### v1.0.1
