@@ -1,5 +1,6 @@
 ### To Release
 
+* [editor:improve] all kinds editor now support LaTeX input
 * [project:fix] add project on cancel
 
 ### v1.0.2
