@@ -79,6 +79,7 @@ It has three buttons for quick modify as the following list.
 @itemlist[
  @item{add project}
  @item{remove project}
+ @item{open project}
  ]
 
 @subsubsection{Viewer}
@@ -86,6 +87,8 @@ It has three buttons for quick modify as the following list.
 @itemlist[
  @item{interactive with files}
  @item{open file via double click}
+ @item{add file/directory}
+ @item{remove file/directory}
  ]
 
 @subsection{Special symbol(LaTeX/Agda like) support}
