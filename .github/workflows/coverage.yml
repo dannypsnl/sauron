@@ -1,0 +1,45 @@
+name: Coverage
+
+on:
+  push:
+    branches:
+    - '*'
+    paths:
+    - '**coverage.yml'
+    - '**.rkt'
+    - '**.scrbl'
+  pull_request:
+    branches:
+    - '*'
+    paths:
+    - '**.rkt'
+    - '**.scrbl'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    environment: test-env
+    env:
+      COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+    steps:
+      - uses: actions/checkout@master
+      - name: Cache installed packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.racket
+          key: ${{ runner.os }}-primes
+      - name: Setup Racket
+        uses: Bogdanp/setup-racket@v1.3.1
+        with:
+          architecture: 'x64'
+          distribution: 'minimal'
+          variant: 'CS'
+          version: '8.1'
+          packages: 'cover, cover-coveralls'
+      - run: raco pkg install --auto
+      - run: |
+          make test
+          raco cover -b -f coveralls .

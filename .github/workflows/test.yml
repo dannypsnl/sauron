@@ -7,6 +7,7 @@ on:
     branches:
     - '*'
     paths:
+    - '**test.yml'
     - '**.rkt'
     - '**.scrbl'
   pull_request:
@@ -15,7 +16,7 @@ on:
     paths:
     - '**.rkt'
     - '**.scrbl'
-  # allow you to run this workflow manually from tab
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
@@ -37,6 +38,7 @@ jobs:
       uses: Bogdanp/setup-racket@v1.3.1
       with:
         architecture: 'x64' # (x64 or x86), ignored on Linux
+        distribution: 'minimal'
         variant: ${{ matrix.variant }}
         version: ${{ matrix.version }}
     - run: raco pkg install --auto
