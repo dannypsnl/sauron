@@ -18,3 +18,10 @@
       (close-output-port in)
       (close-input-port out)
       (close-input-port err))))
+
+(module+ test
+  (require rackunit)
+
+  (send current-project set (current-directory))
+  (check-equal? (run "ls")
+                (void)))
