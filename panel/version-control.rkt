@@ -1,7 +1,6 @@
 #lang racket/gui
 
 (require framework
-         "../component/common-text.rkt"
          "../project-manager.rkt"
          "../execute-cmd.rkt")
 
@@ -15,7 +14,7 @@
                                [parent this]
                                [style '(no-hscroll)]))
     (define commit-editor%
-      (class common:text%
+      (class racket:text%
         (super-new)
         (inherit get-text
                  erase)
@@ -129,7 +128,7 @@
    (substring output 3)))
 
 (module+ main
-  (define testing-dir (build-path (find-system-path 'home-dir) "racket.tw" "developing"))
+  (define testing-dir (build-path (find-system-path 'home-dir) "racket.tw" "sauron"))
   (unless (directory-exists? testing-dir)
     (error 'file "no such dir"))
 
