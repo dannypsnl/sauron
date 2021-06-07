@@ -1,5 +1,7 @@
 ### To Release
 
+* [editor] invoke auto complete automatically
+
 ### v1.0.3
 
 * [editor:improve] all kinds editor now support LaTeX input
