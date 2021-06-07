@@ -42,4 +42,4 @@ jobs:
         variant: ${{ matrix.variant }}
         version: ${{ matrix.version }}
     - run: raco pkg install --auto
-    - run: make ci-test
+    - run: xvfb-run -a make test
