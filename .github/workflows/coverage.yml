@@ -41,5 +41,5 @@ jobs:
           packages: 'cover, cover-coveralls'
       - run: raco pkg install --auto
       - run: |
-          make ci-test
+          xvfb-run -a make test
           raco cover -b -f coveralls .

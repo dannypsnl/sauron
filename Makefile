@@ -1,7 +1,4 @@
-.PHONY: ci-test test
-ci-test:
-	@raco test ./pos-range.rkt \
-				./repl/history.rkt
+.PHONY: test
 test:
 	@raco test .
 
