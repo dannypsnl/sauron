@@ -3,9 +3,7 @@
 (provide tool@)
 
 (require drracket/tool
-         framework
-
-         sauron/meta)
+         framework)
 
 (define tool@
   (unit
