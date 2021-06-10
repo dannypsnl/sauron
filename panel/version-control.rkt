@@ -69,7 +69,7 @@
            (λ (out in err)
              (let loop ([output (read-line out)])
                (unless (eof-object? output)
-                 (match-let ([(cons kind filename) (parse-git-output output)])
+                 (let-values ([(kind filename) (parse-git-output output)])
                    (new file-object% [parent files-zone]
                         [filename filename]
                         [λ-add-to-ready
@@ -113,17 +113,14 @@
       (send check-box set-value #f))))
 
 (define (parse-git-output output)
-  (cons
+  (values
    (cond
-     [(or (string-prefix? output "M  ")
-          (string-prefix? output "D ")
-          (string-prefix? output "A  ")) 'ready]
-     [(or (string-prefix? output " M ")
-          (string-prefix? output " D ")
-          (string-prefix? output "AM ")
-          (string-prefix? output "MM ")
-          (string-prefix? output "UU ")
-          (string-prefix? output "?? ")) 'changes]
+     [(ormap (λ (x) (string-prefix? output x))
+             '("M  " "D " "A  "))
+      'ready]
+     [(ormap (λ (x) (string-prefix? output x))
+             '(" M " " D " "AM " "MM " "UU " "?? "))
+      'changes]
      [else (error 'unknown-format output)])
    (substring output 3)))
 
@@ -144,3 +141,11 @@
 
   (send test-frame center)
   (send test-frame show #t))
+
+(module+ test
+  (require rackunit)
+
+  (test-case "parse git"
+             (define-values (ty _)
+               (parse-git-output "M  "))
+             (check-equal? ty 'ready)))
