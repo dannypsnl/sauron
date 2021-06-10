@@ -28,6 +28,12 @@ jobs:
         version: [ '8.0', '8.1' ]
     steps:
     - uses: actions/checkout@master
+    - name: Cache installed packages
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.racket
+        key: ${{ runner.os }}-primes
     - name: Setup Racket
       uses: Bogdanp/setup-racket@v1.4
       with:
