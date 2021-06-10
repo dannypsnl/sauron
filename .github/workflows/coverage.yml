@@ -42,4 +42,4 @@ jobs:
       - run: raco pkg install --auto --skip-installed
       - run: |
           xvfb-run -a make test
-          raco cover -b -f coveralls .
+          xvfb-run -a raco cover -b -f coveralls .
