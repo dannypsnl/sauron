@@ -25,23 +25,41 @@
       (unless (file-exists? projects-file)
         (display-to-file "" projects-file)))
 
-    (define list-box (new list-box% [parent this]
-                          [label "projects"]
-                          [choices '()]
-                          [style '(single )]
-                          [callback
-                           (λ (proj-manager event)
-                             (define evt-type (send event get-event-type))
-                             (match evt-type
-                               ['list-box-dclick
-                                (let ([path (string->path (send proj-manager get-string-selection))])
-                                  (if (directory-exists? path)
-                                      (begin
-                                        (send this show #f)
-                                        (on-select path))
-                                      (message-box "Failed" "project not existed")))]
-                               ['list-box
-                                (void)]))]))
+    (define (remove-selected-project)
+      ; for current single selection list-box, this method always returns a list contains one number or a null
+      (define selection* (send list-box get-selections))
+      (unless (null? selection*)
+        (let ([n (first selection*)])
+          ; 1. remove to delete item from list-box
+          (send list-box delete n)
+          (call-with-output-file projects-file
+            #:exists 'truncate ; 2. truncate removes all data from config
+            (λ (port)
+              (parameterize ([current-output-port port])
+                ; 3. now write all paths in list-box back into config
+                (for ([n (range (send list-box get-number))])
+                  (displayln (send list-box get-string n)))))))))
+
+    (define list-box
+      (new list-box% [parent this]
+           [label "projects"]
+           [choices '()]
+           [style '(single)]
+           [callback
+            (λ (proj-manager event)
+              (define evt-type (send event get-event-type))
+              (match evt-type
+                ['list-box-dclick
+                 (let ([path (string->path (send proj-manager get-string-selection))])
+                   (if (directory-exists? path)
+                       (begin
+                         (send this show #f)
+                         (on-select path))
+                       (begin
+                         (message-box "Failed" "project not existed")
+                         (remove-selected-project))))]
+                ['list-box
+                 (void)]))]))
 
     (new button% [parent this]
          [label "add project"]
@@ -62,19 +80,7 @@
          [label "remove project"]
          [callback
           (λ (btn event)
-            ; for current single selection list-box, this method always returns a list contains one number or a null
-            (define selection* (send list-box get-selections))
-            (unless (null? selection*)
-              (let ([n (first selection*)])
-                ; 1. remove to delete item from list-box
-                (send list-box delete n)
-                (call-with-output-file projects-file
-                  #:exists 'truncate ; 2. truncate removes all data from config
-                  (λ (port)
-                    (parameterize ([current-output-port port])
-                      ; 3. now write all paths in list-box back into config
-                      (for ([n (range (send list-box get-number))])
-                        (displayln (send list-box get-string n)))))))))])
+            (remove-selected-project))])
 
     (define (load-projs)
       ;;; load projects
