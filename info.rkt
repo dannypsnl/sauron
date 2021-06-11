@@ -11,7 +11,7 @@
 (define drracket-tool-icons '(#f #f #f #f))
 
 (define collection "sauron")
-(define deps '("base" "gui-lib"))
+(define deps '("base" "gui-lib" "drracket-plugin-lib"))
 (define build-deps '("scribble-lib" "racket-doc" "rackunit-lib"
                      "gui-doc"))
 (define scribblings '(("scribblings/sauron.scrbl" (multi-page) (tool))))
