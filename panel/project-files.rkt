@@ -31,28 +31,38 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
   (dir file)
   #:transparent)
 
+(define dir-state (make-hash))
+(define (dir-open? dir)
+  (hash-ref dir-state dir #f))
+(define (open-dir dir)
+  (hash-set! dir-state dir #t))
+(define (close-dir dir)
+  (hash-set! dir-state dir #f))
+
 (define project-files%
   (class hierarchical-list% (init editor-panel)
     (define the-editor-panel editor-panel)
     ; new-item : create new item for a file or directory
     (define (new-item parent directory subpath)
-      (let ([cur-path (build-path directory subpath)])
-        (when (not (glob-match? ignore-list subpath))
-          (match (file-or-directory-type cur-path #t)
-            ['file
-             (let ([item (send parent new-item set-text-mixin)])
-               (send* item
-                 [set-text (path->string subpath)]
-                 [user-data (selected directory
-                                      (build-path directory subpath))]))]
-            ['directory
-             (let ([item (send parent new-list set-text-mixin)])
-               (send* item
-                 [set-text (path->string subpath)]
-                 [user-data (selected cur-path cur-path)])
-               (for ([i (directory-list cur-path)])
-                 (new-item item cur-path i)))]
-            ['link (void)]))))
+      (when (dir-open? directory)
+        (send parent open))
+      (define cur-path (build-path directory subpath))
+      (when (not (glob-match? ignore-list subpath))
+        (match (file-or-directory-type cur-path #t)
+          ['file
+           (let ([item (send parent new-item set-text-mixin)])
+             (send* item
+               [set-text (path->string subpath)]
+               [user-data (selected directory
+                                    (build-path directory subpath))]))]
+          ['directory
+           (let ([item (send parent new-list set-text-mixin)])
+             (send* item
+               [set-text (path->string subpath)]
+               [user-data (selected cur-path cur-path)])
+             (for ([subpath (directory-list cur-path)])
+               (new-item item cur-path subpath)))]
+          ['link (void)])))
     ; Set the top level item, and populate it with an entry
     ; for each item in the directory.
     (define/public (reset-directory dir)
@@ -79,6 +89,14 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
           (if tab-<?>
               (send the-editor-panel change-to-tab tab-<?>)
               (send the-editor-panel open-in-new-tab path)))))
+
+    (define/override (on-item-opened i)
+      (match-define (selected dir _) (send i user-data))
+      (open-dir dir))
+    (define/override (on-item-closed i)
+      (match-define (selected dir _) (send i user-data))
+      (close-dir dir))
+
     ;;; init
     (super-new)
     (define top-dir-list (send this new-list set-text-mixin))
