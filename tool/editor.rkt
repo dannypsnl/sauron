@@ -19,11 +19,6 @@
 
         (define/override (on-char e)
           (match (send e get-key-code)
-            [(or #\a #\b #\c #\d #\e #\f #\g #\h #\i #\j #\k #\l #\m #\n #\o #\p #\q #\r #\s #\t #\u #\v #\w #\x #\y #\z
-                 #\A #\B #\C #\D #\E #\F #\G #\H #\I #\J #\K #\L #\M #\N #\O #\P #\Q #\R #\S #\T #\U #\V #\W #\X #\Y #\Z)
-             #:when (not (send e get-meta-down))
-             (send this auto-complete)
-             (super on-char e)]
             [else (super on-char e)]))))
 
     (drracket:get/extend:extend-definitions-text drracket-editor-mixin)))

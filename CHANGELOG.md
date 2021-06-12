@@ -1,7 +1,6 @@
 ### To Release
 
 * [project] remove non-existed project automatically
-* [editor] invoke auto complete automatically
 
 ### v1.0.3
 
