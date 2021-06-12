@@ -16,6 +16,26 @@ Let's see if need more specific standard in the future.
 
 NOTE: Prefer comment rather than **smart** code.
 
+#### Commit Standard
+
+The following is template.
+
+```
+[commit type] commit title
+
+commit message(optional)
+
+ref #issue_number
+```
+
+The following is an example.
+
+```
+[project] prevent adding an existing project 
+
+close #127
+```
+
 ### PR Standard
 
 Since this is a GUI project, automatically testing everything is impossible, I would believe people the functionality they made already tested.
