@@ -67,7 +67,9 @@
           (λ (btn event)
             (define path (get-directory #f this))
             (define (get-projects) (file->lines projects-file))
-            (when (and path (directory-exists? path) (not (member (path->string path) (get-projects))))
+            (when (and path
+                       (directory-exists? path)
+                       (not (member (path->string path) (get-projects))))
               (call-with-output-file projects-file
                 #:exists 'append
                 (λ (port)
