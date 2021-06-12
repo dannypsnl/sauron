@@ -1,5 +1,7 @@
 ### To Release
 
+### v1.0.4
+
 * [project:fix] add existed project won't work
 * [project] remove non-existed project automatically
 
