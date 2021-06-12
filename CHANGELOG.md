@@ -1,5 +1,7 @@
 ### To Release
 
+* [project] keep project-files state after refreshing
+
 ### v1.0.4
 
 * [project:fix] add existed project won't work
