@@ -16,5 +16,5 @@
                      "gui-doc"))
 (define scribblings '(("scribblings/sauron.scrbl" (multi-page) (tool))))
 (define pkg-desc "A Racket IDE")
-(define version "1.0.3")
+(define version "1.0.4")
 (define pkg-authors '(dannypsnl))
