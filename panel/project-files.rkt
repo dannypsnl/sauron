@@ -8,7 +8,8 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
 (require mrlib/hierlist
          file/glob
-         "../project-manager.rkt")
+         "../project-manager.rkt"
+         "../path-util.rkt")
 
 (define set-text-mixin
   (mixin (hierarchical-list-item<%>)
