@@ -1,5 +1,6 @@
 ### To Release
 
+* [shortcut] open project viewer with c+s+y on Windows(remain c+y on Linux and MacOS)
 * [project] only show project name
 * [project] keep project-files state after refreshing
 

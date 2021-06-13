@@ -16,7 +16,8 @@ In sauron, all @litchar{cmd}/@litchar{ctrl} would be called @litchar{c}, @litcha
  @item{@litchar{c+e} run REPL}
  ;;; project management
  @item{@litchar{c+m} open project manager}
- @item{@litchar{c+y} show/hide project files viewer}
+ @item{@litchar{c+y} show/hide project files viewer (Linux, MacOS only)}
+ @item{@litchar{c+s+y} show/hide project files viewer (Windows only)}
  ;;; version control
  @item{@litchar{c+k} version control, open commit editor}
  @item{@litchar{c+s+k} commits push}
