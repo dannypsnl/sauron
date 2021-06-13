@@ -78,7 +78,8 @@ It has three buttons for quick modify as the following list.
 @subsubsection{Manager}
 
 @itemlist[
- @item{add project}
+ @item{add project(existed)}
+ @item{create project(new one)}
  @item{remove project}
  @item{open project}
  ]
