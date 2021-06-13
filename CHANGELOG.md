@@ -1,5 +1,6 @@
 ### To Release
 
+* [project] hide file or dir selection pane after selected
 * [project] create new project
 * [shortcut] open project viewer with c+s+y on Windows(remain c+y on Linux and MacOS)
 * [project] only show project name
