@@ -20,7 +20,7 @@
 
     (define drracket-frame-mixin
       (mixin (drracket:unit:frame<%> (class->interface drracket:unit:frame%)) ()
-        (define show? #f)
+        (define project-files-show? #f)
 
         (super-new)
 
@@ -33,22 +33,22 @@
           (send real-area set-percentages '(1/20 19/20))
 
           (define (close-real-area)
-            (set! show? #f)
+            (set! project-files-show? #f)
             (send panel change-children
                   (λ (x)
                     (filter
                      (λ (x) (not (eq? real-area x))) x))))
           (define (show-real-area)
-            (set! show? #t)
+            (set! project-files-show? #t)
             (send panel change-children
                   (λ (x) (cons real-area x)))
             (send panel set-percentages '(2/11 9/11)))
           (new menu-item% [parent (send this get-show-menu)]
-               [label (if show? "Hide the Project Viewer" "Show the Project Viewer")]
+               [label (if project-files-show? "Hide the Project Viewer" "Show the Project Viewer")]
                [callback
                 (λ (c e)
                   (if (send current-project get)
-                      (if show?
+                      (if project-files-show?
                           (let ()
                             (close-real-area)
                             (send c set-label "Show the Project Viewer"))
@@ -84,7 +84,7 @@
                  [shortcut #\f]
                  [shortcut-prefix (get-default-shortcut-prefix)]))
 
-          (unless show?
+          (unless project-files-show?
             (send panel change-children
                   (λ (x)
                     (filter
