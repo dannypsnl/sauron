@@ -77,7 +77,7 @@
                  [label "Find"]
                  [callback (λ (c e)
                              (if (send this search-hidden?)
-                                 (send this unhide-search #f
+                                 (send this unhide-search-and-toggle-focus
                                        #:new-search-string-from-selection? #t)
                                  (send this hide-search)))]
                  ;;; c+f search text
