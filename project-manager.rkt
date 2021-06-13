@@ -2,11 +2,7 @@
 
 (provide (all-defined-out))
 
-(require framework/notify)
-
-(define current-project
-  (new notify:notify-box%
-       [value #f]))
+(require (prefix-in cmd: "execute-cmd.rkt"))
 
 (define project-manager%
   (class frame%
@@ -61,6 +57,16 @@
                 ['list-box
                  (void)]))]))
 
+    (define (add-project path)
+      (call-with-output-file projects-file
+        #:exists 'append
+        (λ (port)
+          (parameterize ([current-output-port port])
+            ; put path into config
+            (displayln path)
+            ; append into current selectable list
+            (send list-box append (path->string path))))))
+
     (new button% [parent this]
          [label "add project"]
          [callback
@@ -70,14 +76,47 @@
             (when (and path
                        (directory-exists? path)
                        (not (member (path->string path) (get-projects))))
-              (call-with-output-file projects-file
-                #:exists 'append
-                (λ (port)
-                  (parameterize ([current-output-port port])
-                    ; put path into config
-                    (displayln path)
-                    ; append into current selectable list
-                    (send list-box append (path->string path)))))))])
+              (add-project path)))])
+
+    (new button% [parent this]
+         [label "create project"]
+         [callback
+          (λ (btn event)
+            (define user-selected-path (get-directory "create at?"))
+            (define project-name (get-text-from-user "name of project?" ""))
+            (define tmp-frame (new frame% [label "template"]
+                                   [height 600] [width 600]))
+            (new list-box% [parent tmp-frame]
+                 [label "template"]
+                 [choices '("rosette-template"
+                            "cli-command"
+                            "ppict-slideshow-template"
+                            "package"
+                            "raco-command"
+                            "lang"
+                            "web-app"
+                            "gui-app")]
+                 [callback
+                  (λ (template-selection event)
+                    (define evt-type (send event get-event-type))
+                    (match evt-type
+                      ['list-box-dclick
+                       (send tmp-frame show #f)
+                       (match-define (list n)
+                         (send template-selection get-selections))
+                       (define path (build-path user-selected-path project-name))
+                       (cmd:run
+                        (format
+                         "/Applications/Racket\\ v8.1/bin/raco new ~a ~a"
+                         (send template-selection get-string n)
+                         path)
+                        #f
+                        user-selected-path)
+                       (add-project path)]
+                      ['list-box (void)]))])
+            (send* tmp-frame
+              [show #t]
+              [center]))])
 
     (new button% [parent this]
          [label "remove project"]

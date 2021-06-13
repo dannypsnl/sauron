@@ -1,7 +1,7 @@
 #lang racket/gui
 
 (require framework
-         "../project-manager.rkt"
+         "../project/current-project.rkt"
          "../execute-cmd.rkt")
 
 (provide version-control%)
