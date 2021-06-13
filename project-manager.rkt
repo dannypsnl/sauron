@@ -2,7 +2,7 @@
 
 (provide (all-defined-out))
 
-(require (prefix-in cmd: "execute-cmd.rkt"))
+(require raco/all-tools)
 
 (define project-manager%
   (class frame%
@@ -21,6 +21,15 @@
       (unless (file-exists? projects-file)
         (display-to-file "" projects-file)))
 
+    (define (add-project path)
+      (call-with-output-file projects-file
+        #:exists 'append
+        (λ (port)
+          (parameterize ([current-output-port port])
+            ; put path into config
+            (displayln path)
+            ; append into current selectable list
+            (send list-box append (path->string path))))))
     (define (remove-selected-project)
       ; for current single selection list-box, this method always returns a list contains one number or a null
       (define selection* (send list-box get-selections))
@@ -56,16 +65,6 @@
                          (remove-selected-project))))]
                 ['list-box
                  (void)]))]))
-
-    (define (add-project path)
-      (call-with-output-file projects-file
-        #:exists 'append
-        (λ (port)
-          (parameterize ([current-output-port port])
-            ; put path into config
-            (displayln path)
-            ; append into current selectable list
-            (send list-box append (path->string path))))))
 
     (new button% [parent this]
          [label "add project"]
@@ -105,18 +104,16 @@
                        (match-define (list n)
                          (send template-selection get-selections))
                        (define path (build-path user-selected-path project-name))
-                       (cmd:run
-                        (format
-                         "/Applications/Racket\\ v8.1/bin/raco new ~a ~a"
-                         (send template-selection get-string n)
-                         path)
-                        #f
-                        user-selected-path)
+                       (define raco-make-spec (hash-ref (all-tools) "new"))
+                       (parameterize ([current-command-line-arguments
+                                       (vector (send template-selection get-string n)
+                                               (path->string path))])
+                         (dynamic-require (second raco-make-spec) #f))
                        (add-project path)]
                       ['list-box (void)]))])
             (send* tmp-frame
-              [show #t]
-              [center]))])
+              [center]
+              [show #t]))])
 
     (new button% [parent this]
          [label "remove project"]
