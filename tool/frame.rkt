@@ -61,7 +61,8 @@
                               (send current-project set path)
                               (show-real-area)
                               (send c set-label "Hide the Project Viewer"))])))]
-               ;;; c+y open project viewer (c+s+y when using Windows OS)
+               ;;; c+y   open project viewer (on Linux, MacOS)
+               ;;; c+s+y open project viewer (on Windows)
                [shortcut #\y]
                [shortcut-prefix (case (system-type)
                                   [(windows) '(ctl shift)]
