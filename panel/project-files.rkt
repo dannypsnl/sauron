@@ -9,7 +9,8 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 (require mrlib/hierlist
          file/glob
          "../project-manager.rkt"
-         "../path-util.rkt")
+         "../path-util.rkt"
+         "../project/dir-state.rkt")
 
 (define set-text-mixin
   (mixin (hierarchical-list-item<%>)
@@ -31,14 +32,6 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 (struct selected
   (dir file)
   #:transparent)
-
-(define dir-state (make-hash))
-(define (dir-open? dir)
-  (hash-ref dir-state dir #f))
-(define (open-dir dir)
-  (hash-set! dir-state dir #t))
-(define (close-dir dir)
-  (hash-set! dir-state dir #f))
 
 (define project-files%
   (class hierarchical-list% (init editor-panel)
