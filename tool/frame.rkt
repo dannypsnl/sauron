@@ -61,9 +61,11 @@
                               (send current-project set path)
                               (show-real-area)
                               (send c set-label "Hide the Project Viewer"))])))]
-               ;;; c+y open project viewer
+               ;;; c+y open project viewer (c+s+y when using Windows OS)
                [shortcut #\y]
-               [shortcut-prefix (get-default-shortcut-prefix)])
+               [shortcut-prefix (case (system-type)
+                                  [(windows) '(ctl shift)]
+                                  [else (get-default-shortcut-prefix)])])
 
           (let ([edit-menu (send this get-edit-menu)])
             (for ([item (send edit-menu get-items)])
