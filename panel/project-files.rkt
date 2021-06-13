@@ -120,6 +120,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                  [choices '("file" "directory")]
                  [callback
                   (λ (box event)
+                    (send new-frame show #f)
                     (match (first (send box get-selections))
                       [0 (define file-name (get-text-from-user "name of file?" ""))
                          (when file-name
@@ -130,8 +131,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                          (when dir-name
                            (make-directory*
                             (build-path (send viewer get-cur-selected-dir) dir-name)))])
-                    (send viewer reset-directory (send current-project get))
-                    (send new-frame show #f))]))])
+                    (send viewer reset-directory (send current-project get)))]))])
     (new button% [parent this]
          [label "remove"]
          [callback (λ (btn event)
