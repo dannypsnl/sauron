@@ -1,5 +1,6 @@
 ### To Release
 
+* [project] only show project name
 * [project] keep project-files state after refreshing
 
 ### v1.0.4
