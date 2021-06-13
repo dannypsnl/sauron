@@ -23,7 +23,7 @@
            [2 (void)]))))
 
 (module+ main
-  (require "project-manager.rkt")
+  (require "project/current-project.rkt")
 
   (send current-project set (current-directory))
 

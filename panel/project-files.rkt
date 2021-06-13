@@ -8,7 +8,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
 (require mrlib/hierlist
          file/glob
-         "../project-manager.rkt"
+         "../project/current-project.rkt"
          "../path-util.rkt"
          "../project/dir-state.rkt")
 
