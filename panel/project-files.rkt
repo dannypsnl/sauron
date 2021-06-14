@@ -8,8 +8,9 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
 (require mrlib/hierlist
          file/glob
-         "../project/current-project.rkt"
+         file-watchers
          "../path-util.rkt"
+         "../project/current-project.rkt"
          "../project/dir-state.rkt")
 
 (define set-text-mixin
@@ -57,9 +58,16 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
              (for ([subpath (directory-list cur-path)])
                (new-item item cur-path subpath)))]
           ['link (void)])))
+
+    (define current-watcher #f)
+
     ; Set the top level item, and populate it with an entry
     ; for each item in the directory.
     (define/public (reset-directory dir)
+      (when current-watcher
+        (thread-suspend current-watcher))
+      (set! current-watcher (robust-watch dir))
+
       (set! current-selected (selected dir #f))
       (send this delete-item top-dir-list)
       (set! top-dir-list (send this new-list set-text-mixin))
@@ -93,6 +101,15 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
     ;;; init
     (super-new)
+    (thread (λ ()
+              (let loop ()
+                (define event (file-watcher-channel-get))
+                (match event
+                  [(or (list 'robust 'add _)
+                       (list 'robust 'remove _))
+                   (send current-project set (current-directory))]
+                  [else (void)])
+                (loop))))
     (define top-dir-list (send this new-list set-text-mixin))
     (define current-selected #f)
     (send current-project listen
