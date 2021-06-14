@@ -1,6 +1,8 @@
 #lang s-exp framework/keybinding-lang
 
-(require "../meta.rkt"
+(require data/interval-map
+         net/sendurl
+         "../meta.rkt"
          "../commit-pusher.rkt"
          "../panel/version-control.rkt"
          "../project-manager.rkt"
@@ -120,6 +122,14 @@
                    [on-select
                     (λ (path)
                       (send current-project set path))])))
+
+(keybinding (c+ "d")
+            (λ (editor event)
+              (send editor update-env)
+              (define doc-page? (interval-map-ref (send editor get-doc)
+                                                  (send editor get-start-position) #f))
+              (when doc-page?
+                (send-url/file doc-page?))))
 
 (keybinding "space"
             (λ (editor event)
