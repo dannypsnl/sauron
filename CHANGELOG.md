@@ -1,5 +1,6 @@
 ### To Release
 
+* [project] detect external file changes
 * [search] toggle focus
 * [project] hide file or dir selection pane after selected
 * [project] create new project
