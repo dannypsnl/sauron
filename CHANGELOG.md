@@ -1,5 +1,7 @@
 ### To Release
 
+### v1.1.0
+
 * [editor] c+d open document
 * [project] detect external file changes
 * [search] toggle focus
