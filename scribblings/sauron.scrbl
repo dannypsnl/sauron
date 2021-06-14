@@ -26,6 +26,8 @@ In sauron, all @litchar{cmd}/@litchar{ctrl} would be called @litchar{c}, @litcha
  @item{@litchar{c+r} rename all bound}
  ;;; jump to definition
  @item{@litchar{c+b} or @litchar{<click>} jump to definition(notice that only identifier is clickable could trigger this)}
+ ;;; open document
+ @item{@litchar{c+d} open documentation}
  ;;; edit
  @item{@litchar{c+backspace} delete whole line from current position}
  @item{@litchar{o+backspace} delete previous sexp}
