@@ -103,8 +103,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (super-new)
     (thread (λ ()
               (let loop ()
-                (define event (file-watcher-channel-get))
-                (match event
+                (match (file-watcher-channel-get)
                   [(or (list 'robust 'add _)
                        (list 'robust 'remove _))
                    (send current-project set (current-directory))]
