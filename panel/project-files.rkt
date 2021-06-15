@@ -87,10 +87,13 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define/override (on-double-select i)
       (define path (selected-file (send i user-data)))
       (when (file-exists? path) ;; when double-click a file, open it in editor
+        (define tab (send the-editor-panel get-current-tab))
         (let ([tab-<?> (send the-editor-panel find-matching-tab path)])
           (if tab-<?>
               (send the-editor-panel change-to-tab tab-<?>)
-              (send the-editor-panel open-in-new-tab path)))))
+              (send the-editor-panel open-in-new-tab path)))
+        (unless (send (send tab get-defs) get-filename)
+          (send the-editor-panel close-given-tab tab))))
 
     (define/override (on-item-opened i)
       (match-define (selected dir _) (send i user-data))

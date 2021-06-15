@@ -1,5 +1,7 @@
 ### To Release
 
+* [editor] close untitled tab automatically when open new file
+
 ### v1.1.1
 
 * [fix] memory leak bug caused by unclosed thread
