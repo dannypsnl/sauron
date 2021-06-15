@@ -48,11 +48,14 @@
                    (if require-arrow?
                        (let ([path (send this get-text start-left start-right)])
                          ;; get tab: from-path
-                         (define tab (send the-editor-panel find-matching-tab path))
-                         (send tab get-def id))
+                         (define tab (send (send (send this get-tab) get-frame) find-matching-tab path))
+                         (if tab
+                             (send tab get-def id)
+                             #f))
                        (binding id start-left start-right (src))))
-                 (interval-map-set! bindings end-left (add1 end-right)
-                                    loc)]
+                 (when loc
+                   (interval-map-set! bindings end-left (add1 end-right)
+                                      loc))]
                 [(vector syncheck:add-definition-target start end id style-name)
                  (hash-set! defs id
                             (binding id start end (src)))]
