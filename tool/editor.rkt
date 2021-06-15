@@ -43,7 +43,7 @@
                          start-left start-right _ _
                          end-left end-right _ _
                          actual? level require-arrow? name-dup?)
-                 (define id (send this get-text end-left end-right))
+                 (define id (string->symbol (send this get-text end-left end-right)))
                  (define loc
                    (if require-arrow?
                        (let ([path (send this get-text start-left start-right)])
@@ -54,8 +54,8 @@
                  (interval-map-set! bindings end-left (add1 end-right)
                                     loc)]
                 [(vector syncheck:add-definition-target start end id style-name)
-                 (hash-set! defs (symbol->string id)
-                            (binding (symbol->string id) start end (src)))]
+                 (hash-set! defs id
+                            (binding id start end (src)))]
                 [(vector syncheck:add-jump-to-definition start end id filename submods)
                  (void)]
                 [else (void)]))))))
