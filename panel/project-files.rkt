@@ -38,20 +38,20 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
   (class hierarchical-list% (init editor-panel)
     (define the-editor-panel editor-panel)
     ; new-item : create new item for a file or directory
-    (define (new-item parent directory subpath)
+    (define (new-item parent-dir directory subpath)
       (when (dir-open? directory)
-        (send parent open))
+        (send parent-dir open))
       (define cur-path (build-path directory subpath))
       (when (not (glob-match? ignore-list subpath))
         (match (file-or-directory-type cur-path #t)
           ['file
-           (let ([item (send parent new-item set-text-mixin)])
+           (let ([item (send parent-dir new-item set-text-mixin)])
              (send* item
                [set-text (path->string subpath)]
                [user-data (selected directory
                                     (build-path directory subpath))]))]
           ['directory
-           (let ([item (send parent new-list set-text-mixin)])
+           (let ([item (send parent-dir new-list set-text-mixin)])
              (send* item
                [set-text (path->string subpath)]
                [user-data (selected cur-path cur-path)])
