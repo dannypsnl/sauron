@@ -5,7 +5,8 @@
 (require drracket/tool
          framework
          drracket/check-syntax
-         data/interval-map)
+         data/interval-map
+         "../binding.rkt")
 
 (define tool@
   (unit
@@ -20,22 +21,41 @@
         (super-new)
 
         (define/public (get-doc) doc)
+        (define/public (jump-to-def from)
+          (interval-map-ref bindings from #f))
+        (define/public (get-def id)
+          (hash-ref defs id #f))
+
+        (define (src)
+          (send this get-filename))
 
         (define doc (make-interval-map))
+        (define bindings (make-interval-map))
+        (define defs (make-hash))
         (define/public (update-env)
-          (let ([filename (send this get-filename)])
+          (let ([filename (src)])
             ;;; TODO: show-content reports error via exception, catch it and show
             (for ([e (show-content filename)])
               (match e
                 [(vector syncheck:add-docs-menu start end id _ document-page _ _)
                  (interval-map-set! doc start (add1 end) document-page)]
                 [(vector syncheck:add-arrow/name-dup/pxpy
-                         var-start var-end var-px var-py
-                         occurs-start occurs-end occurs-px occurs-py
-                         actual? phase-level require-arrow? name-dup?)
-                 (void)]
+                         start-left start-right _ _
+                         end-left end-right _ _
+                         actual? level require-arrow? name-dup?)
+                 (define id (send this get-text end-left end-right))
+                 (define loc
+                   (if require-arrow?
+                       (let ([path (send this get-text start-left start-right)])
+                         ;; get tab: from-path
+                         (define tab (send the-editor-panel find-matching-tab path))
+                         (send tab get-def id))
+                       (binding id start-left start-right (src))))
+                 (interval-map-set! bindings end-left (add1 end-right)
+                                    loc)]
                 [(vector syncheck:add-definition-target start end id style-name)
-                 (void)]
+                 (hash-set! defs (symbol->string id)
+                            (binding (symbol->string id) start end (src)))]
                 [(vector syncheck:add-jump-to-definition start end id filename submods)
                  (void)]
                 [else (void)]))))))

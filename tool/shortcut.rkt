@@ -2,6 +2,8 @@
 
 (require data/interval-map
          net/sendurl
+         "../binding.rkt"
+         "../jump-to-def.rkt"
          "../meta.rkt"
          "../commit-pusher.rkt"
          "../panel/version-control.rkt"
@@ -48,13 +50,15 @@
                 (send editor set-position start end)))
             (send-command "cut-clipboard" editor event))))
 ;;; c+b jump to definition
-(define (jump-to-definition editor event)
-  (send-command "Jump to Definition (in Other File)" editor event)
-  (send-command "Jump to Binding Occurrence" editor event))
-(keybinding (c+ "b") jump-to-definition)
+(keybinding (c+ "b")
+            (λ (editor event)
+              (jump-to-definition editor (send editor get-start-position))))
 (keybinding (c+ "leftbutton")
-            ;; TODO: improvement, use mouse position, not cursor position
-            jump-to-definition)
+            (λ (editor event)
+              (jump-to-definition editor
+                                  (send editor find-position
+                                        (send event get-x)
+                                        (send event get-y)))))
 
 ;;; delete whole thing from current position to the start of line
 (keybinding (c+ "backspace")
