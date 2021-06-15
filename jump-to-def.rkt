@@ -9,4 +9,5 @@
   (define b? (send editor jump-to-def from-pos))
   (when b?
     (match-define (binding text start end filename) b?)
-    (send editor set-position start end)))
+    (define ed (send (send (send (send editor get-tab) get-frame) find-matching-tab filename) get-defs))
+    (send ed set-position start end)))
