@@ -11,7 +11,7 @@
 (define drracket-tool-icons '(#f #f #f #f))
 
 (define collection "sauron")
-(define deps '("base" "gui-lib" "net-lib"
+(define deps '("base" "gui-lib" "net-lib" "data-lib"
                       "drracket-plugin-lib"
                       "from-template"
                       "file-watchers"))
