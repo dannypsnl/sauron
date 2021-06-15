@@ -99,20 +99,25 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (match-define (selected dir _) (send i user-data))
       (close-dir dir))
 
+    (define current-file-event-handler #f)
+
     ;;; init
     (super-new)
-    (thread (λ ()
-              (let loop ()
-                (match (file-watcher-channel-get)
-                  [(or (list 'robust 'add _)
-                       (list 'robust 'remove _))
-                   (send current-project set (current-directory))]
-                  [else (void)])
-                (loop))))
     (define top-dir-list (send this new-list set-text-mixin))
     (define current-selected #f)
     (send current-project listen
           (λ (new-dir)
+            (when current-file-event-handler
+              (thread-suspend current-file-event-handler))
+            (set! current-file-event-handler
+                  (thread (λ ()
+                            (let loop ()
+                              (match (file-watcher-channel-get)
+                                [(or (list 'robust 'add _)
+                                     (list 'robust 'remove _))
+                                 (reset-directory (current-directory))]
+                                [else (void)])
+                              (loop)))))
             (reset-directory new-dir)))))
 
 (define project-files-pane%
