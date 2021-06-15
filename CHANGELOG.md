@@ -1,5 +1,9 @@
 ### To Release
 
+### v1.1.1
+
+* [fix] memory leak bug caused by unclosed thread
+
 ### v1.1.0
 
 * [editor] c+d open document
