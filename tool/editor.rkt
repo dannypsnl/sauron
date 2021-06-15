@@ -50,7 +50,9 @@
                          ;; get tab: from-path
                          (define tab (send (send (send this get-tab) get-frame) find-matching-tab path))
                          (if tab
-                             (send tab get-def id)
+                             (let ([ed (send tab get-defs)])
+                               (send ed update-env)
+                               (send ed get-def id))
                              #f))
                        (binding id start-left start-right (src))))
                  (when loc
