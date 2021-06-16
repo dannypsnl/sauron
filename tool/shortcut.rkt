@@ -70,7 +70,7 @@
                                        (send event get-y)))))
 (cmd/ctrl+ "s:b"
            (λ (editor event)
-             (define pos (jump-pop))
+             (define pos (jump-pop!))
              (when pos
                (send editor set-position pos))))
 

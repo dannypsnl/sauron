@@ -1,7 +1,7 @@
 #lang racket
 
 (provide jump-to-definition
-         jump-pop)
+         jump-pop!)
 
 (require "binding.rkt")
 
@@ -19,7 +19,7 @@
 
 (define (jump-add pos)
   (set! jump-stack (cons pos jump-stack)))
-(define (jump-pop)
+(define (jump-pop!)
   (if (empty? jump-stack)
       #f
       (match-let ([(cons p rest) jump-stack])
@@ -37,7 +37,7 @@
              (check-equal? jump-stack '(1))
              (jump-add 2)
              (check-equal? jump-stack '(2 1))
-             (check-equal? (jump-pop) 2)
+             (check-equal? (jump-pop!) 2)
              (check-equal? jump-stack '(1))
-             (check-equal? (jump-pop) 1)
+             (check-equal? (jump-pop!) 1)
              (check-equal? jump-stack empty)))
