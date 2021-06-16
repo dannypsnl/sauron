@@ -2,6 +2,7 @@
 
 (require data/interval-map
          net/sendurl
+         syntax/parse/define
          "../binding.rkt"
          "../jump-to-def.rkt"
          "../meta.rkt"
@@ -9,6 +10,13 @@
          "../panel/version-control.rkt"
          "../project-manager.rkt"
          "../project/current-project.rkt")
+
+(define-syntax-parser cmd/ctrl+
+  [(_ key fn)
+   #'(keybinding (c+ key) fn)])
+(define-syntax-parser opt/alt+
+  [(_ key fn)
+   #'(keybinding (o+ key) fn)])
 
 (define (c+ key)
   (match (system-type 'os)
@@ -25,115 +33,111 @@
 (define (send-command command editor event)
   (send (send editor get-keymap) call-function
         command editor event #t))
-(define (rebind key f)
-  (keybinding key f))
 
 ;;; c+e run REPL
-(rebind (c+ "e")
-        (λ (editor event)
-          (send-command "run" editor event)))
+(cmd/ctrl+ "e"
+           (λ (editor event)
+             (send-command "run" editor event)))
 ;;; c+r rename identifier
-(rebind (c+ "r")
-        (λ (editor event)
-          (send-command "Rename Identifier" editor event)))
+(cmd/ctrl+ "r"
+           (λ (editor event)
+             (send-command "Rename Identifier" editor event)))
 ;;; c+x cut line if no selection, else cut selection
-(rebind (c+ "x")
-        (λ (editor event)
-          (let* ([s (send editor get-start-position)]
-                 [e (send editor get-end-position)]
-                 [select? (not (= s e))])
-            (unless select?
-              (let* ([start-line (send editor position-line (send editor get-start-position))]
-                     [end-line (send editor position-line (send editor get-end-position))]
-                     [start (send editor line-start-position start-line)]
-                     [end (send editor line-end-position end-line)])
-                (send editor set-position start end)))
-            (send-command "cut-clipboard" editor event))))
+(cmd/ctrl+ "x"
+           (λ (editor event)
+             (let* ([s (send editor get-start-position)]
+                    [e (send editor get-end-position)]
+                    [select? (not (= s e))])
+               (unless select?
+                 (let* ([start-line (send editor position-line (send editor get-start-position))]
+                        [end-line (send editor position-line (send editor get-end-position))]
+                        [start (send editor line-start-position start-line)]
+                        [end (send editor line-end-position end-line)])
+                   (send editor set-position start end)))
+               (send-command "cut-clipboard" editor event))))
 ;;; c+b jump to definition
-(keybinding (c+ "b")
-            (λ (editor event)
-              (jump-to-definition editor (send editor get-start-position))))
-(keybinding (c+ "leftbutton")
-            (λ (editor event)
-              (jump-to-definition editor
-                                  (send editor find-position
-                                        (send event get-x)
-                                        (send event get-y)))))
+(cmd/ctrl+ "b"
+           (λ (editor event)
+             (jump-to-definition editor (send editor get-start-position))))
+(cmd/ctrl+ "leftbutton"
+           (λ (editor event)
+             (jump-to-definition editor
+                                 (send editor find-position
+                                       (send event get-x)
+                                       (send event get-y)))))
 
 ;;; delete whole thing from current position to the start of line
-(keybinding (c+ "backspace")
-            (λ (editor event)
-              (define end (send editor get-start-position))
-              (define line (send editor position-line end))
-              (define start (send editor line-start-position line))
-              (send editor delete start end)))
+(cmd/ctrl+ "backspace"
+           (λ (editor event)
+             (define end (send editor get-start-position))
+             (define line (send editor position-line end))
+             (define start (send editor line-start-position line))
+             (send editor delete start end)))
 
 ;;; delete previous sexp
-(keybinding (o+ "backspace")
-            (λ (editor event)
-              (define cur-pos (send editor get-start-position))
-              (define pre-sexp-pos (send editor get-backward-sexp cur-pos))
-              ; ensure pre-sexp existed
-              (when pre-sexp-pos
-                (send editor delete pre-sexp-pos cur-pos))))
+(opt/alt+ "backspace"
+          (λ (editor event)
+            (define cur-pos (send editor get-start-position))
+            (define pre-sexp-pos (send editor get-backward-sexp cur-pos))
+            ; ensure pre-sexp existed
+            (when pre-sexp-pos
+              (send editor delete pre-sexp-pos cur-pos))))
 
 ;;; comment/uncomment selected text, if no selected text, target is current line
-(keybinding (c+ "semicolon")
-            (λ (editor event)
-              ; NOTE: get-start-position and get-end-position would have same value when no selected text
-              ; following code comment all lines of selected text(or automatically select cursor line)
-              (let* ([start-line (send editor position-line (send editor get-start-position))]
-                     [end-line (send editor position-line (send editor get-end-position))]
-                     [start (send editor line-start-position start-line)]
-                     [end (send editor line-end-position end-line)]
-                     [selected-text (send editor get-text start end)])
-                (if (string-contains? selected-text ";")
-                    (send editor uncomment-selection start end)
-                    (send editor comment-out-selection start end))
-                (send editor set-position start))))
+(cmd/ctrl+ "semicolon"
+           (λ (editor event)
+             ; NOTE: get-start-position and get-end-position would have same value when no selected text
+             ; following code comment all lines of selected text(or automatically select cursor line)
+             (let* ([start-line (send editor position-line (send editor get-start-position))]
+                    [end-line (send editor position-line (send editor get-end-position))]
+                    [start (send editor line-start-position start-line)]
+                    [end (send editor line-end-position end-line)]
+                    [selected-text (send editor get-text start end)])
+               (if (string-contains? selected-text ";")
+                   (send editor uncomment-selection start end)
+                   (send editor comment-out-selection start end))
+               (send editor set-position start))))
+
+(define vc-open? #f)
+(define frame-<?> #f)
+(cmd/ctrl+ "k"
+           (λ (editor event)
+             (define vc-frame%
+               (class frame%
+                 (super-new [label "Version Control: Commit"] [width 300] [height 600])
+
+                 (define/augment (on-close)
+                   (set! vc-open? #f))))
+             (unless vc-open?
+               (set! vc-open? #t)
+               (set! frame-<?> (new vc-frame%))
+               (define vc (new version-control% [parent frame-<?>]))
+               (send frame-<?> center))
+             (when frame-<?>
+               (send frame-<?> show #t))))
+(cmd/ctrl+ "s:k" (λ (editor event) (make-commit-pusher "push")))
+(cmd/ctrl+ "s:p" (λ (editor event) (make-commit-pusher "pull")))
+
+(cmd/ctrl+ "m"
+           (λ (editor event)
+             (new project-manager%
+                  [label "select a project"]
+                  [on-select
+                   (λ (path)
+                     (send current-project set path))])))
+
+(cmd/ctrl+ "d"
+           (λ (editor event)
+             (send editor update-env)
+             (define doc-page? (interval-map-ref (send editor get-doc)
+                                                 (send editor get-start-position) #f))
+             (when doc-page?
+               (send-url/file doc-page?))))
 
 (keybinding "(" (λ (editor event) (send-command "insert-()-pair" editor event)))
 (keybinding "[" (λ (editor event) (send-command "insert-[]-pair" editor event)))
 (keybinding "{" (λ (editor event) (send-command "insert-{}-pair" editor event)))
 (keybinding "\"" (λ (editor event) (send-command "insert-\"\"-pair" editor event)))
-
-(define vc-open? #f)
-(define frame-<?> #f)
-(keybinding (c+ "k")
-            (λ (editor event)
-              (define vc-frame%
-                (class frame%
-                  (super-new [label "Version Control: Commit"] [width 300] [height 600])
-
-                  (define/augment (on-close)
-                    (set! vc-open? #f))))
-              (unless vc-open?
-                (set! vc-open? #t)
-                (set! frame-<?> (new vc-frame%))
-                (define vc (new version-control% [parent frame-<?>]))
-                (send frame-<?> center))
-              (when frame-<?>
-                (send frame-<?> show #t))))
-(keybinding (c+ "s:k")
-            (λ (editor event) (make-commit-pusher "push")))
-(keybinding (c+ "s:p")
-            (λ (editor event) (make-commit-pusher "pull")))
-
-(keybinding (c+ "m")
-            (λ (editor event)
-              (new project-manager%
-                   [label "select a project"]
-                   [on-select
-                    (λ (path)
-                      (send current-project set path))])))
-
-(keybinding (c+ "d")
-            (λ (editor event)
-              (send editor update-env)
-              (define doc-page? (interval-map-ref (send editor get-doc)
-                                                  (send editor get-start-position) #f))
-              (when doc-page?
-                (send-url/file doc-page?))))
 
 (keybinding "space"
             (λ (editor event)
