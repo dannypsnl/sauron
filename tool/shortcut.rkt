@@ -58,9 +58,11 @@
 ;;; c+b jump to definition
 (cmd/ctrl+ "b"
            (λ (editor event)
+             (send-command "Jump to Definition (in Other File)" editor event)
              (jump-to-definition editor (send editor get-start-position))))
 (cmd/ctrl+ "leftbutton"
            (λ (editor event)
+             (send-command "Jump to Definition (in Other File)" editor event)
              (jump-to-definition editor
                                  (send editor find-position
                                        (send event get-x)
