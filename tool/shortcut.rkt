@@ -56,7 +56,6 @@
                    (send editor set-position start end)))
                (send-command "cut-clipboard" editor event))))
 ;;; c+b jump to definition
-(define jump-stack '())
 (cmd/ctrl+ "b"
            (λ (editor event)
              (send-command "Jump to Definition (in Other File)" editor event)
