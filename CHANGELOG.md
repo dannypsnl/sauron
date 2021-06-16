@@ -1,5 +1,6 @@
 ### To Release
 
+* [editor] c+s+b jump back to previous position
 * [editor] close untitled tab automatically when open new file
 
 ### v1.1.1
