@@ -59,12 +59,10 @@
 (define jump-stack '())
 (cmd/ctrl+ "b"
            (λ (editor event)
-             (set! jump-stack (cons (send editor get-start-position) jump-stack))
              (send-command "Jump to Definition (in Other File)" editor event)
              (jump-to-definition editor (send editor get-start-position))))
 (cmd/ctrl+ "leftbutton"
            (λ (editor event)
-             (set! jump-stack (cons (send editor get-start-position) jump-stack))
              (send-command "Jump to Definition (in Other File)" editor event)
              (jump-to-definition editor
                                  (send editor find-position
@@ -72,11 +70,9 @@
                                        (send event get-y)))))
 (cmd/ctrl+ "s:b"
            (λ (editor event)
-             (if (empty? jump-stack)
-                 (void)
-                 (match-let ([(cons pop rest) jump-stack])
-                   (set! jump-stack rest)
-                   (send editor set-position pop)))))
+             (define pos (jump-pop))
+             (when pos
+               (send editor set-position pos))))
 
 ;;; delete whole thing from current position to the start of line
 (cmd/ctrl+ "backspace"
