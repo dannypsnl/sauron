@@ -59,9 +59,15 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                (new-item item cur-path subpath)))]
           ['link (void)])))
 
+    (define current-watcher #f)
+
     ; Set the top level item, and populate it with an entry
     ; for each item in the directory.
     (define/public (reset-directory dir)
+      (when current-watcher
+        (thread-suspend current-watcher))
+      (set! current-watcher (robust-watch dir))
+
       (set! current-selected (selected dir #f))
       (send this delete-item top-dir-list)
       (set! top-dir-list (send this new-list set-text-mixin))
@@ -96,27 +102,22 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (match-define (selected dir _) (send i user-data))
       (close-dir dir))
 
-    (define current-watcher #f)
-
     ;;; init
     (super-new)
     (define top-dir-list (send this new-list set-text-mixin))
     (define current-selected #f)
     ;;; listener
-    #;(thread (λ ()
+    (thread (λ ()
                 (let loop ()
                   (match (file-watcher-channel-get)
                     [(or (list 'robust 'add _)
                          (list 'robust 'remove _))
-                     (reset-directory (current-directory))]
+                     (reset-directory (send current-project get))]
                     [else (void)])
                   (loop))))
     (send current-project listen
           (λ (new-dir)
-            (reset-directory new-dir)
-            (when current-watcher
-              (thread-suspend current-watcher))
-            #;(set! current-watcher (robust-watch new-dir))))))
+            (reset-directory new-dir)))))
 
 (define project-files-pane%
   (class horizontal-pane%
