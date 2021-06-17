@@ -108,13 +108,13 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define current-selected #f)
     ;;; listener
     (thread (λ ()
-                (let loop ()
-                  (match (file-watcher-channel-get)
-                    [(or (list 'robust 'add _)
-                         (list 'robust 'remove _))
-                     (reset-directory (send current-project get))]
-                    [else (void)])
-                  (loop))))
+              (let loop ()
+                (match (file-watcher-channel-get)
+                  [(or (list 'robust 'add _)
+                       (list 'robust 'remove _))
+                   (reset-directory (send current-project get))]
+                  [else (void)])
+                (loop))))
     (send current-project listen
           (λ (new-dir)
             (reset-directory new-dir)))))
@@ -124,40 +124,46 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (init-field parent editor-panel)
     (super-new [parent parent])
 
-    (define viewer (new project-files% [parent parent]
-                        [editor-panel editor-panel]))
+    (define view (new project-files% [parent parent]
+                      [editor-panel editor-panel]))
+
+
+    (define (ensure-file-would-be-there path)
+      (make-parent-directory* path)
+      (close-output-port (open-output-file path #:exists 'append)))
+
+    (define (add-file/dir btn event)
+      (define new-frame (new frame% [label "New"] [width 300] [height 300]))
+      (send* new-frame
+        [show #t]
+        [center])
+      (define (ask box event)
+        (send new-frame show #f)
+        (define selected-dir (send view get-cur-selected-dir))
+        (match (first (send box get-selections))
+          [0 (define file-name (get-text-from-user "name of file?" ""))
+             (when file-name
+               (define path (build-path selected-dir file-name))
+               (ensure-file-would-be-there path))]
+          [1 (define dir-name (get-text-from-user "name of directory?" ""))
+             (when dir-name
+               (make-directory* (build-path selected-dir dir-name)))])
+        (send view reset-directory (send current-project get)))
+      (new list-box% [parent new-frame]
+           [label "New"]
+           [choices '("file" "directory")]
+           [callback ask]))
+
+    (define (remove-path-and-refresh btn event)
+      (delete-directory/files (send view get-cur-selected-file) #:must-exist? #f)
+      (send view reset-directory (send current-project get)))
+    
     (new button% [parent this]
          [label "add"]
-         [callback
-          (λ (btn event)
-            (define new-frame (new frame% [label "New"]
-                                   [width 300] [height 300]))
-            (send* new-frame
-              [show #t]
-              [center])
-            (new list-box% [parent new-frame]
-                 [label "New"]
-                 [choices '("file" "directory")]
-                 [callback
-                  (λ (box event)
-                    (send new-frame show #f)
-                    (match (first (send box get-selections))
-                      [0 (define file-name (get-text-from-user "name of file?" ""))
-                         (when file-name
-                           (define path (build-path (send viewer get-cur-selected-dir) file-name))
-                           (make-parent-directory* path)
-                           (close-output-port (open-output-file path #:exists 'append)))]
-                      [1 (define dir-name (get-text-from-user "name of directory?" ""))
-                         (when dir-name
-                           (make-directory*
-                            (build-path (send viewer get-cur-selected-dir) dir-name)))])
-                    (send viewer reset-directory (send current-project get)))]))])
+         [callback add-file/dir])
     (new button% [parent this]
          [label "remove"]
-         [callback (λ (btn event)
-                     (delete-directory/files (send viewer get-cur-selected-file)
-                                             #:must-exist? #f)
-                     (send viewer reset-directory (send current-project get)))])))
+         [callback remove-path-and-refresh])))
 
 (module+ main
   (define frame (new frame% [label "test: project files"]
