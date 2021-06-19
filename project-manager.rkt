@@ -1,8 +1,8 @@
 #lang racket/gui
 
-(provide (all-defined-out))
+(provide project-manager%)
 
-(require raco/all-tools)
+(require "raco.rkt")
 
 (define project-manager%
   (class frame%
@@ -104,11 +104,9 @@
                        (match-define (list n)
                          (send template-selection get-selections))
                        (define path (build-path user-selected-path project-name))
-                       (define raco-make-spec (hash-ref (all-tools) "new"))
-                       (parameterize ([current-command-line-arguments
-                                       (vector (send template-selection get-string n)
-                                               (path->string path))])
-                         (dynamic-require (second raco-make-spec) #f))
+                       (raco "new"
+                             (send template-selection get-string n)
+                             (path->string path))
                        (add-project path)]
                       ['list-box (void)]))])
             (send* tmp-frame

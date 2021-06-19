@@ -4,7 +4,8 @@
 
 (require drracket/tool
          framework
-         "../trace.rkt")
+         "../trace.rkt"
+         "../raco.rkt")
 
 (define tool@
   (unit
@@ -16,7 +17,13 @@
 
     (define drracket-editor-mixin
       (mixin (drracket:unit:definitions-text<%> racket:text<%>) ()
-        (super-new)))
+        (super-new)
 
+        (define/augment (after-save-file success?)
+          (when success?
+            (define filename (send this get-filename))
+            (raco "format" (path->string filename))
+            (send this load-file filename)
+            (void)))))
 
     (drracket:get/extend:extend-definitions-text (trace-mixin drracket-editor-mixin))))

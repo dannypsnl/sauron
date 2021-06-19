@@ -19,9 +19,10 @@
          (set! tab (send frame find-matching-tab path)))
        (define ed (send tab get-defs))
        (send ed update-env)
-       (match-define (binding _id start end _path) (send ed get-def id))
+       (match-define (struct* binding ([start start] [end end]))
+         (send ed get-def id))
        (send ed set-position start end))]
-    [(binding _id start end _path)
+    [(struct* binding ([start start] [end end]))
      (send editor set-position start end)]
     [#f (void)]))
 
