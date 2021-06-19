@@ -7,8 +7,7 @@
          drracket/check-syntax
          data/interval-map
          "../binding.rkt"
-         "../project/current-project.rkt"
-         "../raco.rkt")
+         "../project/current-project.rkt")
 
 (define tool@
   (unit
@@ -23,7 +22,26 @@
         (super-new)
 
         (define/augment (on-save-file filename format)
-          (send this tabify-all))
+          (send this tabify-all)
+
+          (define-values (start end)
+            (values (send this get-start-position)
+                    (send this get-end-position)))
+
+          ;;; remove trailing whitespace
+          (send this select-all)
+          (let ([linebreak (string #\newline)]
+                [start (send this get-start-position)]
+                [end (send this get-end-position)])
+            (send this insert
+                  (string-join
+                   (map (λ (line)
+                          (string-trim line #px"\\s+" #:left? #f))
+                        (string-split (send this get-text start end) linebreak))
+                   linebreak))
+            (send this insert linebreak))
+
+          (send this set-position start end))
 
         ;;; Jump to definition
         (define/public (get-doc) doc)
