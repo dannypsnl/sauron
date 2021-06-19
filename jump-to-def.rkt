@@ -21,7 +21,7 @@
        (send ed update-env)
        (match-define (binding _id start end _path) (send ed get-def id))
        (send ed set-position start end))]
-    [(binding _id start end _path)
+    [(struct* binding ([start start] [end end]))
      (send editor set-position start end)]
     [#f (void)]))
 
