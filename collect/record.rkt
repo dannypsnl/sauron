@@ -3,5 +3,5 @@
 (provide (struct-out record))
 
 (struct record
-  (doc bindings defs)
+  (created-time doc bindings defs)
   #:transparent)

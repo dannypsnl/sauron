@@ -1,7 +1,8 @@
 #lang racket
 
 (provide get-record
-         force-update)
+         force-update
+         update)
 
 (require framework
          drracket/check-syntax
@@ -19,12 +20,20 @@
 
 (define path=>record (make-hash))
 
+(define (update path)
+  (define r (get-record path))
+  (if r
+      (match-let ([(struct* record ([created-time created-time])) r])
+        (when (< created-time (file-or-directory-modify-seconds path))
+          (hash-set! path=>record path #f)))
+      (force-update path)))
 (define (force-update path)
   (define new-record (collect-from path))
   (hash-set! path=>record path new-record))
 
 (define (collect-from path)
-  (define editor (get-editor path))
+  (define editor (new racket:text%))
+  (send editor load-file path)
   (define doc (make-interval-map))
   (define bindings (make-interval-map))
   (define defs (make-hash))
@@ -51,9 +60,7 @@
       [(vector syncheck:add-jump-to-definition start end id filename submods)
        (void)]
       [else (void)]))
-  (record doc bindings defs))
-
-(define (get-editor path)
-  (define the-text (new racket:text%))
-  (send the-text load-file path)
-  the-text)
+  (record (current-seconds)
+          doc
+          bindings
+          defs))

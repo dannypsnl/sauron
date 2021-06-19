@@ -1,7 +1,8 @@
 #lang racket
 
 (provide (all-defined-out)
-         force-update)
+         force-update
+         update)
 
 (require data/interval-map
          "record.rkt"
