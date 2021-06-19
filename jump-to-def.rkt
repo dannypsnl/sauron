@@ -9,13 +9,21 @@
   (jump-add (send editor get-start-position))
   (send editor update-env)
   (define binding-<?> (send editor jump-to-def from-pos))
-  (when binding-<?>
-    (match-define (binding text start end filename) binding-<?>)
-    (define frame (send (send editor get-tab) get-frame))
-    (define tab (send frame find-matching-tab filename))
-    (define ed (send tab get-defs))
-    (send frame change-to-tab tab)
-    (send ed set-position start end)))
+  (match binding-<?>
+    [(binding id #f #f path)
+     (when (file-exists? path)
+       (define frame (send (send editor get-tab) get-frame))
+       (define tab (send frame find-matching-tab path))
+       (unless tab
+         (send frame open-in-new-tab path)
+         (set! tab (send frame find-matching-tab path)))
+       (define ed (send tab get-defs))
+       (send ed update-env)
+       (match-define (binding _id start end _path) (send ed get-def id))
+       (send ed set-position start end))]
+    [(binding _id start end _path)
+     (send editor set-position start end)]
+    [#f (void)]))
 
 (define (jump-add pos)
   (set! jump-stack (cons pos jump-stack)))
