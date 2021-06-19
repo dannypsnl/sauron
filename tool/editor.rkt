@@ -22,12 +22,8 @@
       (mixin (drracket:unit:definitions-text<%> racket:text<%>) ()
         (super-new)
 
-        (define/augment (after-save-file success?)
-          (when success?
-            (define filename (send this get-filename))
-            (raco "format" (path->string filename))
-            (send this load-file filename)
-            (void)))
+        (define/augment (on-save-file filename format)
+          (send this tabify-all))
 
         ;;; Jump to definition
         (define/public (get-doc) doc)
