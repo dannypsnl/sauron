@@ -117,6 +117,8 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                   [(or (list 'robust 'add _)
                        (list 'robust 'remove _))
                    (reset-directory (send current-project get))]
+                  [(list 'robust 'change path)
+                   (update path)]
                   [else (void)])
                 (loop))))
     (send current-project listen
@@ -161,7 +163,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define (remove-path-and-refresh btn event)
       (delete-directory/files (send view get-cur-selected-file) #:must-exist? #f)
       (send view reset-directory (send current-project get)))
-    
+
     (new button% [parent this]
          [label "add"]
          [callback add-file/dir])
