@@ -6,7 +6,8 @@
          framework
          drracket/check-syntax
          data/interval-map
-         "../binding.rkt")
+         "../binding.rkt"
+         "../project/current-project.rkt")
 
 (define tool@
   (unit
@@ -46,16 +47,9 @@
                (define loc
                  (if require-arrow?
                      (let ([path (send this get-text start-left start-right)])
-                       (error 'jump-to? "~a" path)
-                       ;; get tab: from-path
-                       (define frame (send (send this get-tab) get-frame))
-                       (define tab (send frame find-matching-tab path))
-                       (unless tab
-                         (send frame open-in-new-tab path)
-                         (set! tab (send frame find-matching-tab path)))
-                       (define ed (send tab get-defs))
-                       (send ed update-env)
-                       (send ed get-def id))
+                       (if (file-exists? (build-path (send current-project get) path))
+                         (binding id #f #f (build-path (send current-project get) path))
+                         #f))
                      (binding id start-left start-right (src))))
                (when loc
                  (interval-map-set! bindings end-left (add1 end-right)
