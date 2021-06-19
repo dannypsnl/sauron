@@ -1,6 +1,6 @@
 #lang racket/gui
 #|
-NOTICE: modify from example in https://github.com/racket/gui/blob/master/gui-doc/mrlib/scribblings/hierlist/hierlist.scrbl based on MIT/APACHE2.0
+NOTICE:modifyfromexampleinhttps://github.com/racket/gui/blob/master/gui-doc/mrlib/scribblings/hierlist/hierlist.scrblbasedonMIT/APACHE2.0
 origin author: https://github.com/racket/gui/graphs/contributors
 modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 |#
@@ -11,7 +11,8 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          file-watchers
          "../path-util.rkt"
          "../project/current-project.rkt"
-         "../project/dir-state.rkt")
+         "../project/dir-state.rkt"
+         "../collect/api.rkt")
 
 (define set-text-mixin
   (mixin (hierarchical-list-item<%>)
@@ -45,18 +46,21 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (when (not (glob-match? ignore-list subpath))
         (match (file-or-directory-type cur-path #t)
           ['file
-           (let ([item (send parent-dir new-item set-text-mixin)])
-             (send* item
-               [set-text (path->string subpath)]
-               [user-data (selected directory
-                                    (build-path directory subpath))]))]
+           (define item (send parent-dir new-item set-text-mixin))
+           (define filepath (build-path directory subpath))
+           (when (path-has-extension? filepath #".rkt")
+             (thread (λ () (update filepath))))
+           (send* item
+             [set-text (path->string subpath)]
+             [user-data (selected directory
+                                  filepath)])]
           ['directory
-           (let ([item (send parent-dir new-list set-text-mixin)])
-             (send* item
-               [set-text (path->string subpath)]
-               [user-data (selected cur-path cur-path)])
-             (for ([subpath (directory-list cur-path)])
-               (new-item item cur-path subpath)))]
+           (define item (send parent-dir new-list set-text-mixin))
+           (send* item
+             [set-text (path->string subpath)]
+             [user-data (selected cur-path cur-path)])
+           (for ([subpath (directory-list cur-path)])
+             (new-item item cur-path subpath))]
           ['link (void)])))
 
     (define current-watcher #f)
@@ -113,6 +117,8 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                   [(or (list 'robust 'add _)
                        (list 'robust 'remove _))
                    (reset-directory (send current-project get))]
+                  [(list 'robust 'change path)
+                   (update path)]
                   [else (void)])
                 (loop))))
     (send current-project listen
@@ -157,7 +163,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define (remove-path-and-refresh btn event)
       (delete-directory/files (send view get-cur-selected-file) #:must-exist? #f)
       (send view reset-directory (send current-project get)))
-    
+
     (new button% [parent this]
          [label "add"]
          [callback add-file/dir])

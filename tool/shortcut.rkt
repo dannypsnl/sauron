@@ -3,8 +3,8 @@
 (require data/interval-map
          net/sendurl
          syntax/parse/define
-         "../binding.rkt"
          "../jump-to-def.rkt"
+         "../collect/api.rkt"
          "../meta.rkt"
          "../commit-pusher.rkt"
          "../panel/version-control.rkt"
@@ -133,11 +133,10 @@
 
 (cmd/ctrl+ "d"
            (λ (editor event)
-             (send editor update-env)
-             (define doc-page? (interval-map-ref (send editor get-doc)
+             (define doc-page? (interval-map-ref (get-doc (send editor get-filename))
                                                  (send editor get-start-position) #f))
              (when doc-page?
-               (send-url/file doc-page?))))
+               (send-url/file doc-page? #f))))
 
 (keybinding "(" (λ (editor event) (send-command "insert-()-pair" editor event)))
 (keybinding "[" (λ (editor event) (send-command "insert-[]-pair" editor event)))

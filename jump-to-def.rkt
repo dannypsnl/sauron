@@ -3,12 +3,13 @@
 (provide jump-to-definition
          jump-pop!)
 
-(require "binding.rkt")
+(require "collect/binding.rkt"
+         "collect/api.rkt")
 
 (define (jump-to-definition editor from-pos)
   (jump-add (send editor get-start-position))
-  (send editor update-env)
-  (define binding-<?> (send editor jump-to-def from-pos))
+  (define filepath (send editor get-filename))
+  (define binding-<?> (jump-to-def filepath from-pos))
   (match binding-<?>
     [(binding id #f #f path)
      (when (file-exists? path)
@@ -18,9 +19,9 @@
          (send frame open-in-new-tab path)
          (set! tab (send frame find-matching-tab path)))
        (define ed (send tab get-defs))
-       (send ed update-env)
+       (force-update path)
        (match-define (struct* binding ([start start] [end end]))
-         (send ed get-def id))
+         (get-def path id))
        (send ed set-position start end))]
     [(struct* binding ([start start] [end end]))
      (send editor set-position start end)]
