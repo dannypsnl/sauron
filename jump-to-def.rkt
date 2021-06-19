@@ -9,7 +9,6 @@
 (define (jump-to-definition editor from-pos)
   (jump-add (send editor get-start-position))
   (define filepath (send editor get-filename))
-  (update filepath)
   (define binding-<?> (jump-to-def filepath from-pos))
   (match binding-<?>
     [(binding id #f #f path)
