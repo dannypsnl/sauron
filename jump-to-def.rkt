@@ -11,14 +11,16 @@
   (define binding-<?> (send editor jump-to-def from-pos))
   (match binding-<?>
     [(binding id #f #f path)
-     (define frame (send (send editor get-tab) get-frame))
-     (define tab (send frame find-matching-tab path))
-     (unless tab
-       (send frame open-in-new-tab path)
-       (set! tab (send frame find-matching-tab path)))
-     (define ed (send tab get-defs))
-     (send ed update-env)
-     (send ed get-def id)]
+     (when (file-exists? path)
+       (define frame (send (send editor get-tab) get-frame))
+       (define tab (send frame find-matching-tab path))
+       (unless tab
+         (send frame open-in-new-tab path)
+         (set! tab (send frame find-matching-tab path)))
+       (define ed (send tab get-defs))
+       (send ed update-env)
+       (match-define (binding _id start end _path) (send ed get-def id))
+       (send ed set-position start end))]
     [(binding _id start end _path)
      (send editor set-position start end)]
     [#f (void)]))

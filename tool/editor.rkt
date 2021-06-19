@@ -46,10 +46,8 @@
                (define id (string->symbol (send this get-text end-left end-right)))
                (define loc
                  (if require-arrow?
-                     (let ([path (send this get-text start-left start-right)])
-                       (if (file-exists? (build-path (send current-project get) path))
-                         (binding id #f #f (build-path (send current-project get) path))
-                         #f))
+                     (let ([path (send this get-text (add1 start-left) (sub1 start-right))])
+                       (binding id #f #f (build-path (send current-project get) path)))
                      (binding id start-left start-right (src))))
                (when loc
                  (interval-map-set! bindings end-left (add1 end-right)
