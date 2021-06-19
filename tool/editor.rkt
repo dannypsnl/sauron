@@ -7,7 +7,8 @@
          drracket/check-syntax
          data/interval-map
          "../binding.rkt"
-         "../project/current-project.rkt")
+         "../project/current-project.rkt"
+         "../raco.rkt")
 
 (define tool@
   (unit
@@ -21,6 +22,14 @@
       (mixin (drracket:unit:definitions-text<%> racket:text<%>) ()
         (super-new)
 
+        (define/augment (after-save-file success?)
+          (when success?
+            (define filename (send this get-filename))
+            (raco "format" (path->string filename))
+            (send this load-file filename)
+            (void)))
+
+        ;;; Jump to definition
         (define/public (get-doc) doc)
         (define/public (jump-to-def from)
           (interval-map-ref bindings from #f))

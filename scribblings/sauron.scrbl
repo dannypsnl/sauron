@@ -8,6 +8,8 @@
 
 @defmodule[sauron]
 
+Sauron works as a DrRacket plugin to provide everything an IDE shall have!
+
 @section{User Guide: As DrRacket Plugin}
 
 In sauron, all @litchar{cmd}/@litchar{ctrl} would be called @litchar{c}, @litchar{alt}/@litchar{option} called @litchar{o}.
@@ -38,6 +40,10 @@ In sauron, all @litchar{cmd}/@litchar{ctrl} would be called @litchar{c}, @litcha
  ; auto complete pair
  @item{@litchar["("]/@litchar["["]/@litchar["{"]/@litchar{"} when has selected text, wrap selected text automatically}
  ]
+
+@subsection{Editor}
+
+Editor can auto formatting your racket file.
 
 @subsection{Panel: REPL}
 
