@@ -3,8 +3,7 @@
 (provide tool@)
 
 (require drracket/tool
-         framework
-         "../trace.rkt")
+         framework)
 
 (define tool@
   (unit
@@ -73,4 +72,4 @@
             (send this insert (string-trim line #px"\\s+" #:left? #f) end))
           (do-remove (send this get-text line-start line-end)))))
 
-    (drracket:get/extend:extend-definitions-text (trace-mixin drracket-editor-mixin))))
+    (drracket:get/extend:extend-definitions-text drracket-editor-mixin)))
