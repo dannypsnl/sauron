@@ -1,5 +1,6 @@
 ### To Release
 
+* [editor] cross file jump to definition
 * [editor] c+s+b jump back to previous position
 * [editor] close untitled tab automatically when open new file
 
