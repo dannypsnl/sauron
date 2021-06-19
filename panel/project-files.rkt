@@ -96,10 +96,10 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
           (send the-editor-panel close-given-tab tab))))
 
     (define/override (on-item-opened i)
-      (match-define (selected dir _) (send i user-data))
+      (match-define (struct* selected ([dir dir])) (send i user-data))
       (open-dir dir))
     (define/override (on-item-closed i)
-      (match-define (selected dir _) (send i user-data))
+      (match-define (struct* selected ([dir dir])) (send i user-data))
       (close-dir dir))
 
     ;;; init
