@@ -1,5 +1,6 @@
 ### To Release
 
+* [editor:fix] disable auto wrap line to avoid auto formatter break the line
 * [editor] auto formatting file
 * [editor] cross file jump to definition
 * [editor] c+s+b jump back to previous position
