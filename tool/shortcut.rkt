@@ -7,8 +7,8 @@
          "../collect/api.rkt"
          "../meta.rkt"
          "../version-control/pusher.rkt"
-         "../panel/version-control.rkt"
-         "../project-manager.rkt"
+         "../version-control/panel.rkt"
+         "../project/manager.rkt"
          "../project/current-project.rkt")
 
 (define-syntax-parser cmd/ctrl+

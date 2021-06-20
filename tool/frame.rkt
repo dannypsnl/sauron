@@ -6,9 +6,9 @@
          framework
          racket/gui/base
 
-         "../project-manager.rkt"
+         "../project/manager.rkt"
          "../project/current-project.rkt"
-         "../panel/project-files.rkt")
+         "../project/panel.rkt")
 
 (define tool@
   (unit
