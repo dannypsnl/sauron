@@ -135,7 +135,7 @@
                           [width 300]
                           [height 600]))
 
-  (define vc 
+  (define vc
     (new version-control%
          [parent test-frame]))
 
