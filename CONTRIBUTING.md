@@ -18,22 +18,22 @@ NOTE: Prefer comment rather than **smart** code.
 
 #### Commit Standard
 
-The following is template.
+We provide a template, you can apply it via the following command.
 
-```
-[commit type] commit title
-
-commit message(optional)
-
-ref #issue_number
+```sh
+git config commit.template $(pwd)/.gitmessage
 ```
 
-The following is an example.
+The following is a real example.
 
 ```
-[project] prevent adding an existing project 
+[editor:bug] disable auto wrap to avoid bug
 
-close #127
+auto formatter will remove whitespace even that is created by auto-wrap,
+thus, we have to disable auto-wrap for now. In the future, we may find
+out better solution to fix this
+
+fix #158
 ```
 
 ### PR Standard
