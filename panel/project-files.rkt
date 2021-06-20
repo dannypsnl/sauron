@@ -11,6 +11,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          file-watchers
          "../path-util.rkt"
          "../project/current-project.rkt"
+         "../project/refresh-collect.rkt"
          "../project/dir-state.rkt"
          "../collect/api.rkt")
 
@@ -24,12 +25,6 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (define t (get-editor)) ; a text% object
       (send t erase)
       (send t insert str))))
-
-(define ignore-list
-  '(".git"
-    "compiled"
-    "doc"
-    ".DS_Store"))
 
 (struct selected
   (dir file)
@@ -48,8 +43,6 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
           ['file
            (define item (send parent-dir new-item set-text-mixin))
            (define filepath (build-path directory subpath))
-           (when (path-has-extension? filepath #".rkt")
-             (thread (λ () (update filepath))))
            (send* item
              [set-text (path->string subpath)]
              [user-data (selected directory
@@ -118,7 +111,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                        (list 'robust 'remove _))
                    (reset-directory (send current-project get))]
                   [(list 'robust 'change path)
-                   (update path)]
+                   (force-update path)]
                   [else (void)])
                 (loop))))
     (send current-project listen
