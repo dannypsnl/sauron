@@ -6,7 +6,7 @@
          "../jump-to-def.rkt"
          "../collect/api.rkt"
          "../meta.rkt"
-         "../commit-pusher.rkt"
+         "../version-control/pusher.rkt"
          "../panel/version-control.rkt"
          "../project-manager.rkt"
          "../project/current-project.rkt")
@@ -120,8 +120,8 @@
                (send frame-<?> center))
              (when frame-<?>
                (send frame-<?> show #t))))
-(cmd/ctrl+ "s:k" (λ (editor event) (make-commit-pusher "push")))
-(cmd/ctrl+ "s:p" (λ (editor event) (make-commit-pusher "pull")))
+(cmd/ctrl+ "s:k" (λ (editor event) (make-pusher "push")))
+(cmd/ctrl+ "s:p" (λ (editor event) (make-pusher "pull")))
 
 (cmd/ctrl+ "m"
            (λ (editor event)

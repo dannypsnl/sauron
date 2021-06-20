@@ -2,7 +2,7 @@
 
 (require framework
          "../project/current-project.rkt"
-         "../execute-cmd.rkt")
+         "../cmd/execute.rkt")
 
 (provide version-control%)
 (define version-control%

@@ -1,10 +1,10 @@
 #lang racket/gui
 
-(provide make-commit-pusher)
+(provide make-pusher)
 
-(require "execute-cmd.rkt")
+(require "../cmd/execute.rkt")
 
-(define (make-commit-pusher command)
+(define (make-pusher command)
   (run "git fetch")
   (run "git log fetch_head..head --oneline"
        (λ (out in err)
@@ -23,8 +23,8 @@
            [2 (void)]))))
 
 (module+ main
-  (require "project/current-project.rkt")
+  (require "../project/current-project.rkt")
 
   (send current-project set (current-directory))
 
-  (make-commit-pusher "git push"))
+  (make-pusher "git push"))

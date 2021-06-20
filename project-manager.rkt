@@ -2,7 +2,7 @@
 
 (provide project-manager%)
 
-(require "raco.rkt")
+(require "cmd/raco.rkt")
 
 (define project-manager%
   (class frame%
