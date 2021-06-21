@@ -2,7 +2,8 @@
 
 (require framework
          "../project/current-project.rkt"
-         "../cmd/execute.rkt")
+         "../cmd/execute.rkt"
+         "parse-git.rkt")
 
 (provide version-control%)
 (define version-control%
@@ -69,16 +70,16 @@
            (λ (out in err)
              (let loop ([output (read-line out)])
                (unless (eof-object? output)
-                 (let-values ([(kind filename) (parse-git-output output)])
-                   (new file-object% [parent files-zone]
-                        [filename filename]
-                        [λ-add-to-ready
-                         (λ (this filename)
-                           (run (format "git add ~a" (build-path (send current-project get) filename))))]
-                        [λ-remove-from-ready
-                         (λ (this filename)
-                           (run (format "git reset HEAD ~a" (build-path (send current-project get) filename))))]
-                        [status kind]))
+                 (define-values (kind filename) (parse-git-output output))
+                 (new file-object% [parent files-zone]
+                      [filename filename]
+                      [λ-add-to-ready
+                       (λ (this filename)
+                         (run (format "git add ~a" (build-path (send current-project get) filename))))]
+                      [λ-remove-from-ready
+                       (λ (this filename)
+                         (run (format "git reset HEAD ~a" (build-path (send current-project get) filename))))]
+                      [status kind])
                  (loop (read-line out)))))))
 
     ;;; init
@@ -92,6 +93,11 @@
                 status)
     (super-new [alignment '(left top)])
 
+    (define/public (update-by-checkbox check-box)
+      (if (send check-box get-value)
+          (λ-add-to-ready this filename)
+          (λ-remove-from-ready this filename)))
+
     (define check-box
       (new check-box% [parent this]
            [label filename]
@@ -100,29 +106,14 @@
                     ['changes #f])]
            [callback
             (λ (check-box event)
-              (define clicked? (send check-box get-value))
-              (if clicked?
-                  (λ-add-to-ready this filename)
-                  (λ-remove-from-ready this filename)))]))
+              (update-by-checkbox check-box))]))
 
     (define/public (add-to-ready)
-      (λ-add-to-ready this filename)
-      (send check-box set-value #t))
+      (send check-box set-value #t)
+      (update-by-checkbox check-box))
     (define/public (remove-from-ready)
-      (λ-remove-from-ready this filename)
-      (send check-box set-value #f))))
-
-(define (parse-git-output output)
-  (values
-   (cond
-     [(ormap (λ (x) (string-prefix? output x))
-             '("M  " "D " "A  "))
-      'ready]
-     [(ormap (λ (x) (string-prefix? output x))
-             '(" M " " D " "AM " "MM " "UU " "?? "))
-      'changes]
-     [else (error 'unknown-format output)])
-   (substring output 3)))
+      (send check-box set-value #f)
+      (update-by-checkbox check-box))))
 
 (module+ main
   (define testing-dir (build-path (find-system-path 'home-dir) "racket.tw" "sauron"))
@@ -145,11 +136,19 @@
 (module+ test
   (require rackunit)
 
-  (test-case "parse git: ready"
-             (define-values (ty _)
-               (parse-git-output "M  "))
-             (check-equal? ty 'ready))
-  (test-case "parse git: changes"
-             (define-values (ty _)
-               (parse-git-output " M "))
-             (check-equal? ty 'changes)))
+  (test-case "file-object will be add to ready if clicked"
+             (define frame (new frame% [label "test"]))
+             (define ready-fo (new file-object% [parent frame]
+                                   [filename ""]
+                                   [λ-add-to-ready (λ (a b) (void))]
+                                   [λ-remove-from-ready (λ (a b) (error 'remove))]
+                                   [status 'ready]))
+             (send ready-fo add-to-ready))
+  (test-case "file-object will be remove from ready if not clicked"
+             (define frame (new frame% [label "test"]))
+             (define ready-fo (new file-object% [parent frame]
+                                   [filename ""]
+                                   [λ-add-to-ready (λ (a b) (error 'remove))]
+                                   [λ-remove-from-ready (λ (a b) (void))]
+                                   [status 'ready]))
+             (send ready-fo remove-from-ready)))
