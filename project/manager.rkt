@@ -133,15 +133,12 @@
     (define/public (run)
       (auto-setup-configuration-env)
       (load-projs)
-      (send this center 'both)
-      (send this show #t))
-
-    (send* this
-      [center 'both]
-      [run])))
+      (send* this
+        [center 'both]
+        [show #t]))))
 
 (module+ main
   (define starter (new project-manager%
                        [label "select a project"]
                        [on-select (λ (path) (message-box "dummy" (format "~a opened" path)))]))
-  (send starter show #t))
+  (send starter run))

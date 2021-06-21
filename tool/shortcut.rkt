@@ -125,11 +125,13 @@
 
 (cmd/ctrl+ "m"
            (λ (editor event)
-             (new project-manager%
-                  [label "select a project"]
-                  [on-select
-                   (λ (path)
-                     (send current-project set path))])))
+             (define manager
+               (new project-manager%
+                    [label "select a project"]
+                    [on-select
+                     (λ (path)
+                       (send current-project set path))]))
+             (send manager run)))
 
 (cmd/ctrl+ "d"
            (λ (editor event)
