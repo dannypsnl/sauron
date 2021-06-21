@@ -33,7 +33,8 @@
 
 (define (collect-from path)
   (define editor (new racket:text%))
-  (send editor load-file path)
+  (when (path? path)
+    (send editor load-file path))
   (define doc (make-interval-map))
   (define bindings (make-interval-map))
   (define defs (make-hash))
@@ -64,3 +65,13 @@
           doc
           bindings
           defs))
+
+(module+ test
+  (require rackunit)
+
+  (send current-project set (current-directory))
+
+  (define same-syntax #'1)
+  ;;; twice are same
+  (check-equal? (get-record same-syntax)
+                (get-record same-syntax)))
