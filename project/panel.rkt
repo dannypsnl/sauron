@@ -126,11 +126,6 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define view (new project-files% [parent parent]
                       [editor-panel editor-panel]))
 
-
-    (define (ensure-file-would-be-there path)
-      (make-parent-directory* path)
-      (close-output-port (open-output-file path #:exists 'append)))
-
     (define (add-file/dir btn event)
       (define new-frame (new frame% [label "New"] [width 300] [height 300]))
       (send* new-frame
@@ -143,7 +138,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
           [0 (define file-name (get-text-from-user "name of file?" ""))
              (when file-name
                (define path (build-path selected-dir file-name))
-               (ensure-file-would-be-there path))]
+               (ensure-file path))]
           [1 (define dir-name (get-text-from-user "name of directory?" ""))
              (when dir-name
                (make-directory* (build-path selected-dir dir-name)))])
@@ -152,7 +147,6 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
            [label "New"]
            [choices '("file" "directory")]
            [callback ask]))
-
     (define (remove-path-and-refresh btn event)
       (delete-directory/files (send view get-cur-selected-file) #:must-exist? #f)
       (send view reset-directory (send current-project get)))
@@ -164,6 +158,10 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          [label "remove"]
          [callback remove-path-and-refresh])))
 
+(define (ensure-file path)
+  (make-parent-directory* path)
+  (close-output-port (open-output-file path #:exists 'append)))
+
 (module+ main
   (define frame (new frame% [label "test: project files"]
                      [width 300] [height 300]))
@@ -173,3 +171,12 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
   (send frame center)
   (send frame show #t))
+
+(module+ test
+  (require rackunit)
+
+  (test-case ""
+             (ensure-file "tmp")
+             (check-equal? (file-exists? "tmp")
+                           #t)
+             (delete-directory/files "tmp")))
