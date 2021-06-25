@@ -108,7 +108,8 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
               (let loop ()
                 (match (file-watcher-channel-get)
                   [(or (list 'robust 'add _)
-                       (list 'robust 'remove _))
+                       (list 'robust 'remove _)
+                       (list 'robust 'rename _))
                    (reset-directory (send current-project get))]
                   [(list 'robust 'change path)
                    (force-update path)]
@@ -150,13 +151,27 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define (remove-path-and-refresh btn event)
       (delete-directory/files (send view get-cur-selected-file) #:must-exist? #f)
       (send view reset-directory (send current-project get)))
+    (define (rename-path-and-refresh btn event)
+      (define selected-dir (send view get-cur-selected-dir))
+      (define selected-file (send view get-cur-selected-file))
+      (define name (get-text-from-user "new name of selected path?" ""))
+      (define old-path (or selected-file selected-dir))
+      (define new-path (if (equal? selected-dir selected-file)
+                           (build-path selected-dir 'up name)
+                           (build-path selected-dir name)))
+      (when name
+        (rename-file-or-directory old-path new-path)
+        (send view reset-directory (send current-project get))))
 
     (new button% [parent this]
          [label "add"]
          [callback add-file/dir])
     (new button% [parent this]
          [label "remove"]
-         [callback remove-path-and-refresh])))
+         [callback remove-path-and-refresh])
+    (new button% [parent this]
+         [label "rename"]
+         [callback rename-path-and-refresh])))
 
 (define (ensure-file path)
   (make-parent-directory* path)
