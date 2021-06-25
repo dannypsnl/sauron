@@ -72,7 +72,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (set! top-dir-list (send this new-list set-text-mixin))
       (send top-dir-list set-text (basename dir))
       ; add new-item for each member of dir
-      (send top-dir-list user-data (selected dir #f #f))
+      (send top-dir-list user-data (selected dir dir #f))
       (for ([sub (directory-list dir)])
         (new-item top-dir-list dir sub))
       ;; open top dir-list by default
