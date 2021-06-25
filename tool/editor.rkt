@@ -26,7 +26,7 @@
                                                            [end (send this get-end-position)])
           (define first-para (send this position-paragraph start))
           (define end-para (send this position-paragraph end))
-          (define tabifying-multiple-paras? (not (= first-para end-para)))
+          (define modifying-multiple-paras? (not (= first-para end-para)))
           (with-handlers ([exn:break?
                            (λ (x) #t)])
             (dynamic-wind
@@ -40,9 +40,9 @@
                    (define start (send this paragraph-start-position para))
                    (define end (send this paragraph-end-position para))
                    (define skip-this-line?
-                     (and tabifying-multiple-paras?
-                          (for/and ([i (in-range start (+ end 1))])
-                            (char-whitespace? (send this get-character i)))))
+                     (and modifying-multiple-paras?
+                          (for/or ([i (in-range start (+ end 1))])
+                            (char=? #\" (send this get-character i)))))
                    (unless skip-this-line?
                      (remove-trailing-whitespace start))
                    (parameterize-break #t (void))
