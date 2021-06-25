@@ -27,7 +27,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (send t insert str))))
 
 (struct selected
-  (dir file)
+  (dir file parent-dir)
   #:transparent)
 
 (define project-files%
@@ -42,16 +42,18 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
         (match (file-or-directory-type cur-path #t)
           ['file
            (define item (send parent-dir new-item set-text-mixin))
-           (define filepath (build-path directory subpath))
            (send* item
              [set-text (path->string subpath)]
              [user-data (selected directory
-                                  filepath)])]
+                                  cur-path
+                                  directory)])]
           ['directory
            (define item (send parent-dir new-list set-text-mixin))
            (send* item
              [set-text (path->string subpath)]
-             [user-data (selected cur-path cur-path)])
+             [user-data (selected cur-path
+                                  cur-path
+                                  directory)])
            (for ([subpath (directory-list cur-path)])
              (new-item item cur-path subpath))]
           ['link (void)])))
@@ -65,12 +67,12 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
         (thread-suspend current-watcher))
       (set! current-watcher (robust-watch dir))
 
-      (set! current-selected (selected dir #f))
+      (set! current-selected (selected dir #f #f))
       (send this delete-item top-dir-list)
       (set! top-dir-list (send this new-list set-text-mixin))
       (send top-dir-list set-text (basename dir))
       ; add new-item for each member of dir
-      (send top-dir-list user-data (selected dir dir))
+      (send top-dir-list user-data (selected dir #f #f))
       (for ([sub (directory-list dir)])
         (new-item top-dir-list dir sub))
       ;; open top dir-list by default
@@ -78,6 +80,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
     (define/public (get-cur-selected-dir) (selected-dir current-selected))
     (define/public (get-cur-selected-file) (selected-file current-selected))
+    (define/public (get-cur-selected-parent-dir) (selected-parent-dir current-selected))
 
     (define/override (on-select i)
       (set! current-selected (send i user-data)))
@@ -108,8 +111,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
               (let loop ()
                 (match (file-watcher-channel-get)
                   [(or (list 'robust 'add _)
-                       (list 'robust 'remove _)
-                       (list 'robust 'rename _))
+                       (list 'robust 'remove _))
                    (reset-directory (send current-project get))]
                   [(list 'robust 'change path)
                    (force-update path)]
@@ -152,14 +154,13 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (delete-directory/files (send view get-cur-selected-file) #:must-exist? #f)
       (send view reset-directory (send current-project get)))
     (define (rename-path-and-refresh btn event)
-      (define selected-dir (send view get-cur-selected-dir))
-      (define selected-file (send view get-cur-selected-file))
-      (define name (get-text-from-user "new name of selected path?" ""))
-      (define old-path (or selected-file selected-dir))
-      (define new-path (if (equal? selected-dir selected-file)
-                           (build-path selected-dir 'up name)
-                           (build-path selected-dir name)))
+      (define name (get-text-from-user "new name for selected path?" ""))
       (when name
+        (define selected-parent-dir (send view get-cur-selected-parent-dir))
+        (define selected-dir (send view get-cur-selected-dir))
+        (define selected-file (send view get-cur-selected-file))
+        (define old-path (or selected-file selected-dir))
+        (define new-path (build-path selected-parent-dir name))
         (rename-file-or-directory old-path new-path)
         (send view reset-directory (send current-project get))))
 
