@@ -147,16 +147,17 @@
 
 (keybinding "space"
             (λ (editor event)
-              (define end (send editor get-start-position))
-              (define start (send editor get-backward-sexp end))
-              (when start
-                (define to-complete (send editor get-text start end))
-                (when (string-prefix? to-complete "\\")
-                  ;;; select previous sexp
-                  (send editor set-position start end)
-                  ;;; replace it with new text
-                  (send editor insert
-                        (hash-ref latex-complete
-                                  (string-trim to-complete "\\" #:right? #f)
-                                  to-complete))))
+              (when (object-method-arity-includes? editor 'get-backward-sexp 1)
+                (define end (send editor get-start-position))
+                (define start (send editor get-backward-sexp end))
+                (when start
+                  (define to-complete (send editor get-text start end))
+                  (when (string-prefix? to-complete "\\")
+                    ;;; select previous sexp
+                    (send editor set-position start end)
+                    ;;; replace it with new text
+                    (send editor insert
+                          (hash-ref latex-complete
+                                    (string-trim to-complete "\\" #:right? #f)
+                                    to-complete)))))
               (send editor insert " ")))
