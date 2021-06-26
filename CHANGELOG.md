@@ -1,6 +1,7 @@
 ### To Release
 
 * [editor:fix] type space in search bar won't crash now
+* [project] rename file/directory
 * [editor:fix] disable auto wrap line to avoid auto formatter break the line
 * [editor] auto formatting file
 * [editor] cross file jump to definition
