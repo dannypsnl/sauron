@@ -1,5 +1,6 @@
 ### To Release
 
+* [vc:fix] background checking raise error
 * [editor:fix] type space in search bar won't crash now
 * [project] rename file/directory
 * [editor:fix] disable auto wrap line to avoid auto formatter break the line
@@ -61,7 +62,7 @@
 * [repl:migrate] cursor would be fixed to prompt start position
 * [repl:migrate] select executed history via up/down key
 
-    NOTE: only work at prompt start position to prevent affect editing expression
+NOTE: only work at prompt start position to prevent affect editing expression
 
 * [repl] support special symbol input in repl
 
@@ -69,30 +70,30 @@
 
 * [editor:migrate] special symbol input like: `\all`, `\->`
 * [vc] buttons to quick modify
-    * select all
-    * unselect all
-    * clean up
+* select all
+* unselect all
+* clean up
 * [project] open file on editing in existed tab, else in new tab
 * [project] remove project button
 * [shortcut] c+y show/hide project files viewer
 * [editor] auto wrap the text over view range
 * [shortcut] c+m invoke project manager
 * [project] manager
-    * when no project selected, ask to choose one to open project files viewer
-    * by default hiding project files viewer
+* when no project selected, ask to choose one to open project files viewer
+* by default hiding project files viewer
 * c+x cut line if no selection, else cut selection
 * [migrate] c+b/click jump to definition
 * [migrate] c+r rename refactoring
 
-    NOTE: haven't support cross-file refactoring since this simply rebind "Rename Identifier" action in DrRacket
+NOTE: haven't support cross-file refactoring since this simply rebind "Rename Identifier" action in DrRacket
 
 * [migrate] c+e run REPL
 * [vc:migrate] c+k show commit editor
 * [migrate] the following pairs would complete and wrap selected text automatically
-    * `()`
-    * `[]`
-    * `{}`
-    * `""`
+* `()`
+* `[]`
+* `{}`
+* `""`
 * [migrate] c+; comment selected text(or that line if no selected text) if uncommented, uncomment if commented
 * o+backspace delete previous sexp
 * c+backspace delete whole line from current position
@@ -104,35 +105,35 @@
 * [vc] remove ready/changes zone concept
 * [starter:fix] non-existed project would popup warning message and won't open IDE
 * [repl] switching expression from evaluated history
-    * up select previous
-    * down select next
-    * enter evaluate, record history and reset selection status
+* up select previous
+* down select next
+* enter evaluate, record history and reset selection status
 * smart insertion
-    * prepare for advanced auto complete
-    * c+enter complete the insertion
-    * customizable tab action
+* prepare for advanced auto complete
+* c+enter complete the insertion
+* customizable tab action
 
 ### v0.2.1
 
 * c+w close last tab correctly
 * c+e improve eval module behavior
-    * would run submodule test and main
-    * work with project path, not path where user run executable **sauron**
-    * allow GUI
-    * change error output way
+* would run submodule test and main
+* work with project path, not path where user run executable **sauron**
+* allow GUI
+* change error output way
 
 ### v0.2.0
 
 * Editor Buffer
-    * c+w would close current buffer
-    * c+[0..9] would select tab
+* c+w would close current buffer
+* c+[0..9] would select tab
 * Project Files Panel
-    * interactive with files
-    * open file via double click
+* interactive with files
+* open file via double click
 * Version Control Panel
-    * ready/changes zone
-    * c+enter commit in commit message editor
-    * c+k open version control panel
+* ready/changes zone
+* c+enter commit in commit message editor
+* c+k open version control panel
 * REPL switch on/off button
 * fix c+r, renaming broken in somewhere
 * fix c+e, now program evaluation result has output to REPL
