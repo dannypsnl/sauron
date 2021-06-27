@@ -55,13 +55,14 @@
                           (let ()
                             (show-real-area)
                             (send c set-label "Hide the Project Viewer")))
-                      (new project-manager%
-                           [label "select a project"]
-                           [on-select
-                            (λ (path)
-                              (send current-project set path)
-                              (show-real-area)
-                              (send c set-label "Hide the Project Viewer"))])))]
+                      (send (new project-manager%
+                              [label "select a project"]
+                              [on-select
+                                (λ (path)
+                                  (send current-project set path)
+                                  (show-real-area)
+                                  (send c set-label "Hide the Project Viewer"))])
+                            run)))]
                ;;; c+y   open project viewer (on Linux, MacOS)
                ;;; c+s+y open project viewer (on Windows)
                [shortcut #\y]
