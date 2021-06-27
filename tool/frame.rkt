@@ -47,6 +47,14 @@
                [label (if project-files-show? "Hide the Project Viewer" "Show the Project Viewer")]
                [callback
                 (λ (c e)
+                  (define (get-manager)
+                    (new project-manager%
+                         [label "select a project"]
+                         [on-select
+                          (λ (path)
+                            (send current-project set path)
+                            (show-real-area)
+                            (send c set-label "Hide the Project Viewer"))]))
                   (if (send current-project get)
                       (if project-files-show?
                           (let ()
@@ -55,14 +63,7 @@
                           (let ()
                             (show-real-area)
                             (send c set-label "Hide the Project Viewer")))
-                      (send (new project-manager%
-                              [label "select a project"]
-                              [on-select
-                                (λ (path)
-                                  (send current-project set path)
-                                  (show-real-area)
-                                  (send c set-label "Hide the Project Viewer"))])
-                            run)))]
+                      (send (get-manager) run)))]
                ;;; c+y   open project viewer (on Linux, MacOS)
                ;;; c+s+y open project viewer (on Windows)
                [shortcut #\y]
