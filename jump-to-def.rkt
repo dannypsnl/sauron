@@ -22,6 +22,7 @@
        (force-update path)
        (match (get-def path id)
          [(struct* binding ([start start] [end end]))
+          (send frame change-to-tab tab)
           (send ed set-position start end)]
          [#f (void)]))]
     [(struct* binding ([start start] [end end]))
