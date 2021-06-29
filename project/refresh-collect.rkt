@@ -14,9 +14,9 @@
 
 (define (reset-directory dir)
   (for ([sub (directory-list dir)])
-    (new-item dir sub)))
+    (update-collect dir sub)))
 
-(define (new-item directory subpath)
+(define (update-collect directory subpath)
   (define cur-path (build-path directory subpath))
   (when (not (glob-match? ignore-list subpath))
     (match (file-or-directory-type cur-path #t)
@@ -26,7 +26,7 @@
          (thread (λ () (update filepath))))]
       ['directory
        (for ([subpath (directory-list cur-path)])
-         (new-item cur-path subpath))]
+         (update-collect cur-path subpath))]
       ['link (void)])))
 
 (send current-project listen
