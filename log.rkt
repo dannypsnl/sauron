@@ -11,16 +11,18 @@
 (define port (open-output-file (build-path (find-system-path 'home-dir) ".sauron" "debug-log")
                                #:exists 'append))
 
-(define (write-log level format args)
+(define (write-log level format-msg args)
   (with-logging-to-port	port
     (λ ()
       (if (empty? args)
           (log-message (current-logger)
-                       level #f
-                       format #f)
+                       level
+                       #f
+                       format-msg)
           (log-message (current-logger)
-                       level #f
-                       (format format args) #f)))
+                       level
+                       #f
+                       (apply format (cons format-msg args)))))
     level))
 
 (define (log:debug format . args)

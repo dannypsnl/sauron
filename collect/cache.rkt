@@ -39,6 +39,7 @@
   (define collector
     (new collector%
          [src path]))
+  (log:info "collect-from path: ~a" path)
   (define in (open-input-file path))
 
   (define ns (make-base-namespace))
@@ -51,11 +52,5 @@
                           (λ () (read-syntax path in)))))
     (add-syntax stx))
 
+  (log:info "collect-from path done: ~a" path)
   (send collector build-record))
-
-(module+ test
-  (require rackunit)
-
-  (send current-project set (path->complete-path "../"))
-
-  (collect-from "../jump-to-def.rkt"))
