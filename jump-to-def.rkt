@@ -20,9 +20,11 @@
          (set! tab (send frame find-matching-tab path)))
        (define ed (send tab get-defs))
        (force-update path)
-       (match-define (struct* binding ([start start] [end end]))
-         (get-def path id))
-       (send ed set-position start end))]
+       (match (get-def path id)
+         [(struct* binding ([start start] [end end]))
+          (send frame change-to-tab tab)
+          (send ed set-position start end)]
+         [#f (void)]))]
     [(struct* binding ([start start] [end end]))
      (send editor set-position start end)]
     [#f (void)]))

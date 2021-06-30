@@ -12,7 +12,7 @@
     "doc"
     ".DS_Store"))
 
-(define (reset-directory dir)
+(define (refresh-project dir)
   (for ([sub (directory-list dir)])
     (update-collect dir sub)))
 
@@ -31,4 +31,4 @@
 
 (send current-project listen
       (λ (new-dir)
-        (reset-directory (send current-project get))))
+        (refresh-project new-dir)))
