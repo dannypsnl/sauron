@@ -114,8 +114,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                        (list 'robust 'remove _))
                    (reset-directory (send current-project get))]
                   [(list 'robust 'change path)
-                   (when (and (file-exists? path)
-                              (path-has-extension? path #".rkt"))
+                   (when (path-has-extension? path #".rkt")
                      (force-update path))]
                   [else (void)])
                 (loop))))
