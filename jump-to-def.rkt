@@ -4,10 +4,10 @@
          jump-pop!)
 
 (require "collect/binding.rkt"
-         "collect/api.rkt")
+         "collect/api.rkt"
+         sauron/log)
 
 (define (jump-to-definition editor from-pos)
-  (jump-add (send editor get-start-position))
   (define filepath (send editor get-filename))
   (define binding-<?> (jump-to-def filepath from-pos))
   (match binding-<?>
@@ -19,17 +19,19 @@
          (send frame open-in-new-tab path)
          (set! tab (send frame find-matching-tab path)))
        (define ed (send tab get-defs))
-       (force-update path)
        (match (get-def path id)
          [(struct* binding ([start start] [end end]))
+          (jump-add (send editor get-start-position))
           (send frame change-to-tab tab)
           (send ed set-position start end)]
          [#f (void)]))]
     [(struct* binding ([start start] [end end]))
+     (jump-add (send editor get-start-position))
      (send editor set-position start end)]
     [#f (void)]))
 
 (define (jump-add pos)
+  (log:info "jump add pos: ~a" pos)
   (set! jump-stack (cons pos jump-stack)))
 (define (jump-pop!)
   (if (empty? jump-stack)

@@ -4,11 +4,12 @@
          force-update
          update)
 
-(require framework
-         drracket/check-syntax
+(require drracket/check-syntax
          syntax/modread
          "record.rkt"
-         "collector.rkt")
+         "collector.rkt"
+         "../project/current-project.rkt"
+         sauron/log)
 
 (define (get-record path)
   (if (hash-ref path=>record path #f)
@@ -20,6 +21,8 @@
 (define path=>record (make-hash))
 
 (define (update path)
+  (unless (file-exists? path)
+    (log:warning "update non-existed path: ~a" path))
   (define r (get-record path))
   (if r
       (match-let ([(struct* record ([created-time created-time])) r])
@@ -27,6 +30,8 @@
           (hash-set! path=>record path #f)))
       (force-update path)))
 (define (force-update path)
+  (unless (file-exists? path)
+    (log:warning "force-update non-existed path: ~a" path))
   (define new-record (collect-from path))
   (hash-set! path=>record path new-record))
 
@@ -40,7 +45,8 @@
   (define-values (add-syntax done)
     (make-traversal ns path))
   (parameterize ([current-annotations collector]
-                 [current-namespace ns])
+                 [current-namespace ns]
+                 [current-load-relative-directory (send current-project get)])
     (define stx (expand (with-module-reading-parameterization
                           (λ () (read-syntax path in)))))
     (add-syntax stx))
@@ -50,8 +56,6 @@
 (module+ test
   (require rackunit)
 
-  ;;; twice are same
-  (check-equal? (get-record "collector.rkt")
-                (get-record "collector.rkt"))
+  (send current-project set (path->complete-path "../"))
 
-  (collect-from "collector.rkt"))
+  (collect-from "../jump-to-def.rkt"))
