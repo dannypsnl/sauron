@@ -6,9 +6,9 @@
 
 (require drracket/check-syntax
          syntax/modread
-         "record.rkt"
-         "collector.rkt"
-         "../project/current-project.rkt"
+         sauron/collect/record
+         sauron/collect/collector
+         sauron/project/current-project
          sauron/log)
 
 (define (get-record path)
@@ -47,7 +47,7 @@
     (make-traversal ns path))
   (parameterize ([current-annotations collector]
                  [current-namespace ns]
-                 [current-load-relative-directory (send current-project get)])
+                 #;[current-load-relative-directory (send current-project get)])
     (define stx (expand (with-module-reading-parameterization
                           (λ () (read-syntax path in)))))
     (add-syntax stx))

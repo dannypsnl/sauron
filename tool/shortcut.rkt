@@ -3,13 +3,13 @@
 (require data/interval-map
          net/sendurl
          syntax/parse/define
-         "../jump-to-def.rkt"
-         "../collect/api.rkt"
-         "../meta.rkt"
-         "../version-control/pusher.rkt"
-         "../version-control/panel.rkt"
-         "../project/manager.rkt"
-         "../project/current-project.rkt")
+         sauron/jump-to-def
+         sauron/meta
+         sauron/collect/api
+         sauron/version-control/pusher
+         sauron/version-control/panel
+         sauron/project/manager
+         sauron/project/current-project)
 
 (define-syntax-parser cmd/ctrl+
   [(_ key fn)

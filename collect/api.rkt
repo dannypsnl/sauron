@@ -5,8 +5,8 @@
          update)
 
 (require data/interval-map
-         "record.rkt"
-         "cache.rkt")
+         sauron/collect/record
+         sauron/collect/cache)
 
 (define (get-doc path)
   (match-define (struct* record ([doc doc]))

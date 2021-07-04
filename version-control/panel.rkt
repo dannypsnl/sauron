@@ -1,9 +1,9 @@
 #lang racket/gui
 
 (require framework
-         "../project/current-project.rkt"
-         "../cmd/execute.rkt"
-         "parse-git.rkt"
+         sauron/project/current-project
+         sauron/cmd/execute
+         sauron/version-control/parse-git
          sauron/log)
 
 (provide version-control%)

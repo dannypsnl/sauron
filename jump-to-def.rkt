@@ -3,8 +3,8 @@
 (provide jump-to-definition
          jump-pop!)
 
-(require "collect/binding.rkt"
-         "collect/api.rkt"
+(require sauron/collect/binding
+         sauron/collect/api
          sauron/log)
 
 (define (jump-to-definition editor from-pos)

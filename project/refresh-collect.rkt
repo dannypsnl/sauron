@@ -3,8 +3,8 @@
 (provide ignore-list)
 
 (require file/glob
-         "../project/current-project.rkt"
-         "../collect/api.rkt")
+         sauron/project/current-project
+         sauron/collect/api)
 
 (define ignore-list
   '(".git"

@@ -5,8 +5,8 @@
 (require racket/class
          drracket/check-syntax
          data/interval-map
-         "binding.rkt"
-         "record.rkt")
+         sauron/collect/binding
+         sauron/collect/record)
 
 (define collector%
   (class (annotations-mixin object%)
