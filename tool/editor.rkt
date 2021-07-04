@@ -35,14 +35,15 @@
                  (begin-busy-cursor))
                (send this begin-edit-sequence))
              (λ ()
+               (define skip-this-line? #f)
                (let loop ([para first-para])
                  (when (<= para end-para)
                    (define start (send this paragraph-start-position para))
                    (define end (send this paragraph-end-position para))
-                   (define skip-this-line?
-                     (and modifying-multiple-paras?
-                          (for/or ([i (in-range start (+ end 1))])
-                            (char=? #\" (send this get-character i)))))
+                   (when (char=? #\" (send this get-character start))
+                     (set! skip-this-line? (not skip-this-line?)))
+                   (set! skip-this-line? (and modifying-multiple-paras?
+                                              skip-this-line?))
                    (unless skip-this-line?
                      (remove-trailing-whitespace start))
                    (parameterize-break #t (void))
