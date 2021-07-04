@@ -6,9 +6,9 @@
 
 (require drracket/check-syntax
          syntax/modread
+         sauron/path-util
          sauron/collect/record
          sauron/collect/collector
-         sauron/project/current-project
          sauron/log)
 
 (define (get-record path)
@@ -39,6 +39,8 @@
   (define collector
     (new collector%
          [src path]))
+  (define-values (src-dir file dir?)
+    (split-path path))
   (log:info "collect-from path: ~a" path)
   (define in (open-input-file path))
 
@@ -47,7 +49,7 @@
     (make-traversal ns path))
   (parameterize ([current-annotations collector]
                  [current-namespace ns]
-                 #;[current-load-relative-directory (send current-project get)])
+                 [current-load-relative-directory src-dir])
     (define stx (expand (with-module-reading-parameterization
                           (λ () (read-syntax path in)))))
     (add-syntax stx))
