@@ -8,6 +8,9 @@
 (require racket/logging
          racket/list)
 
+(define config-dir (build-path (find-system-path 'home-dir) ".sauron"))
+(unless (directory-exists? config-dir)
+  (make-directory config-dir))
 (define port (open-output-file (build-path (find-system-path 'home-dir) ".sauron" "debug-log")
                                #:exists 'append))
 
