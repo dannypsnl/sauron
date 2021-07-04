@@ -28,7 +28,7 @@
     [(struct* binding ([start start] [end end]))
      (jump-add (send editor get-start-position))
      (send editor set-position start end)]
-    [#f (void)]))
+    [#f (log:info "cannot jump to definition from ~a:~a" filepath from-pos)]))
 
 (define (jump-add pos)
   (log:info "jump add pos: ~a" pos)
