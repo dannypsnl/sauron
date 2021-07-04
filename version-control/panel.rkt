@@ -3,7 +3,8 @@
 (require framework
          "../project/current-project.rkt"
          "../cmd/execute.rkt"
-         "parse-git.rkt")
+         "parse-git.rkt"
+         sauron/log)
 
 (provide version-control%)
 (define version-control%
@@ -75,9 +76,11 @@
                       [filename filename]
                       [λ-add-to-ready
                        (λ (this filename)
+                         (log:debug "add ~a to ready" filename)
                          (run (format "git add ~a" (build-path (send current-project get) filename))))]
                       [λ-remove-from-ready
                        (λ (this filename)
+                         (log:debug "remove ~a from ready" filename)
                          (run (format "git reset HEAD ~a" (build-path (send current-project get) filename))))]
                       [status kind])
                  (loop (read-line out)))))))
