@@ -6,7 +6,8 @@
          drracket/check-syntax
          data/interval-map
          sauron/collect/binding
-         sauron/collect/record)
+         sauron/collect/record
+         sauron/log)
 
 (define collector%
   (class (annotations-mixin object%)
@@ -17,6 +18,7 @@
     (define defs (make-hash))
 
     (define/override (syncheck:add-docs-menu source-obj start end id _label definition-tag document-page _tag)
+      (log:debug "syncheck:add-docs-menu ~a" document-page)
       (interval-map-set! doc start (add1 end) document-page))
 
     (define/override (syncheck:add-arrow/name-dup
@@ -28,10 +30,12 @@
         (if require-arrow?
             (binding id #f #f (syntax->datum path))
             (binding id start-left start-right src)))
+      (log:debug "syncheck:add-arrow/name-dup, location: ~a" loc)
       (interval-map-set! bindings end-left (add1 end-right)
                          loc))
 
     (define/override (syncheck:add-definition-target source-obj start end id mods)
+      (log:debug "syncheck:add-definition-target ~a:~a" source-obj id)
       (hash-set! defs id (binding id start end src)))
 
     (define/public (build-record)
