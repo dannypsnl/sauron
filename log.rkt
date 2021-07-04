@@ -21,7 +21,7 @@
                        fmt-msg #f)
           (log-message (current-logger)
                        level #f
-                       (format fmt-msg args) #f)))
+                       (apply format fmt-msg args) #f)))
     level))
 
 (define (log:debug format . args)
