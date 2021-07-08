@@ -32,7 +32,8 @@ jobs:
       uses: actions/cache@v2
       with:
         path: |
-          ~/.racket
+          ~/.cache/racket
+          ~/.local/share/racket
         key: ${{ runner.os }}-primes
     - name: Setup Racket
       uses: Bogdanp/setup-racket@v1.5
