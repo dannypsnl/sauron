@@ -31,11 +31,10 @@
                       end-src-obj end-left end-right
                       actual? level require-arrow? name-dup?)
       (define id (string->symbol (send text get-text end-left end-right)))
-      (define loc (binding id start-left start-right src)
-        ;;; FIXME: find out how to get path correctly, after syntax-source filtering, we can only get src
-        #;(if require-arrow?
-            (binding id #f #f path)
-            (binding id start-left start-right src)))
+      (define loc
+        (if require-arrow?
+            (binding id #f #f #t)
+            (binding id start-left start-right #f)))
       (log:debug "syncheck:add-arrow/name-dup, location: ~a" loc)
       (interval-map-set! bindings end-left (add1 end-right)
                          loc))

@@ -3,11 +3,11 @@
 (provide (struct-out binding))
 
 (struct binding
-  (name start end filename)
+  (name start end external?)
   #:transparent)
 
 (module+ test
   (require rackunit)
 
-  (check-equal? (binding "fake" 0 1 "fake.rkt")
-                (binding "fake" 0 1 "fake.rkt")))
+  (check-equal? (binding "fake" 0 1 #t)
+                (binding "fake" 0 1 #t)))
