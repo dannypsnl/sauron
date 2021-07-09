@@ -71,9 +71,13 @@
                                        (send event get-y)))))
 (cmd/ctrl+ "s:b"
            (λ (editor event)
-             (define pos (jump-pop!))
-             (when pos
-               (send editor set-position pos))))
+             (match (jump-pop!)
+               [#f (void)]
+               [(jump-pos tab pos)
+                (define frame (send (send editor get-tab) get-frame))
+                (send frame change-to-tab tab)
+                (define ed (send tab get-defs))
+                (send ed set-position pos)])))
 
 ;;; delete whole thing from current position to the start of line
 (cmd/ctrl+ "backspace"

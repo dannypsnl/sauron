@@ -1,6 +1,7 @@
 #lang racket
 
 (provide jump-to-definition
+         (struct-out jump-pos)
          jump-pop!)
 
 (require sauron/collect/binding
@@ -11,7 +12,7 @@
   (define filepath (send editor get-filename))
   (match (jump-to-def filepath from-pos)
     [(binding id #f #f #t)
-     (jump-add (send editor get-start-position))
+     (jump-add (send editor get-tab) (send editor get-start-position))
      (jump-to-require-path)
      (define frame (send (send editor get-tab) get-frame))
      (define tab (send frame get-current-tab))
@@ -23,13 +24,15 @@
           [(struct* binding ([start start] [end end]))
            (send new-ed set-position start end)])])]
     [(struct* binding ([start start] [end end]))
-     (jump-add (send editor get-start-position))
+     (jump-add (send editor get-tab) (send editor get-start-position))
      (send editor set-position start end)]
     [_ (log:info "cannot jump to definition from ~a:~a" filepath from-pos)]))
 
-(define (jump-add pos)
-  (log:info "jump add pos: ~a" pos)
-  (set! jump-stack (cons pos jump-stack)))
+(struct jump-pos (tab pos) #:transparent)
+
+(define (jump-add tab pos)
+  (log:info "jump add pos: ~a:~a" (send (send tab get-defs) get-filename) pos)
+  (set! jump-stack (cons (jump-pos tab pos) jump-stack)))
 (define (jump-pop!)
   (if (empty? jump-stack)
       #f
