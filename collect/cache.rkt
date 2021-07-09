@@ -1,4 +1,4 @@
-#lang racket
+#lang racket/gui
 
 (provide get-record
          force-update
@@ -36,13 +36,16 @@
   (hash-set! path=>record path new-record))
 
 (define (collect-from path)
+  (define text (new text%))
+  (send text load-file path)
   (define collector
     (new collector%
-         [src path]))
+         [src path]
+         [text text]))
   (define-values (src-dir file dir?)
     (split-path path))
   (log:info "collect-from path: ~a" path)
-  (define in (open-input-file path))
+  (define in (open-input-string (send text get-text)))
 
   (define ns (make-base-namespace))
   (define-values (add-syntax done)

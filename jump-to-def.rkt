@@ -9,8 +9,7 @@
 
 (define (jump-to-definition editor from-pos)
   (define filepath (send editor get-filename))
-  (define binding-<?> (jump-to-def filepath from-pos))
-  (match binding-<?>
+  (match (jump-to-def filepath from-pos)
     [(binding id #f #f path)
      (when (file-exists? path)
        (define frame (send (send editor get-tab) get-frame))
