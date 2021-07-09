@@ -2,7 +2,8 @@
 
 (provide project-manager%)
 
-(require sauron/cmd/raco)
+(require sauron/cmd/raco
+         sauron/path-util)
 
 (define project-manager%
   (class frame%
@@ -10,13 +11,9 @@
     (super-new [width 600] [height 600])
 
     ;;; auto setup configuration
-    (define config-dir (build-path (find-system-path 'home-dir) ".sauron"))
     (define projects-file (build-path config-dir "projects"))
 
     (define (auto-setup-configuration-env)
-      ; create config directory if not exised
-      (unless (directory-exists? config-dir)
-        (make-directory config-dir))
       ; create projects file configuration if not existed
       (unless (file-exists? projects-file)
         (display-to-file "" projects-file)))

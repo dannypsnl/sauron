@@ -6,12 +6,10 @@
          log:error)
 
 (require racket/logging
-         racket/list)
+         racket/list
+         sauron/path-util)
 
-(define config-dir (build-path (find-system-path 'home-dir) ".sauron"))
-(unless (directory-exists? config-dir)
-  (make-directory config-dir))
-(define port (open-output-file (build-path (find-system-path 'home-dir) ".sauron" "debug-log")
+(define port (open-output-file (build-path config-dir "debug-log")
                                #:exists 'append))
 
 (define (write-log level msg args)
