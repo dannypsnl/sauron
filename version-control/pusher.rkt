@@ -2,7 +2,7 @@
 
 (provide make-pusher)
 
-(require "../cmd/execute.rkt")
+(require sauron/cmd/execute)
 
 (define (make-pusher command)
   (run "git fetch")

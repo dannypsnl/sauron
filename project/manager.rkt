@@ -2,7 +2,7 @@
 
 (provide project-manager%)
 
-(require "../cmd/raco.rkt")
+(require sauron/cmd/raco)
 
 (define project-manager%
   (class frame%

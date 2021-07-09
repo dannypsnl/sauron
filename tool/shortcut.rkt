@@ -3,13 +3,13 @@
 (require data/interval-map
          net/sendurl
          syntax/parse/define
-         "../jump-to-def.rkt"
-         "../collect/api.rkt"
-         "../meta.rkt"
-         "../version-control/pusher.rkt"
-         "../version-control/panel.rkt"
-         "../project/manager.rkt"
-         "../project/current-project.rkt")
+         sauron/jump-to-def
+         sauron/meta
+         sauron/collect/api
+         sauron/version-control/pusher
+         sauron/version-control/panel
+         sauron/project/manager
+         sauron/project/current-project)
 
 (define-syntax-parser cmd/ctrl+
   [(_ key fn)
@@ -58,18 +58,26 @@
 ;;; c+b jump to definition
 (cmd/ctrl+ "b"
            (λ (editor event)
-             (jump-to-definition editor (send editor get-start-position))))
+             (jump-to-definition (λ ()
+                                   (send-command "Jump to Definition (in Other File)" editor event))
+                                 editor (send editor get-start-position))))
 (cmd/ctrl+ "leftbutton"
            (λ (editor event)
-             (jump-to-definition editor
+             (jump-to-definition (λ ()
+                                   (send-command "Jump to Definition (in Other File)" editor event))
+                                 editor
                                  (send editor find-position
                                        (send event get-x)
                                        (send event get-y)))))
 (cmd/ctrl+ "s:b"
            (λ (editor event)
-             (define pos (jump-pop!))
-             (when pos
-               (send editor set-position pos))))
+             (match (jump-pop!)
+               [#f (void)]
+               [(jump-pos tab pos)
+                (define frame (send (send editor get-tab) get-frame))
+                (send frame change-to-tab tab)
+                (define ed (send tab get-defs))
+                (send ed set-position pos)])))
 
 ;;; delete whole thing from current position to the start of line
 (cmd/ctrl+ "backspace"

@@ -1,36 +1,38 @@
 #lang racket
 
 (provide jump-to-definition
+         (struct-out jump-pos)
          jump-pop!)
 
-(require "collect/binding.rkt"
-         "collect/api.rkt")
+(require sauron/collect/binding
+         sauron/collect/api
+         sauron/log)
 
-(define (jump-to-definition editor from-pos)
-  (jump-add (send editor get-start-position))
+(define (jump-to-definition jump-to-require-path editor from-pos)
   (define filepath (send editor get-filename))
-  (define binding-<?> (jump-to-def filepath from-pos))
-  (match binding-<?>
-    [(binding id #f #f path)
-     (when (file-exists? path)
-       (define frame (send (send editor get-tab) get-frame))
-       (define tab (send frame find-matching-tab path))
-       (unless tab
-         (send frame open-in-new-tab path)
-         (set! tab (send frame find-matching-tab path)))
-       (define ed (send tab get-defs))
-       (force-update path)
-       (match (get-def path id)
-         [(struct* binding ([start start] [end end]))
-          (send frame change-to-tab tab)
-          (send ed set-position start end)]
-         [#f (void)]))]
+  (match (jump-to-def filepath from-pos)
+    [(binding id #f #f #t)
+     (jump-add (send editor get-tab) (send editor get-start-position))
+     (jump-to-require-path)
+     (define frame (send (send editor get-tab) get-frame))
+     (define tab (send frame get-current-tab))
+     (define new-ed (send tab get-defs))
+     (match (send new-ed get-filename)
+       [#f (void)]
+       [path
+        (match (get-def path id)
+          [(struct* binding ([start start] [end end]))
+           (send new-ed set-position start end)])])]
     [(struct* binding ([start start] [end end]))
+     (jump-add (send editor get-tab) (send editor get-start-position))
      (send editor set-position start end)]
-    [#f (void)]))
+    [_ (log:info "cannot jump to definition from ~a:~a" filepath from-pos)]))
 
-(define (jump-add pos)
-  (set! jump-stack (cons pos jump-stack)))
+(struct jump-pos (tab pos) #:transparent)
+
+(define (jump-add tab pos)
+  (log:info "jump add pos: ~a:~a" (send (send tab get-defs) get-filename) pos)
+  (set! jump-stack (cons (jump-pos tab pos) jump-stack)))
 (define (jump-pop!)
   (if (empty? jump-stack)
       #f

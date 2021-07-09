@@ -9,11 +9,11 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 (require mrlib/hierlist
          file/glob
          file-watchers
-         "../path-util.rkt"
-         "../project/current-project.rkt"
-         "../project/refresh-collect.rkt"
-         "../project/dir-state.rkt"
-         "../collect/api.rkt")
+         sauron/path-util
+         sauron/collect/api
+         sauron/project/current-project
+         sauron/project/refresh-collect
+         sauron/project/dir-state)
 
 (define set-text-mixin
   (mixin (hierarchical-list-item<%>)
@@ -114,8 +114,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                        (list 'robust 'remove _))
                    (reset-directory (send current-project get))]
                   [(list 'robust 'change path)
-                   (when (and (file-exists? path)
-                              (path-has-extension? path #".rkt"))
+                   (when (path-has-extension? path #".rkt")
                      (force-update path))]
                   [else (void)])
                 (loop))))

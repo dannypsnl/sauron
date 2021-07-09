@@ -3,7 +3,6 @@
 (provide tool@)
 
 (require drracket/tool
-
          sauron/repl/history)
 
 (define tool@

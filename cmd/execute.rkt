@@ -5,7 +5,7 @@
 (require racket/match
          racket/system
          racket/class
-         "../project/current-project.rkt")
+         sauron/project/current-project)
 
 (define (run cmd [callback #f] [dir (send current-project get)])
   (parameterize ([current-directory dir])
