@@ -18,7 +18,6 @@
     (define defs (make-hash))
 
     (define/override (syncheck:find-source-object stx)
-      (log:debug "syncheck:find-source-object ~a" (syntax-source stx))
       (and (equal? src (syntax-source stx))
            src))
 
