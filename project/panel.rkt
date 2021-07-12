@@ -1,6 +1,6 @@
 #lang racket/gui
 #|
-NOTICE:modifyfromexampleinhttps://github.com/racket/gui/blob/master/gui-doc/mrlib/scribblings/hierlist/hierlist.scrblbasedonMIT/APACHE2.0
+NOTICE: modify from example in https://github.com/racket/gui/blob/master/gui-doc/mrlib/scribblings/hierlist/hierlist.scrbl based on MIT/APACHE2.0
 origin author: https://github.com/racket/gui/graphs/contributors
 modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 |#
@@ -162,6 +162,9 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
         (define selected-parent-dir (send view get-cur-selected-parent-dir))
         (define old-path (or selected-file selected-dir))
         (define new-path (build-path selected-parent-dir name))
+        (when (directory-exists? old-path)
+          (close-dir old-path)
+          (open-dir new-path))
         (rename-file-or-directory old-path new-path)
         (send view reset-directory (send current-project get))))
 
