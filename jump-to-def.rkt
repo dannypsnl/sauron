@@ -8,21 +8,20 @@
          sauron/collect/api
          sauron/log)
 
-(define (jump-to-definition jump-to-require-path editor from-pos)
+(define (jump-to-definition editor from-pos)
   (define filepath (send editor get-filename))
   (match (jump-to-def filepath from-pos)
-    [(binding id #f #f #t)
+    [(binding id #f #f path)
      (jump-add (send editor get-tab) (send editor get-start-position))
-     (jump-to-require-path)
      (define frame (send (send editor get-tab) get-frame))
-     (define tab (send frame get-current-tab))
-     (define new-ed (send tab get-defs))
-     (match (send new-ed get-filename)
-       [#f (void)]
-       [path
-        (match (get-def path id)
-          [(struct* binding ([start start] [end end]))
-           (send new-ed set-position start end)])])]
+     (define tab-<?> (send frame find-matching-tab path))
+     (if tab-<?>
+         (send frame change-to-tab tab-<?>)
+         (send frame open-in-new-tab path))
+     (define current-editor (send (send frame get-current-tab) get-defs))
+     (match (get-def path id)
+       [(struct* binding ([start start] [end end]))
+        (send current-editor set-position start end)])]
     [(struct* binding ([start start] [end end]))
      (jump-add (send editor get-tab) (send editor get-start-position))
      (send editor set-position start end)]

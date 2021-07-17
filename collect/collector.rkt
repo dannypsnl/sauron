@@ -30,13 +30,13 @@
                       end-src-obj end-left end-right
                       actual? level require-arrow? name-dup?)
       (define id (string->symbol (send text get-text end-left end-right)))
-      (define loc
-        (if require-arrow?
-            (binding id #f #f #t)
-            (binding id start-left start-right #f)))
-      (log:debug "syncheck:add-arrow/name-dup, location: ~a" loc)
-      (interval-map-set! bindings end-left (add1 end-right)
-                         loc))
+      (unless require-arrow?
+        (interval-map-set! bindings end-left (add1 end-right)
+                           (binding id start-left start-right #f))))
+
+    (define/override (syncheck:add-jump-to-definition source-obj start end id filename submods)
+      (interval-map-set! bindings start (add1 end)
+                         (binding id #f #f filename)))
 
     (define/override (syncheck:add-definition-target source-obj start end id mods)
       (log:debug "syncheck:add-definition-target ~a:~a" source-obj id)
