@@ -26,7 +26,7 @@
       (interval-map-set! doc start (add1 end) document-page))
 
     (define/override (syncheck:add-arrow/name-dup
-                      path start-left start-right
+                      start-src-obj start-left start-right
                       end-src-obj end-left end-right
                       actual? level require-arrow? name-dup?)
       (define id (string->symbol (send text get-text end-left end-right)))
