@@ -18,10 +18,9 @@
      (if tab-<?>
          (send frame change-to-tab tab-<?>)
          (send frame open-in-new-tab path))
-     (define current-editor (send (send frame get-current-tab) get-defs))
      (match (get-def path id)
        [(struct* binding ([start start] [end end]))
-        (send current-editor set-position start end)])]
+        (send (send frame get-editor) set-position start end)])]
     [(struct* binding ([start start] [end end]))
      (jump-add (send editor get-tab) (send editor get-start-position))
      (send editor set-position start end)]
