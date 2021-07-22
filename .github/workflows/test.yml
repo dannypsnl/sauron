@@ -36,7 +36,7 @@ jobs:
           ~/.local/share/racket
         key: ${{ runner.os }}-primes
     - name: Setup Racket
-      uses: Bogdanp/setup-racket@v1.5
+      uses: Bogdanp/setup-racket@v1.6
       with:
         architecture: 'x64' # (x64 or x86), ignored on Linux
         distribution: 'minimal'
