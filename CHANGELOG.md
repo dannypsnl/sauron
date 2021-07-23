@@ -1,5 +1,7 @@
 ### To Release
 
+* [editor:fix] auto formatter: remove trailing whitespace
+
 ### v1.2.0
 
 * [editor:fix] type space in search bar won't crash now

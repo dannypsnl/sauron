@@ -40,7 +40,7 @@
                  (when (<= para end-para)
                    (define start (send this paragraph-start-position para))
                    (define end (send this paragraph-end-position para))
-                   (when (char=? #\" (send this get-character start))
+                   (when (string-contains? (send this get-text start end) "\"")
                      (set! skip-this-line? (not skip-this-line?)))
                    (set! skip-this-line? (and modifying-multiple-paras?
                                               skip-this-line?))
