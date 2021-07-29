@@ -13,6 +13,7 @@
 (define collection "sauron")
 (define deps '("base" "gui-lib" "net-lib" "data-lib"
                       "drracket-plugin-lib" "drracket-tool-lib"
+                      "try-catch-finally-lib"
                       "from-template"
                       "file-watchers"))
 (define build-deps '("scribble-lib" "racket-doc" "rackunit-lib"
