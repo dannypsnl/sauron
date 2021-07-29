@@ -35,13 +35,9 @@
                            (binding id start-left start-right #f))))
 
     (define/override (syncheck:add-jump-to-definition source-obj start end id filename submods)
-      (if (file-exists? filename)
-        (begin
-          (log:debug "syncheck:add-jump-to-definition ~a" filename)
-          (interval-map-set! bindings start (add1 end)
-                             (binding id #f #f filename)))
-        (begin
-          (log:warning "syncheck:add-jump-to-definition:bad-path ~a" filename))))
+      (log:debug "syncheck:add-jump-to-definition ~a" filename)
+      (interval-map-set! bindings start (add1 end)
+                         (binding id #f #f filename)))
 
     (define/override (syncheck:add-definition-target source-obj start end id mods)
       (log:debug "syncheck:add-definition-target ~a:~a" source-obj id)
