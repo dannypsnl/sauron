@@ -60,6 +60,5 @@
      (add-syntax stx))
    (log:info "collect-from path done: ~a" path)
    (catch _
-     (log:error "collect-from path: ~a failed" path))
-   (finally
-     (send collector build-record))))
+     (log:error "collect-from path: ~a failed" path)))
+  (send collector build-record))
