@@ -6,6 +6,7 @@
 
 (require drracket/check-syntax
          syntax/modread
+         try-catch-finally
          sauron/path-util
          sauron/collect/record
          sauron/collect/collector
@@ -47,15 +48,18 @@
   (log:info "collect-from path: ~a" path)
   (define in (open-input-string (send text get-text)))
 
-  (define ns (make-base-namespace))
-  (define-values (add-syntax done)
-    (make-traversal ns src-dir))
-  (parameterize ([current-annotations collector]
-                 [current-namespace ns]
-                 [current-load-relative-directory src-dir])
-    (define stx (expand (with-module-reading-parameterization
-                          (λ () (read-syntax path in)))))
-    (add-syntax stx))
-
-  (log:info "collect-from path done: ~a" path)
-  (send collector build-record))
+  (try
+   (define ns (make-base-namespace))
+   (define-values (add-syntax done)
+     (make-traversal ns src-dir))
+   (parameterize ([current-annotations collector]
+                  [current-namespace ns]
+                  [current-load-relative-directory src-dir])
+     (define stx (expand (with-module-reading-parameterization
+                           (λ () (read-syntax path in)))))
+     (add-syntax stx))
+   (log:info "collect-from path done: ~a" path)
+   (catch _
+     (log:error "collect-from path: ~a failed" path))
+   (finally
+     (send collector build-record))))
