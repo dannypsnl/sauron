@@ -6,8 +6,6 @@
 @title{sauron}
 @author{dannypsnl}
 
-@defmodule[sauron]
-
 Sauron works as a DrRacket plugin to provide everything an IDE shall have!
 
 @section{User Guide: As DrRacket Plugin}
