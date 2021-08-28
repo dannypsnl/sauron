@@ -7,7 +7,6 @@
 (require drracket/check-syntax
          syntax/modread
          try-catch-finally
-         sauron/path-util
          sauron/collect/record
          sauron/collect/collector
          sauron/log)
