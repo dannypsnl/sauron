@@ -21,4 +21,5 @@
 (define scribblings '(("scribblings/sauron.scrbl" (multi-page) (tool))))
 (define pkg-desc "A Racket IDE")
 (define version "1.2.0")
+(define license '(Apache-2.0 OR MIT))
 (define pkg-authors '(dannypsnl))
