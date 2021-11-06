@@ -10,6 +10,8 @@ Sauron is a plugin of DrRacket to make it be a better Racket IDE. For example,
 3. Auto formatting
 4. Jump to definition
 
+and you can see more in [user guide](https://docs.racket-lang.org/sauron/user-guide.html).
+
 ### Install
 
 ```sh
