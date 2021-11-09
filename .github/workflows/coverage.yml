@@ -33,12 +33,12 @@ jobs:
             ~/.local/share/racket
           key: ${{ runner.os }}-primes
       - name: Setup Racket
-        uses: Bogdanp/setup-racket@v1.6.1
+        uses: Bogdanp/setup-racket@v1.7
         with:
           architecture: 'x64'
           distribution: 'minimal'
           variant: 'CS'
-          version: '8.2'
+          version: '8.3'
           packages: 'cover, cover-coveralls'
       - run: raco pkg install --auto --skip-installed
       - run: |
