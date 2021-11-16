@@ -25,7 +25,8 @@ If applicable, add screenshots to help explain your problem.
 
 **Desktop (please complete the following information):**
  - OS: [e.g. MacOS, Linux, Windows]
- - Version: [e.g. 0.1.0]
+ - Sauron version: [e.g. 1.2.0]
+ - Racket version: [e.g. 8.3]
 
 **Additional context(or any ideas)**
 Add any other context about the problem here.
