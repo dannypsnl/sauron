@@ -1,7 +1,6 @@
 #lang racket/gui
 
 (require framework
-         sauron/project/current-project
          sauron/cmd/execute
          sauron/version-control/parse-git
          sauron/log)
@@ -77,11 +76,11 @@
                       [λ-add-to-ready
                        (λ (this filename)
                          (log:debug "add ~a to ready" filename)
-                         (run (format "git add ~a" (build-path (send current-project get) filename))))]
+                         (run (format "git add ~a" (build-path (preferences:get 'current-project) filename))))]
                       [λ-remove-from-ready
                        (λ (this filename)
                          (log:debug "remove ~a from ready" filename)
-                         (run (format "git reset HEAD ~a" (build-path (send current-project get) filename))))]
+                         (run (format "git reset HEAD ~a" (build-path (preferences:get 'current-project) filename))))]
                       [status kind])
                  (loop (read-line out)))))))
 
@@ -123,7 +122,7 @@
   (unless (directory-exists? testing-dir)
     (error 'file "no such dir"))
 
-  (send current-project set testing-dir)
+  (preferences:set-default 'current-project testing-dir path-string?)
   (define test-frame (new frame%
                           [label "Version Control Panel"]
                           [width 300]

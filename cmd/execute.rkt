@@ -4,10 +4,9 @@
 
 (require racket/match
          racket/system
-         racket/class
-         sauron/project/current-project)
+         framework/preferences)
 
-(define (run cmd [callback #f] [dir (send current-project get)])
+(define (run cmd [callback #f] [dir (preferences:get 'current-project)])
   (parameterize ([current-directory dir])
     (match-let ([(list out in pid err invoke) (process cmd)])
       (invoke 'wait)
@@ -22,6 +21,6 @@
 (module+ test
   (require rackunit)
 
-  (send current-project set (current-directory))
+  (preferences:set-default 'current-project (current-directory) path-string?)
   (check-equal? (run "ls")
                 (void)))

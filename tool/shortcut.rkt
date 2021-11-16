@@ -8,8 +8,7 @@
          sauron/collect/api
          sauron/version-control/pusher
          sauron/version-control/panel
-         sauron/project/manager
-         sauron/project/current-project)
+         sauron/project/manager)
 
 (define-syntax-parser cmd/ctrl+
   [(_ key fn)
@@ -134,7 +133,7 @@
                     [label "select a project"]
                     [on-select
                      (λ (path)
-                       (send current-project set path))]))
+                       (preferences:set 'current-project path))]))
              (send manager run)))
 
 (cmd/ctrl+ "d"
