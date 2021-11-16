@@ -29,6 +29,7 @@
          (update-collect cur-path subpath))]
       ['link (void)])))
 
-(preferences:add-callback 'current-project
-                          (λ (_ new-dir)
-                            (refresh-project new-dir)))
+(void
+ (preferences:add-callback 'current-project
+                           (λ (_ new-dir)
+                             (refresh-project new-dir))))
