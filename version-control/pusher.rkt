@@ -23,8 +23,4 @@
            [2 (void)]))))
 
 (module+ main
-  (require "../project/current-project.rkt")
-
-  (send current-project set (current-directory))
-
   (make-pusher "git push"))
