@@ -3,7 +3,7 @@
 (provide ignore-list)
 
 (require file/glob
-         sauron/project/current-project
+         framework/preferences
          sauron/collect/api)
 
 (define ignore-list
@@ -29,6 +29,6 @@
          (update-collect cur-path subpath))]
       ['link (void)])))
 
-(send current-project listen
-      (λ (new-dir)
-        (refresh-project new-dir)))
+(preferences:add-callback 'current-project
+                          (λ (_ new-dir)
+                            (refresh-project new-dir)))

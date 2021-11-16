@@ -7,8 +7,8 @@
          racket/gui/base
 
          sauron/project/manager
-         sauron/project/current-project
-         sauron/project/panel)
+         sauron/project/panel
+         sauron/log)
 
 (define tool@
   (unit
@@ -16,7 +16,10 @@
     (export drracket:tool-exports^)
 
     (define (phase1)
-      (preferences:set-default 'current-project #f path-string?))
+      (preferences:set-default 'current-project (current-directory) path-string?)
+      (preferences:add-callback 'current-project
+                                (λ (_ new-dir)
+                                  (log:info "current project is ~a" new-dir))))
     (define (phase2) (void))
 
     (define drracket-frame-mixin
@@ -53,10 +56,10 @@
                          [label "select a project"]
                          [on-select
                           (λ (path)
-                            (send current-project set path)
+                            (preferences:set 'current-project path)
                             (show-real-area)
                             (send c set-label "Hide the Project Viewer"))]))
-                  (if (send current-project get)
+                  (if (preferences:get 'current-project)
                       (if project-files-show?
                           (let ()
                             (close-real-area)

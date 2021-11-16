@@ -9,9 +9,9 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 (require mrlib/hierlist
          file/glob
          file-watchers
+         framework/preferences
          sauron/path-util
          sauron/collect/api
-         sauron/project/current-project
          sauron/project/refresh-collect
          sauron/project/dir-state)
 
@@ -112,15 +112,15 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                 (match (file-watcher-channel-get)
                   [(or (list 'robust 'add _)
                        (list 'robust 'remove _))
-                   (reset-directory (send current-project get))]
+                   (reset-directory (preferences:get 'current-project))]
                   [(list 'robust 'change path)
                    (when (path-has-extension? path #".rkt")
                      (force-update path))]
                   [else (void)])
                 (loop))))
-    (send current-project listen
-          (λ (new-dir)
-            (reset-directory new-dir)))))
+    (preferences:add-callback 'current-project
+                              (λ (_ new-dir)
+                                (reset-directory new-dir)))))
 
 (define project-files-pane%
   (class horizontal-pane%
@@ -146,14 +146,14 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
           [1 (define dir-name (get-text-from-user "name of directory?" ""))
              (when dir-name
                (make-directory* (build-path selected-dir dir-name)))])
-        (send view reset-directory (send current-project get)))
+        (send view reset-directory (preferences:get 'current-project)))
       (new list-box% [parent new-frame]
            [label "New"]
            [choices '("file" "directory")]
            [callback ask]))
     (define (remove-path-and-refresh btn event)
       (delete-directory/files (send view get-cur-selected-file) #:must-exist? #f)
-      (send view reset-directory (send current-project get)))
+      (send view reset-directory (preferences:get 'current-project)))
     (define (rename-path-and-refresh btn event)
       (define selected-dir (send view get-cur-selected-dir))
       (define selected-file (send view get-cur-selected-file))
@@ -166,7 +166,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
           (close-dir old-path)
           (open-dir new-path))
         (rename-file-or-directory old-path new-path)
-        (send view reset-directory (send current-project get))))
+        (send view reset-directory (preferences:get 'current-project))))
 
     (new button% [parent this]
          [label "add"]
@@ -187,7 +187,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                      [width 300] [height 300]))
 
   (new project-files-pane% [parent frame] [editor-panel #f])
-  (send current-project set (current-directory))
+  (preferences:set-default 'current-project (current-directory) path-string?)
 
   (send frame center)
   (send frame show #t))
