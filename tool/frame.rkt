@@ -15,7 +15,8 @@
     (import drracket:tool^)
     (export drracket:tool-exports^)
 
-    (define (phase1) (void))
+    (define (phase1)
+      (preferences:set-default 'current-project #f path-string?))
     (define (phase2) (void))
 
     (define drracket-frame-mixin
