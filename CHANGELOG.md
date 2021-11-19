@@ -1,7 +1,7 @@
 ### To Release
 
-- [editor:fix] auto formatter: remove trailing whitespace
 - [preferences] expose `'current-project` in preferences
+- [editor:fix] auto formatter: remove trailing whitespace
 
 ### v1.2.0
 
