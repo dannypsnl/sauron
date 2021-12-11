@@ -38,7 +38,7 @@ jobs:
           architecture: "x64"
           distribution: "minimal"
           variant: "CS"
-          version: "8.3"
+          version: "stable"
           packages: "cover, cover-coveralls"
       - run: raco pkg install --auto --skip-installed
       - run: |
