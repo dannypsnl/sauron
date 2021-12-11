@@ -3,17 +3,17 @@ name: Coverage
 on:
   push:
     branches:
-    - '*'
+      - "*"
     paths:
-    - '**coverage.yml'
-    - '**.rkt'
-    - '**.scrbl'
+      - "**coverage.yml"
+      - "**.rkt"
+      - "**.scrbl"
   pull_request:
     branches:
-    - '*'
+      - "*"
     paths:
-    - '**.rkt'
-    - '**.scrbl'
+      - "**.rkt"
+      - "**.scrbl"
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -35,12 +35,12 @@ jobs:
       - name: Setup Racket
         uses: Bogdanp/setup-racket@v1.7
         with:
-          architecture: 'x64'
-          distribution: 'minimal'
-          variant: 'CS'
-          version: '8.3'
-          packages: 'cover, cover-coveralls'
+          architecture: "x64"
+          distribution: "minimal"
+          variant: "CS"
+          version: "8.3"
+          packages: "cover, cover-coveralls"
       - run: raco pkg install --auto --skip-installed
       - run: |
-          xvfb-run -a make test
+          xvfb-run -a raco test .
           xvfb-run -a raco cover -n tool -b -f coveralls .

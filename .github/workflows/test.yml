@@ -3,17 +3,17 @@ name: Test
 on:
   push:
     branches:
-    - '*'
+      - "*"
     paths:
-    - '**test.yml'
-    - '**.rkt'
-    - '**.scrbl'
+      - "**test.yml"
+      - "**.rkt"
+      - "**.scrbl"
   pull_request:
     branches:
-    - '*'
+      - "*"
     paths:
-    - '**.rkt'
-    - '**.scrbl'
+      - "**.rkt"
+      - "**.scrbl"
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -22,23 +22,23 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        variant: [ 'BC', 'CS' ]
-        version: [ '8.2', '8.3' ]
+        variant: ["BC", "CS"]
+        version: ["8.2", "8.3"]
     steps:
-    - uses: actions/checkout@master
-    - name: Cache installed packages
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.cache/racket
-          ~/.local/share/racket
-        key: ${{ runner.os }}-primes
-    - name: Setup Racket
-      uses: Bogdanp/setup-racket@v1.7
-      with:
-        architecture: 'x64' # (x64 or x86), ignored on Linux
-        distribution: 'minimal'
-        variant: ${{ matrix.variant }}
-        version: ${{ matrix.version }}
-    - run: raco pkg install --auto --skip-installed
-    - run: xvfb-run -a make test
+      - uses: actions/checkout@master
+      - name: Cache installed packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/racket
+            ~/.local/share/racket
+          key: ${{ runner.os }}-primes
+      - name: Setup Racket
+        uses: Bogdanp/setup-racket@v1.7
+        with:
+          architecture: "x64" # (x64 or x86), ignored on Linux
+          distribution: "minimal"
+          variant: ${{ matrix.variant }}
+          version: ${{ matrix.version }}
+      - run: raco pkg install --auto --skip-installed
+      - run: xvfb-run -a raco test .
