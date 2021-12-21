@@ -1,5 +1,6 @@
 ### To Release
 
+- [bundle] [drcomplete](https://github.com/yjqww6/drcomplete)
 - [preferences] expose `'current-project` in preferences
 - [editor:fix] auto formatter: remove trailing whitespace
 
