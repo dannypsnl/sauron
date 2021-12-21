@@ -14,8 +14,10 @@
 (define deps '("base" "gui-lib" "net-lib" "data-lib"
                       "drracket-plugin-lib" "drracket-tool-lib"
                       "try-catch-finally-lib"
+                      "file-watchers"
+                      ; bundle
                       "from-template"
-                      "file-watchers"))
+                      "drcomplete"))
 (define build-deps '("scribble-lib" "racket-doc" "rackunit-lib"
                                     "gui-doc"))
 (define scribblings '(("scribblings/sauron.scrbl" (multi-page) (tool))))
