@@ -3,7 +3,8 @@
 (provide project-manager%)
 
 (require sauron/cmd/raco
-         sauron/path-util)
+         sauron/path-util
+         "project-templates.rkt")
 
 (define project-manager%
   (class frame%
@@ -84,14 +85,7 @@
                                    [height 600] [width 600]))
             (new list-box% [parent tmp-frame]
                  [label "template"]
-                 [choices '("rosette-template"
-                            "cli-command"
-                            "ppict-slideshow-template"
-                            "package"
-                            "raco-command"
-                            "lang"
-                            "web-app"
-                            "gui-app")]
+                 [choices project-templates]
                  [callback
                   (λ (template-selection event)
                     (define evt-type (send event get-event-type))
