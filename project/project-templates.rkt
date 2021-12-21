@@ -12,3 +12,8 @@
                  get-pure-port
                  (compose string->jsexpr port->string))])
     (hash-ref e 'name)))
+
+(module+ test
+  (require rackunit)
+
+  (check-pred list? project-templates))
