@@ -13,7 +13,8 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          sauron/path-util
          sauron/collect/api
          sauron/project/refresh-collect
-         sauron/project/dir-state)
+         sauron/project/dir-state
+         sauron/path/renamer)
 
 (define set-text-mixin
   (mixin (hierarchical-list-item<%>)
@@ -165,7 +166,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
         (when (dir-open? old-path)
           (close-dir old-path)
           (open-dir new-path))
-        (rename-file-or-directory old-path new-path)
+        (auto-rename old-path new-path)
         (send view reset-directory (preferences:get 'current-project))))
 
     (new button% [parent this]
