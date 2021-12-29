@@ -1,10 +1,11 @@
-#lang racket/base
+#lang racket/gui
 
-(provide collector%)
+(provide collect-from)
 
-(require racket/class
-         drracket/check-syntax
+(require drracket/check-syntax
+         syntax/modread
          data/interval-map
+         try-catch-finally
          sauron/collect/binding
          sauron/collect/record
          sauron/log)
@@ -24,6 +25,9 @@
     (define/override (syncheck:add-docs-menu source-obj start end id _label definition-tag document-page _tag)
       (log:debug "syncheck:add-docs-menu ~a" document-page)
       (interval-map-set! doc start (add1 end) document-page))
+
+    (define/override (syncheck:add-require-open-menu source-obj start end required-file)
+      (println (list "require" (find-relative-path (path-only source-obj) required-file))))
 
     (define/override (syncheck:add-arrow/name-dup
                       start-src-obj start-left start-right
@@ -49,3 +53,34 @@
               bindings
               defs))
     (super-new)))
+
+(define (collect-from path)
+  (define text (new text%))
+  (send text load-file path)
+  (define collector
+    (new collector%
+         [src path]
+         [text text]))
+  (define-values (src-dir file dir?)
+    (split-path path))
+  (log:info "collect-from path: ~a" path)
+  (define in (open-input-string (send text get-text)))
+
+  (try
+   (define ns (make-base-namespace))
+   (define-values (add-syntax done)
+     (make-traversal ns src-dir))
+   (parameterize ([current-annotations collector]
+                  [current-namespace ns]
+                  [current-load-relative-directory src-dir])
+     (define stx (expand (with-module-reading-parameterization
+                           (λ () (read-syntax path in)))))
+     (add-syntax stx))
+   (log:info "collect-from path done: ~a" path)
+   (catch _
+     (log:error "collect-from path: ~a failed" path)))
+  (send collector build-record))
+
+(module+ test
+  (void (collect-from (normalize-path "collector.rkt")))
+  )
