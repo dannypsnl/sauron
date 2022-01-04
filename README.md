@@ -5,7 +5,7 @@
 
 Sauron is a plugin of DrRacket to make it be a better Racket IDE. For example,
 
-1. Refatoring
+1. Refactoring
 2. File explorer
 3. Auto formatting
 4. Jump to definition
