@@ -10,7 +10,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          file/glob
          file-watchers
          framework/preferences
-         sauron/path-util
+         "../path/util.rkt"
          sauron/collect/api
          sauron/project/refresh-collect
          sauron/project/dir-state)

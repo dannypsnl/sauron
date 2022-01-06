@@ -15,4 +15,4 @@
 (module+ test
   (require rackunit)
 
-  (check-equal? (basename (current-directory)) "sauron"))
+  (check-equal? (basename (current-directory)) "path"))
