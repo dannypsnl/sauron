@@ -22,5 +22,6 @@
          (define-values (start end) to-update-loc)
          (define t (new text%))
          (send t load-file f)
-         (send t insert (path->string (find-relative-path root new-path)) start end))]
+         (send t insert (path->string (find-relative-path root new-path)) start end)
+         (send t save-file))]
       [else (void)])))
