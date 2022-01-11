@@ -17,6 +17,7 @@
     (define doc (make-interval-map))
     (define bindings (make-interval-map))
     (define defs (make-hash))
+    (define requires (make-hash))
 
     (define/override (syncheck:find-source-object stx)
       (and (equal? src (syntax-source stx))
@@ -27,7 +28,8 @@
       (interval-map-set! doc start (add1 end) document-page))
 
     (define/override (syncheck:add-require-open-menu source-obj start end required-file)
-      (println (list "require" (find-relative-path (path-only source-obj) required-file))))
+      (log:debug "require ~a" required-file)
+      (hash-set! requires required-file (values start end)))
 
     (define/override (syncheck:add-arrow/name-dup
                       start-src-obj start-left start-right
@@ -51,7 +53,8 @@
       (record (current-seconds)
               doc
               bindings
-              defs))
+              defs
+              requires))
     (super-new)))
 
 (define (collect-from path)
@@ -81,6 +84,6 @@
      (log:error "collect-from path: ~a failed" path)))
   (send collector build-record))
 
-(module+ test
-  (void (collect-from (normalize-path "collector.rkt")))
+(module+ main
+  (collect-from (normalize-path "collector.rkt"))
   )

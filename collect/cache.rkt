@@ -4,8 +4,7 @@
          force-update
          update)
 
-(require drracket/check-syntax
-         racket/match
+(require racket/match
          sauron/collect/record
          sauron/collect/collector
          sauron/log)
