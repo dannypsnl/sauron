@@ -7,7 +7,7 @@
 
 (require racket/logging
          racket/list
-         sauron/path-util)
+         "path/util.rkt")
 
 (define port (open-output-file (build-path config-dir "debug-log")
                                #:exists 'append))
