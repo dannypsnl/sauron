@@ -19,7 +19,7 @@
       [(file-exists? f)
        (define to-update-loc (require-location? f old-path))
        (when to-update-loc
-         (define-values (start end) to-update-loc)
+         (match-define (list start end) to-update-loc)
          (define t (new text%))
          (send t load-file f)
          (send t insert (path->string (find-relative-path root new-path)) start end)

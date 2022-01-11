@@ -29,7 +29,7 @@
 
     (define/override (syncheck:add-require-open-menu source-obj start end required-file)
       (log:debug "require ~a" required-file)
-      (hash-set! requires required-file (values start end)))
+      (hash-set! requires required-file (list start end)))
 
     (define/override (syncheck:add-arrow/name-dup
                       start-src-obj start-left start-right
