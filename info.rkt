@@ -15,6 +15,7 @@
                       "drracket-plugin-lib" "drracket-tool-lib"
                       "try-catch-finally-lib"
                       "file-watchers"
+                      "raco-invoke"
                       ; bundle
                       "from-template"
                       "drcomplete"))

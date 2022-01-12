@@ -2,7 +2,7 @@
 
 (provide project-manager%)
 
-(require sauron/cmd/raco
+(require raco/invoke
          "../path/util.rkt"
          "project-templates.rkt")
 
