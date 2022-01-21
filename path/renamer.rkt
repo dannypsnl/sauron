@@ -3,13 +3,13 @@
 (provide auto-rename)
 
 (require racket/gui
-         framework/preferences
          "../log.rkt"
          "../collect/api.rkt")
 
-(define (auto-rename old-path new-path)
-  (define current-project-dir (preferences:get 'current-project))
-  (define racket-files (find-files (lambda (p) (path-has-extension? p #".rkt"))))
+(define (auto-rename dir old-path new-path)
+  (define racket-files (find-files (lambda (p) (path-has-extension? p #".rkt"))
+                                   ; start from given dir
+                                   dir))
   (for ([f racket-files])
     (define to-update-loc (require-location? f old-path))
     (when to-update-loc
