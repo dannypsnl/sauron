@@ -95,4 +95,4 @@ It has three buttons for quick modify as the following list.
 
 @section{Special symbol(LaTeX/Agda like) support}
 
-Sauron also supports convert input \all to ∀. This is helpful for PLT/Math researchers. Full list can refer to @code[#:lang "racket"]{latex-complete} in @(link "https://github.com/racket-tw/sauron/blob/master/meta.rkt" "meta.rkt").
+Sauron also supports convert input \all to ∀. This is helpful for PLT/Math researchers. Full list can refer to @code[#:lang "racket"]{latex-complete} in @(link "https://github.com/racket-tw/sauron/blob/develop/meta.rkt" "meta.rkt").
