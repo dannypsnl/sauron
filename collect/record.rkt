@@ -1,7 +1,6 @@
-#lang racket
-
+#lang racket/base
 (provide (struct-out record))
 
 (struct record
-  (created-time doc bindings defs)
+  (created-time doc bindings defs requires)
   #:transparent)

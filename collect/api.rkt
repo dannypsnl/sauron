@@ -1,5 +1,4 @@
 #lang racket
-
 (provide (all-defined-out)
          force-update
          update)
@@ -8,6 +7,10 @@
          sauron/collect/record
          sauron/collect/cache)
 
+(define (require-location? path require)
+  (match-define (struct* record ([requires requires]))
+    (get-record path))
+  (hash-ref requires require #f))
 (define (get-doc path)
   (match-define (struct* record ([doc doc]))
     (get-record path))
