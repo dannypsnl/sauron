@@ -89,7 +89,7 @@ It has three buttons for quick modify as the following list.
  @item{interactive with files}
  @item{open file via double click}
  @item{add file/directory}
- @item{rename file/directory}
+ @item{rename file/directory, a nice feature is those files imported it will get update}
  @item{remove file/directory}
  ]
 
