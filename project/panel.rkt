@@ -167,6 +167,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
           (close-dir old-path)
           (open-dir new-path))
         (auto-rename (preferences:get 'current-project)
+                     editor-panel
                      old-path new-path)
         (send view reset-directory (preferences:get 'current-project))))
 
