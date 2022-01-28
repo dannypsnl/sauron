@@ -1,9 +1,10 @@
 ### To Release
 
+- [project] save file to current project by default
 - [project] rename file will update files imported it
-- [bundle] [drcomplete](https://github.com/yjqww6/drcomplete)
+- [misc] bundle [drcomplete](https://github.com/yjqww6/drcomplete)
 - [preferences] expose `'current-project` in preferences, one can use `(preferences:get 'current-project)` for co-work plugin
-- [editor:fix] auto formatter: remove trailing whitespace
+- [editor:fix] fix remove trailing whitespace problem in auto formatter
 
 ### v1.2.0
 
