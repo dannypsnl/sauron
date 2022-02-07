@@ -45,9 +45,12 @@
 (cmd/ctrl+ "s"
            (λ (editor event)
              (define project-dir (preferences:get 'current-project))
-             (if project-dir
-                 (finder:put-file "Untitled" project-dir)
-                 (finder:put-file))))
+             (define filename (send editor get-filename))
+             (if filename
+                 (send editor save-file)
+                 (if project-dir
+                     (finder:put-file "Untitled" project-dir)
+                     (finder:put-file)))))
 ;;; c+x cut line if no selection, else cut selection
 (cmd/ctrl+ "x"
            (λ (editor event)
