@@ -1,5 +1,6 @@
 ### To Release
 
+- [project:fix] sauron now can work without network by using hard-coded list when no networking
 - [project] save file to current project by default
 - [project] rename file will update files imported it
 - [misc] bundle [drcomplete](https://github.com/yjqww6/drcomplete)
