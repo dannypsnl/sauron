@@ -13,9 +13,11 @@
 (define collection "sauron")
 (define deps '("base" "gui-lib" "net-lib" "data-lib"
                       "drracket-plugin-lib" "drracket-tool-lib"
-                      "try-catch-finally-lib"
                       "file-watchers"
                       "raco-invoke"
+                      ; syntax
+                      "try-catch-finally-lib"
+                      "curly-fn-lib"
                       ; bundle
                       "from-template"
                       "drcomplete"))
