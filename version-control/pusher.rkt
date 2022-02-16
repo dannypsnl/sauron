@@ -1,5 +1,4 @@
 #lang racket/gui
-
 (provide make-pusher)
 
 (require sauron/cmd/execute)
@@ -9,8 +8,7 @@
   (run "git log fetch_head..head --oneline"
        (λ (out in err)
          (define logs
-           (string-join (for/list ([line (in-lines out)])
-                          line)
+           (string-join (sequence->list (in-lines out))
                         "\n"))
          (define result
            (message-box/custom "Push Commits"
@@ -23,4 +21,7 @@
            [2 (void)]))))
 
 (module+ main
+  (require framework/preferences)
+
+  (preferences:set-default 'current-project (current-directory) path-string?)
   (make-pusher "git push"))
