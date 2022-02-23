@@ -24,3 +24,11 @@ After installation, restart your DrRacket is required, then go to [user guide][u
 - [drcomplete](https://github.com/yjqww6/drcomplete): this plugin can help you get better completion, with sauron, completion would be triggered by default gives you a better experience. NOTE: only recommend for >=8.0 users since performance issue
 
 [user-guide]: https://docs.racket-lang.org/sauron/user-guide.html
+
+### Development
+
+Install Git Hooks
+
+```sh
+ln -sf $(pwd)/.hooks/pre-commit $(pwd)/.git/hooks/pre-commit
+```
