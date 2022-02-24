@@ -17,8 +17,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          sauron/path/renamer)
 
 (define set-text-mixin
-  (mixin (hierarchical-list-item<%>)
-    ((interface () set-text))
+  (mixin (hierarchical-list-item<%>) ((interface () set-text))
     (inherit get-editor)
     (super-new)
     ; set-text: this sets the label of the item
@@ -27,12 +26,11 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (send t erase)
       (send t insert str))))
 
-(struct selected
-  (dir file parent-dir)
-  #:transparent)
+(struct selected (dir file parent-dir) #:transparent)
 
 (define project-files%
-  (class hierarchical-list% (init editor-panel)
+  (class hierarchical-list%
+    (init editor-panel)
     (define the-editor-panel editor-panel)
     ; new-item : create new item for a file or directory
     (define (new-item parent-dir directory subpath)
@@ -44,17 +42,13 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
           ['file
            (define item (send parent-dir new-item set-text-mixin))
            (send* item
-             [set-text (path->string subpath)]
-             [user-data (selected directory
-                                  cur-path
-                                  directory)])]
+                  [set-text (path->string subpath)]
+                  [user-data (selected directory cur-path directory)])]
           ['directory
            (define item (send parent-dir new-list set-text-mixin))
            (send* item
-             [set-text (path->string subpath)]
-             [user-data (selected cur-path
-                                  cur-path
-                                  directory)])
+                  [set-text (path->string subpath)]
+                  [user-data (selected cur-path cur-path directory)])
            (for ([subpath (directory-list cur-path)])
              (new-item item cur-path subpath))]
           ['link (void)])))
@@ -83,8 +77,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (define/public (get-cur-selected-file) (selected-file current-selected))
     (define/public (get-cur-selected-parent-dir) (selected-parent-dir current-selected))
 
-    (define/override (on-select i)
-      (set! current-selected (send i user-data)))
+    (define/override (on-select i) (set! current-selected (send i user-data)))
     (define/override (on-double-select i)
       (define path (selected-file (send i user-data)))
       (when (file-exists? path) ;; when double-click a file, open it in editor
@@ -111,8 +104,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (thread (λ ()
               (let loop ()
                 (match (file-watcher-channel-get)
-                  [(or (list 'robust 'add _)
-                       (list 'robust 'remove _))
+                  [(or (list 'robust 'add _) (list 'robust 'remove _))
                    (reset-directory (preferences:get 'current-project))]
                   [(list 'robust 'change path)
                    (when (path-has-extension? path #".rkt")
@@ -121,37 +113,34 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                 (loop))))
     (preferences:add-callback 'current-project
                               (λ (_ new-dir)
-                                (reset-directory new-dir)))))
+                                (when (path-string? new-dir)
+                                  (reset-directory new-dir))))))
 
 (define project-files-pane%
   (class horizontal-pane%
     (init-field parent editor-panel)
     (super-new [parent parent])
 
-    (define view (new project-files% [parent parent]
-                      [editor-panel editor-panel]))
+    (define view (new project-files% [parent parent] [editor-panel editor-panel]))
 
     (define (add-file/dir btn event)
       (define new-frame (new frame% [label "New"] [width 300] [height 300]))
-      (send* new-frame
-        [show #t]
-        [center])
+      (send* new-frame [show #t] [center])
       (define (ask box event)
         (send new-frame show #f)
         (define selected-dir (send view get-cur-selected-dir))
         (match (first (send box get-selections))
-          [0 (define file-name (get-text-from-user "name of file?" ""))
-             (when file-name
-               (define path (build-path selected-dir file-name))
-               (ensure-file path))]
-          [1 (define dir-name (get-text-from-user "name of directory?" ""))
-             (when dir-name
-               (make-directory* (build-path selected-dir dir-name)))])
+          [0
+           (define file-name (get-text-from-user "name of file?" ""))
+           (when file-name
+             (define path (build-path selected-dir file-name))
+             (ensure-file path))]
+          [1
+           (define dir-name (get-text-from-user "name of directory?" ""))
+           (when dir-name
+             (make-directory* (build-path selected-dir dir-name)))])
         (send view reset-directory (preferences:get 'current-project)))
-      (new list-box% [parent new-frame]
-           [label "New"]
-           [choices '("file" "directory")]
-           [callback ask]))
+      (new list-box% [parent new-frame] [label "New"] [choices '("file" "directory")] [callback ask]))
     (define (remove-path-and-refresh btn event)
       (delete-directory/files (send view get-cur-selected-file) #:must-exist? #f)
       (send view reset-directory (preferences:get 'current-project)))
@@ -166,28 +155,19 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
         (when (dir-open? old-path)
           (close-dir old-path)
           (open-dir new-path))
-        (auto-rename (preferences:get 'current-project)
-                     editor-panel
-                     old-path new-path)
+        (auto-rename (preferences:get 'current-project) editor-panel old-path new-path)
         (send view reset-directory (preferences:get 'current-project))))
 
-    (new button% [parent this]
-         [label "add"]
-         [callback add-file/dir])
-    (new button% [parent this]
-         [label "remove"]
-         [callback remove-path-and-refresh])
-    (new button% [parent this]
-         [label "rename"]
-         [callback rename-path-and-refresh])))
+    (new button% [parent this] [label "add"] [callback add-file/dir])
+    (new button% [parent this] [label "remove"] [callback remove-path-and-refresh])
+    (new button% [parent this] [label "rename"] [callback rename-path-and-refresh])))
 
 (define (ensure-file path)
   (make-parent-directory* path)
   (close-output-port (open-output-file path #:exists 'append)))
 
 (module+ main
-  (define frame (new frame% [label "test: project files"]
-                     [width 300] [height 300]))
+  (define frame (new frame% [label "test: project files"] [width 300] [height 300]))
 
   (new project-files-pane% [parent frame] [editor-panel #f])
   (preferences:set-default 'current-project (current-directory) path-string?)
@@ -200,6 +180,5 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
   (test-case ""
              (ensure-file "tmp")
-             (check-equal? (file-exists? "tmp")
-                           #t)
+             (check-equal? (file-exists? "tmp") #t)
              (delete-directory/files "tmp")))

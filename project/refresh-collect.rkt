@@ -1,16 +1,11 @@
 #lang racket
-
 (provide ignore-list)
 
 (require file/glob
          framework/preferences
          sauron/collect/api)
 
-(define ignore-list
-  '(".git"
-    "compiled"
-    "doc"
-    ".DS_Store"))
+(define ignore-list '(".git" "compiled" "doc" ".DS_Store"))
 
 (define (refresh-project dir)
   (for ([sub (directory-list dir)])
@@ -29,7 +24,7 @@
          (update-collect cur-path subpath))]
       ['link (void)])))
 
-(void
- (preferences:add-callback 'current-project
-                           (λ (_ new-dir)
-                             (refresh-project new-dir))))
+(void (preferences:add-callback 'current-project
+                                (λ (_ new-dir)
+                                  (when (path-string? new-dir)
+                                    (refresh-project new-dir)))))
