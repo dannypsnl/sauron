@@ -11,11 +11,9 @@
          sauron/project/manager)
 
 (define-syntax-parser cmd/ctrl+
-  [(_ key fn)
-   #'(keybinding (c+ key) fn)])
+  [(_ key fn) #'(keybinding (c+ key) fn)])
 (define-syntax-parser opt/alt+
-  [(_ key fn)
-   #'(keybinding (o+ key) fn)])
+  [(_ key fn) #'(keybinding (o+ key) fn)])
 
 (define (c+ key)
   (match (system-type 'os)
@@ -30,27 +28,21 @@
     ;; `~c` is alt
     [_ (string-append "~c:" key)]))
 (define (send-command command editor event)
-  (send (send editor get-keymap) call-function
-        command editor event #t))
+  (send (send editor get-keymap) call-function command editor event #t))
 
 ;;; c+e run REPL
-(cmd/ctrl+ "e"
-           (λ (editor event)
-             (send-command "run" editor event)))
+(cmd/ctrl+ "e" (λ (editor event) (send-command "run" editor event)))
 ;;; c+r rename identifier
-(cmd/ctrl+ "r"
-           (λ (editor event)
-             (send-command "Rename Identifier" editor event)))
+(cmd/ctrl+ "r" (λ (editor event) (send-command "Rename Identifier" editor event)))
 ;;; c+s save file
 (cmd/ctrl+ "s"
            (λ (editor event)
-             (define project-dir (preferences:get 'current-project))
-             (define filename (send editor get-filename))
-             (if filename
-                 (send editor save-file)
-                 (if project-dir
-                     (finder:put-file "Untitled" project-dir)
-                     (finder:put-file)))))
+             (when (object-method-arity-includes? editor 'set-needs-execution-message 1)
+               (define project-dir (preferences:get 'current-project))
+               (define filename (send editor get-filename))
+               (if filename
+                   (send editor save-file)
+                   (if project-dir (finder:put-file "Untitled" project-dir) (finder:put-file))))))
 ;;; c+x cut line if no selection, else cut selection
 (cmd/ctrl+ "x"
            (λ (editor event)
@@ -65,15 +57,11 @@
                    (send editor set-position start end)))
                (send-command "cut-clipboard" editor event))))
 ;;; c+b jump to definition
-(cmd/ctrl+ "b"
-           (λ (editor event)
-             (jump-to-definition editor (send editor get-start-position))))
-(cmd/ctrl+ "leftbutton"
-           (λ (editor event)
-             (jump-to-definition editor
-                                 (send editor find-position
-                                       (send event get-x)
-                                       (send event get-y)))))
+(cmd/ctrl+ "b" (λ (editor event) (jump-to-definition editor (send editor get-start-position))))
+(cmd/ctrl+
+ "leftbutton"
+ (λ (editor event)
+   (jump-to-definition editor (send editor find-position (send event get-x) (send event get-y)))))
 (cmd/ctrl+ "s:b"
            (λ (editor event)
              (match (jump-pop!)
@@ -102,19 +90,20 @@
               (send editor delete pre-sexp-pos cur-pos))))
 
 ;;; comment/uncomment selected text, if no selected text, target is current line
-(cmd/ctrl+ "semicolon"
-           (λ (editor event)
-             ; NOTE: get-start-position and get-end-position would have same value when no selected text
-             ; following code comment all lines of selected text(or automatically select cursor line)
-             (let* ([start-line (send editor position-line (send editor get-start-position))]
-                    [end-line (send editor position-line (send editor get-end-position))]
-                    [start (send editor line-start-position start-line)]
-                    [end (send editor line-end-position end-line)]
-                    [selected-text (send editor get-text start end)])
-               (if (string-contains? selected-text ";")
-                   (send editor uncomment-selection start end)
-                   (send editor comment-out-selection start end))
-               (send editor set-position start))))
+(cmd/ctrl+
+ "semicolon"
+ (λ (editor event)
+   ; NOTE: get-start-position and get-end-position would have same value when no selected text
+   ; following code comment all lines of selected text(or automatically select cursor line)
+   (let* ([start-line (send editor position-line (send editor get-start-position))]
+          [end-line (send editor position-line (send editor get-end-position))]
+          [start (send editor line-start-position start-line)]
+          [end (send editor line-end-position end-line)]
+          [selected-text (send editor get-text start end)])
+     (if (string-contains? selected-text ";")
+         (send editor uncomment-selection start end)
+         (send editor comment-out-selection start end))
+     (send editor set-position start))))
 
 (define vc-open? #f)
 (define frame-<?> #f)
@@ -124,8 +113,7 @@
                (class frame%
                  (super-new [label "Version Control: Commit"] [width 300] [height 600])
 
-                 (define/augment (on-close)
-                   (set! vc-open? #f))))
+                 (define/augment (on-close) (set! vc-open? #f))))
              (unless vc-open?
                (set! vc-open? #t)
                (set! frame-<?> (new vc-frame%))
@@ -141,36 +129,35 @@
              (define manager
                (new project-manager%
                     [label "select a project"]
-                    [on-select
-                     (λ (path)
-                       (preferences:set 'current-project path))]))
+                    [on-select (λ (path) (preferences:set 'current-project path))]))
              (send manager run)))
 
-(cmd/ctrl+ "d"
-           (λ (editor event)
-             (define doc-page? (interval-map-ref (get-doc (send editor get-filename))
-                                                 (send editor get-start-position) #f))
-             (when doc-page?
-               (send-url/file doc-page? #f))))
+(cmd/ctrl+
+ "d"
+ (λ (editor event)
+   (define doc-page?
+     (interval-map-ref (get-doc (send editor get-filename)) (send editor get-start-position) #f))
+   (when doc-page?
+     (send-url/file doc-page? #f))))
 
 (keybinding "(" (λ (editor event) (send-command "insert-()-pair" editor event)))
 (keybinding "[" (λ (editor event) (send-command "insert-[]-pair" editor event)))
 (keybinding "{" (λ (editor event) (send-command "insert-{}-pair" editor event)))
 (keybinding "\"" (λ (editor event) (send-command "insert-\"\"-pair" editor event)))
 
-(keybinding "space"
-            (λ (editor event)
-              (when (object-method-arity-includes? editor 'get-backward-sexp 1)
-                (define end (send editor get-start-position))
-                (define start (send editor get-backward-sexp end))
-                (when start
-                  (define to-complete (send editor get-text start end))
-                  (when (string-prefix? to-complete "\\")
-                    ;;; select previous sexp
-                    (send editor set-position start end)
-                    ;;; replace it with new text
-                    (send editor insert
-                          (hash-ref latex-complete
-                                    (string-trim to-complete "\\" #:right? #f)
-                                    to-complete)))))
-              (send editor insert " ")))
+(keybinding
+ "space"
+ (λ (editor event)
+   (when (object-method-arity-includes? editor 'get-backward-sexp 1)
+     (define end (send editor get-start-position))
+     (define start (send editor get-backward-sexp end))
+     (when start
+       (define to-complete (send editor get-text start end))
+       (when (string-prefix? to-complete "\\")
+         ;;; select previous sexp
+         (send editor set-position start end)
+         ;;; replace it with new text
+         (send editor
+               insert
+               (hash-ref latex-complete (string-trim to-complete "\\" #:right? #f) to-complete)))))
+   (send editor insert " ")))
