@@ -57,7 +57,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
     ; Set the top level item, and populate it with an entry
     ; for each item in the directory.
-    (define/public (reset-directory dir)
+    (define/public (refresh-directory dir)
       (when current-watcher
         (thread-suspend current-watcher))
       (set! current-watcher (robust-watch dir))
@@ -105,7 +105,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
               (let loop ()
                 (match (file-watcher-channel-get)
                   [(or (list 'robust 'add _) (list 'robust 'remove _))
-                   (reset-directory (preferences:get 'current-project))]
+                   (refresh-directory (preferences:get 'current-project))]
                   [(list 'robust 'change path)
                    (when (path-has-extension? path #".rkt")
                      (force-update path))]
@@ -114,7 +114,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (preferences:add-callback 'current-project
                               (λ (_ new-dir)
                                 (when (path-string? new-dir)
-                                  (reset-directory new-dir))))))
+                                  (refresh-directory new-dir))))))
 
 (define project-files-pane%
   (class horizontal-pane%
@@ -139,11 +139,11 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
            (define dir-name (get-text-from-user "name of directory?" ""))
            (when dir-name
              (make-directory* (build-path selected-dir dir-name)))])
-        (send view reset-directory (preferences:get 'current-project)))
+        (send view refresh-directory (preferences:get 'current-project)))
       (new list-box% [parent new-frame] [label "New"] [choices '("file" "directory")] [callback ask]))
     (define (remove-path-and-refresh btn event)
       (delete-directory/files (send view get-cur-selected-file) #:must-exist? #f)
-      (send view reset-directory (preferences:get 'current-project)))
+      (send view refresh-directory (preferences:get 'current-project)))
     (define (rename-path-and-refresh btn event)
       (define selected-dir (send view get-cur-selected-dir))
       (define selected-file (send view get-cur-selected-file))
@@ -156,7 +156,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
           (close-dir old-path)
           (open-dir new-path))
         (auto-rename (preferences:get 'current-project) editor-panel old-path new-path)
-        (send view reset-directory (preferences:get 'current-project))))
+        (send view refresh-directory (preferences:get 'current-project))))
 
     (new button% [parent this] [label "add"] [callback add-file/dir])
     (new button% [parent this] [label "remove"] [callback remove-path-and-refresh])
