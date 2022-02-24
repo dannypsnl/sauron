@@ -117,10 +117,9 @@
              (unless vc-open?
                (set! vc-open? #t)
                (set! frame-<?> (new vc-frame%))
-               (define vc (new version-control% [parent frame-<?>]))
-               (send frame-<?> center))
+               (new version-control% [parent frame-<?>]))
              (when frame-<?>
-               (send frame-<?> show #t))))
+               (send* frame-<?> [center] [show #t]))))
 (cmd/ctrl+ "s:k" (λ (editor event) (make-pusher "push")))
 (cmd/ctrl+ "s:p" (λ (editor event) (make-pusher "pull")))
 
