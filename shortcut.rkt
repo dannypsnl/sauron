@@ -83,11 +83,12 @@
 ;;; delete previous sexp
 (opt/alt+ "backspace"
           (λ (editor event)
-            (define cur-pos (send editor get-start-position))
-            (define pre-sexp-pos (send editor get-backward-sexp cur-pos))
-            ; ensure pre-sexp existed
-            (when pre-sexp-pos
-              (send editor delete pre-sexp-pos cur-pos))))
+            (when (object-method-arity-includes? editor 'get-backward-sexp 1)
+              (let* ([cur-pos (send editor get-start-position)]
+                     [pre-sexp-pos (send editor get-backward-sexp cur-pos)])
+                ; ensure pre-sexp existed
+                (when pre-sexp-pos
+                  (send editor delete pre-sexp-pos cur-pos))))))
 
 ;;; comment/uncomment selected text, if no selected text, target is current line
 (cmd/ctrl+
@@ -147,7 +148,8 @@
 (keybinding
  "space"
  (λ (editor event)
-   (when (object-method-arity-includes? editor 'get-backward-sexp 1)
+   (when (and (object-method-arity-includes? editor 'get-backward-sexp 1)
+              (object-method-arity-includes? editor 'insert 1))
      (define end (send editor get-start-position))
      (define start (send editor get-backward-sexp end))
      (when start
