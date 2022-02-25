@@ -1,5 +1,7 @@
 ### To Release
 
+- [editor:fix] `space` will work under "show log" now
+
 ### v1.3.0
 
 - [shortcut:fix] `o+backspace` and `space` on improper editor

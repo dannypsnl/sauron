@@ -161,4 +161,4 @@
          (send editor
                insert
                (hash-ref latex-complete (string-trim to-complete "\\" #:right? #f) to-complete)))))
-   (send editor insert " ")))
+   (send (if (is-a? editor text-field%) (send editor get-editor) editor) insert " ")))
