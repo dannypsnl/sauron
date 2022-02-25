@@ -1,5 +1,7 @@
 ### To Release
 
+### v1.3.0
+
 - [shortcut:fix] `o+backspace` and `space` on improper editor
 - [preferences:fix] click "Undo Changes and Close" won't get crashed now
 - [project:fix] sauron now can work without network by using hard-coded list when no networking

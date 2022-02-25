@@ -17,7 +17,7 @@
 (define build-deps '("scribble-lib" "racket-doc" "rackunit-lib" "gui-doc"))
 (define scribblings '(("scribblings/sauron.scrbl" (multi-page) (tool))))
 (define pkg-desc "A Racket IDE")
-(define version "1.2.0")
+(define version "1.3.0")
 (define license '(Apache-2.0 OR MIT))
 (define pkg-authors '(dannypsnl))
 
