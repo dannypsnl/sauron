@@ -1,6 +1,7 @@
 ### To Release
 
-- [editor:fix] `space` will work under "show log" now
+- [editor:fix] `space` will work for `text-field%` now
+- [editor:fix] `alt+backspace` will work for `text-field%` now
 
 ### v1.3.0
 
