@@ -82,13 +82,13 @@
 
 ;;; delete previous sexp
 (opt/alt+ "backspace"
-          (λ (editor event)
-            (when (object-method-arity-includes? editor 'get-backward-sexp 1)
-              (let* ([cur-pos (send editor get-start-position)]
-                     [pre-sexp-pos (send editor get-backward-sexp cur-pos)])
-                ; ensure pre-sexp existed
-                (when pre-sexp-pos
-                  (send editor delete pre-sexp-pos cur-pos))))))
+          (λ (ed event)
+            (define editor (if (is-a? ed text-field%) (send ed get-editor) ed))
+            (let* ([cur-pos (send editor get-start-position)]
+                   [pre-sexp-pos (send editor get-backward-sexp cur-pos)])
+              ; ensure pre-sexp existed
+              (when pre-sexp-pos
+                (send editor delete pre-sexp-pos cur-pos)))))
 
 ;;; comment/uncomment selected text, if no selected text, target is current line
 (cmd/ctrl+
@@ -147,18 +147,17 @@
 
 (keybinding
  "space"
- (λ (editor event)
-   (when (and (object-method-arity-includes? editor 'get-backward-sexp 1)
-              (object-method-arity-includes? editor 'insert 1))
-     (define end (send editor get-start-position))
-     (define start (send editor get-backward-sexp end))
-     (when start
-       (define to-complete (send editor get-text start end))
-       (when (string-prefix? to-complete "\\")
-         ;;; select previous sexp
-         (send editor set-position start end)
-         ;;; replace it with new text
-         (send editor
-               insert
-               (hash-ref latex-complete (string-trim to-complete "\\" #:right? #f) to-complete)))))
+ (λ (ed event)
+   (define editor (if (is-a? ed text-field%) (send ed get-editor) ed))
+   (define end (send editor get-start-position))
+   (define start (send editor get-backward-sexp end))
+   (when start
+     (define to-complete (send editor get-text start end))
+     (when (string-prefix? to-complete "\\")
+       ;;; select previous sexp
+       (send editor set-position start end)
+       ;;; replace it with new text
+       (send editor
+             insert
+             (hash-ref latex-complete (string-trim to-complete "\\" #:right? #f) to-complete))))
    (send editor insert " ")))
