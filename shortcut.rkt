@@ -142,7 +142,7 @@
    (define doc-page?
      (interval-map-ref (get-doc (send editor get-filename)) (send editor get-start-position) #f))
    (when doc-page?
-     (send-url/file doc-page? #f))))
+     (send-url doc-page? #f))))
 
 (keybinding "(" (λ (editor event) (send-command "insert-()-pair" editor event)))
 (keybinding "[" (λ (editor event) (send-command "insert-[]-pair" editor event)))
