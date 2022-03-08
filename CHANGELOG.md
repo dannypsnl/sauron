@@ -1,5 +1,7 @@
 ### To Release
 
+### v1.3.1
+
 - [editor:fix] c+d open document
 - [editor:fix] `space` will work for `text-field%` now
 - [editor:fix] `alt+backspace` will work for `text-field%` now
