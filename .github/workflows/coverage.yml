@@ -32,7 +32,6 @@ jobs:
       - run: raco pkg install --no-docs --auto --skip-installed
       - run: raco pkg install --auto --skip-installed
       - run: |
-          xvfb-run -a raco test .
           xvfb-run -a raco cover .
           raco cover-badge
       - name: Deploy
