@@ -35,3 +35,10 @@ jobs:
           xvfb-run -a raco test .
           xvfb-run -a raco cover .
           raco cover-badge
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: coverage
+          publish_branch: gh-pages
+          destination_dir: coverage
