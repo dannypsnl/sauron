@@ -5,13 +5,13 @@ origin author: https://github.com/racket/gui/graphs/contributors
 modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 |#
 (provide project-files-pane%)
-
 (require mrlib/hierlist
          file/glob
          file-watchers
          framework/preferences
          "../path/util.rkt"
          sauron/collect/api
+         sauron/collect/record-maintainer
          sauron/project/refresh-collect
          sauron/project/dir-state
          sauron/path/renamer)
@@ -42,26 +42,20 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
           ['file
            (define item (send parent-dir new-item set-text-mixin))
            (send* item
-                  [set-text (path->string subpath)]
-                  [user-data (selected directory cur-path directory)])]
+             [set-text (path->string subpath)]
+             [user-data (selected directory cur-path directory)])]
           ['directory
            (define item (send parent-dir new-list set-text-mixin))
            (send* item
-                  [set-text (path->string subpath)]
-                  [user-data (selected cur-path cur-path directory)])
+             [set-text (path->string subpath)]
+             [user-data (selected cur-path cur-path directory)])
            (for ([subpath (directory-list cur-path)])
              (new-item item cur-path subpath))]
           ['link (void)])))
 
-    (define current-watcher #f)
-
     ; Set the top level item, and populate it with an entry
     ; for each item in the directory.
-    (define/public (refresh-directory dir)
-      (when current-watcher
-        (thread-suspend current-watcher))
-      (set! current-watcher (robust-watch dir))
-
+    (define/public (refresh-tree-view dir)
       (set! current-selected (selected dir #f #f))
       (send this delete-item top-dir-list)
       (set! top-dir-list (send this new-list set-text-mixin))
@@ -104,17 +98,20 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (thread (λ ()
               (let loop ()
                 (match (file-watcher-channel-get)
-                  [(or (list 'robust 'add _) (list 'robust 'remove _))
-                   (refresh-directory (preferences:get 'current-project))]
+                  [(list 'robust 'add path)
+                   (update path)
+                   (refresh-tree-view (preferences:get 'current-project))]
+                  [(list 'robust 'remove path)
+                   (terminate-record-maintainer path)
+                   (refresh-tree-view (preferences:get 'current-project))]
                   [(list 'robust 'change path)
-                   (when (path-has-extension? path #".rkt")
-                     (force-update path))]
+                   (update path)]
                   [else (void)])
                 (loop))))
     (preferences:add-callback 'current-project
                               (λ (_ new-dir)
                                 (when (path-string? new-dir)
-                                  (refresh-directory new-dir))))))
+                                  (refresh-tree-view new-dir))))))
 
 (define project-files-pane%
   (class horizontal-pane%
@@ -139,11 +136,11 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
            (define dir-name (get-text-from-user "name of directory?" ""))
            (when dir-name
              (make-directory* (build-path selected-dir dir-name)))])
-        (send view refresh-directory (preferences:get 'current-project)))
+        (send view refresh-tree-view (preferences:get 'current-project)))
       (new list-box% [parent new-frame] [label "New"] [choices '("file" "directory")] [callback ask]))
     (define (remove-path-and-refresh btn event)
       (delete-directory/files (send view get-cur-selected-file) #:must-exist? #f)
-      (send view refresh-directory (preferences:get 'current-project)))
+      (send view refresh-tree-view (preferences:get 'current-project)))
     (define (rename-path-and-refresh btn event)
       (define selected-dir (send view get-cur-selected-dir))
       (define selected-file (send view get-cur-selected-file))
@@ -156,7 +153,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
           (close-dir old-path)
           (open-dir new-path))
         (auto-rename (preferences:get 'current-project) editor-panel old-path new-path)
-        (send view refresh-directory (preferences:get 'current-project))))
+        (send view refresh-tree-view (preferences:get 'current-project))))
 
     (new button% [parent this] [label "add"] [callback add-file/dir])
     (new button% [parent this] [label "remove"] [callback remove-path-and-refresh])

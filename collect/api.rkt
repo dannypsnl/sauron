@@ -1,8 +1,6 @@
 #lang racket
 (provide (all-defined-out)
-         force-update
          update)
-
 (require data/interval-map
          sauron/collect/record
          sauron/collect/cache)
