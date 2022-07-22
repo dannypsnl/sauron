@@ -9,16 +9,25 @@
          sauron/collect/collector
          sauron/log)
 
+(define (valid-path? file-path)
+  (and (file-exists? file-path) (path-has-extension? file-path #".rkt")))
+
 (define path=>maintainer (make-hash))
 (define (get-record-maintainer path)
-  (unless (hash-ref path=>maintainer path #f)
-    (hash-set! path=>maintainer path (make-record-maintainer path)))
-  (hash-ref path=>maintainer path))
+  (if (valid-path? path)
+      (begin (unless (hash-ref path=>maintainer path #f)
+               (hash-set! path=>maintainer path (make-record-maintainer path)))
+             (hash-ref path=>maintainer path))
+      ; when path is invalid, return same thread to handle all non-sense requirement
+      ; since only one-more thread here, it should not be a big overhead
+      (begin (log:warning "cannot create maintainer for invalid path: ~a" path)
+             do-nothing)))
 
 (define (terminate-record-maintainer path)
-  (define maintainer (get-record-maintainer path))
-  (kill-thread maintainer)
-  (hash-set! path=>maintainer path #f))
+  (when (valid-path? path)
+    (define maintainer (get-record-maintainer path))
+    (kill-thread maintainer)
+    (hash-set! path=>maintainer path #f)))
 
 ;;; this thread do nothing and provide fake reply is need
 ; the purpose is making sure the caller will fail gratefully, but no need to handle exception
@@ -37,21 +46,16 @@
                                     (loop)))))
 
 (define (make-record-maintainer file-path)
-  (if (and (file-exists? file-path) (path-has-extension? file-path #".rkt"))
-      (let ([cached-record (collect-from file-path)])
-        (thread
-         (thunk
-          (let loop ()
-            (match (thread-receive)
-              [(list 'update)
-               (match-define (struct* record ([created-time created-time])) cached-record)
-               (when (< created-time (file-or-directory-modify-seconds file-path))
-                 (set! cached-record (collect-from file-path)))]
-              ;; to invoke this, you must provide your thread-id as from
-              [(list 'get-record from)
-               (thread-send from cached-record)])
-            (loop)))))
-      ; when path is invalid, return same thread to handle all non-sense requirement
-      ; since only one-more thread here, it should not be a big overhead
-      (begin (log:warning "cannot create maintainer for invalid path: ~a" file-path)
-             do-nothing)))
+  (let ([cached-record (collect-from file-path)])
+    (thread
+     (thunk
+      (let loop ()
+        (match (thread-receive)
+          [(list 'update)
+           (match-define (struct* record ([created-time created-time])) cached-record)
+           (when (< created-time (file-or-directory-modify-seconds file-path))
+             (set! cached-record (collect-from file-path)))]
+          ;; to invoke this, you must provide your thread-id as from
+          [(list 'get-record from)
+           (thread-send from cached-record)])
+        (loop))))))
