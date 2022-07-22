@@ -46,16 +46,16 @@
                                     (loop)))))
 
 (define (make-record-maintainer file-path)
-  (let ([cached-record (collect-from file-path)])
-    (thread
-     (thunk
-      (let loop ()
-        (match (thread-receive)
-          [(list 'update)
-           (match-define (struct* record ([created-time created-time])) cached-record)
-           (when (< created-time (file-or-directory-modify-seconds file-path))
-             (set! cached-record (collect-from file-path)))]
-          ;; to invoke this, you must provide your thread-id as from
-          [(list 'get-record from)
-           (thread-send from cached-record)])
-        (loop))))))
+  (thread
+   (thunk
+    (define cached-record (collect-from file-path))
+    (let loop ()
+      (match (thread-receive)
+        [(list 'update)
+         (match-define (struct* record ([created-time created-time])) cached-record)
+         (when (< created-time (file-or-directory-modify-seconds file-path))
+           (set! cached-record (collect-from file-path)))]
+        ;; to invoke this, you must provide your thread-id as from
+        [(list 'get-record from)
+         (thread-send from cached-record)])
+      (loop)))))
