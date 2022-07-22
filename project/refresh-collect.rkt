@@ -6,7 +6,11 @@
          framework/preferences
          sauron/collect/api)
 
-(define ignore-list '(".git" "compiled" "doc" ".DS_Store"))
+(define ignore-list '(".DS_Store"
+                      ".git"
+                      "compiled"
+                      "coverage"
+                      "doc"))
 
 (define (refresh-project dir)
   (for ([sub (directory-list dir)])
