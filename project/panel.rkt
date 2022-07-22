@@ -99,13 +99,16 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
               (let loop ()
                 (match (file-watcher-channel-get)
                   [(list 'robust 'add path)
-                   (update path)
-                   (refresh-tree-view (preferences:get 'current-project))]
+                   (when (not (glob-match? ignore-list path))
+                     (update path)
+                     (refresh-tree-view (preferences:get 'current-project)))]
                   [(list 'robust 'remove path)
-                   (terminate-record-maintainer path)
-                   (refresh-tree-view (preferences:get 'current-project))]
+                   (when (not (glob-match? ignore-list path))
+                     (terminate-record-maintainer path)
+                     (refresh-tree-view (preferences:get 'current-project)))]
                   [(list 'robust 'change path)
-                   (update path)]
+                   (when (not (glob-match? ignore-list path))
+                     (update path))]
                   [else (void)])
                 (loop))))
     (preferences:add-callback 'current-project
@@ -135,12 +138,10 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
           [1
            (define dir-name (get-text-from-user "name of directory?" ""))
            (when dir-name
-             (make-directory* (build-path selected-dir dir-name)))])
-        (send view refresh-tree-view (preferences:get 'current-project)))
+             (make-directory* (build-path selected-dir dir-name)))]))
       (new list-box% [parent new-frame] [label "New"] [choices '("file" "directory")] [callback ask]))
     (define (remove-path-and-refresh btn event)
-      (delete-directory/files (send view get-cur-selected-file) #:must-exist? #f)
-      (send view refresh-tree-view (preferences:get 'current-project)))
+      (delete-directory/files (send view get-cur-selected-file) #:must-exist? #f))
     (define (rename-path-and-refresh btn event)
       (define selected-dir (send view get-cur-selected-dir))
       (define selected-file (send view get-cur-selected-file))
