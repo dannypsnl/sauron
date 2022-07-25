@@ -1,5 +1,7 @@
 ### To Release
 
+- [internal] file indexing maintaining system
+
 ### v1.3.1
 
 - [editor:fix] c+d open document
