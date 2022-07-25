@@ -37,8 +37,8 @@
         (define link+tag
           (cond
             [url-tag (struct-copy url path-url [fragment url-tag])]
-            [definition-tag
-             (struct-copy url path-url [fragment (def-tag->html-anchor-tag definition-tag)])]
+            [definition-tag (struct-copy url path-url
+                                         [fragment (def-tag->html-anchor-tag definition-tag)])]
             [else path-url]))
         (interval-map-set! doc start end (url->string link+tag))))
 
@@ -46,12 +46,8 @@
       (log:debug "require ~a" required-file)
       (hash-set! requires required-file (list start end)))
 
-    (define/override (syncheck:add-arrow/name-dup start-src-obj
-                                                  start-left
-                                                  start-right
-                                                  end-src-obj
-                                                  end-left
-                                                  end-right
+    (define/override (syncheck:add-arrow/name-dup start-src-obj start-left start-right
+                                                  end-src-obj end-left end-right
                                                   actual?
                                                   level
                                                   require-arrow?
