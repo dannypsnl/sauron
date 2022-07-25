@@ -8,6 +8,8 @@
          sauron/collect/api
          sauron/log)
 
+;;; NOTE: per tab per editor
+; thus, when switching to another tab, the editor must re-fetching from frame
 (define (jump-to-definition editor from-pos)
   (define filepath (send editor get-filename))
   (match (jump-to-def filepath from-pos)
