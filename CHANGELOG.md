@@ -82,7 +82,7 @@
 - [repl:migrate] cursor would be fixed to prompt start position
 - [repl:migrate] select executed history via up/down key
 
-NOTE: only work at prompt start position to prevent affect editing expression
+> **NOTE** only work at prompt start position to prevent affect editing expression
 
 - [repl] support special symbol input in repl
 
@@ -105,7 +105,7 @@ NOTE: only work at prompt start position to prevent affect editing expression
 - [migrate] c+b/click jump to definition
 - [migrate] c+r rename refactoring
 
-NOTE: haven't support cross-file refactoring since this simply rebind "Rename Identifier" action in DrRacket
+> **NOTE** haven't support cross-file refactoring since this simply rebind "Rename Identifier" action in DrRacket
 
 - [migrate] c+e run REPL
 - [vc:migrate] c+k show commit editor
