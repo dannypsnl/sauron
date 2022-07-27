@@ -1,6 +1,7 @@
 #lang racket
-(provide ignore-list)
-(require file-watchers
+(provide ignore?)
+(require file/glob
+         file-watchers
          framework/preferences
          sauron/collect/api)
 
@@ -9,6 +10,9 @@
                       "compiled"
                       "coverage"
                       "doc"))
+
+(define (ignore? path)
+  (glob-match? ignore-list path))
 
 (let ([cache-project-dir #f]
       [cache-project-watcher #f])

@@ -6,7 +6,6 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 |#
 (provide project-files-pane%)
 (require mrlib/hierlist
-         file/glob
          file-watchers
          framework/preferences
          "../path/util.rkt"
@@ -37,7 +36,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (when (dir-open? directory)
         (send parent-dir open))
       (define cur-path (build-path directory subpath))
-      (when (not (glob-match? ignore-list subpath))
+      (when (not (ignore? subpath))
         (match (file-or-directory-type cur-path #t)
           ['file
            (define item (send parent-dir new-item set-text-mixin))
@@ -99,15 +98,15 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
               (let loop ()
                 (match (file-watcher-channel-get)
                   [(list 'robust 'add path)
-                   (when (not (glob-match? ignore-list path))
+                   (when (not (ignore? path))
                      (update path)
                      (refresh-tree-view (preferences:get 'current-project)))]
                   [(list 'robust 'remove path)
-                   (when (not (glob-match? ignore-list path))
+                   (when (not (ignore? path))
                      (terminate-record-maintainer path)
                      (refresh-tree-view (preferences:get 'current-project)))]
                   [(list 'robust 'change path)
-                   (when (not (glob-match? ignore-list path))
+                   (when (not (ignore? path))
                      (update path))]
                   [else (void)])
                 (loop))))
