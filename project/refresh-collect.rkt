@@ -23,7 +23,8 @@
          ; reset the project watcher
          (set! cache-project-watcher (robust-watch new-dir))
          ; start updating
-         (for-each update (find-files (lambda (p) (path-has-extension? p #".rkt")) dir))
+         (for-each update
+                   (find-files (lambda (p) (path-has-extension? p #".rkt")) new-dir))
          ; reset the project directory cache
          (set! cache-project-dir new-dir)))))
   (void))
