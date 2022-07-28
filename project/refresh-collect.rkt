@@ -34,13 +34,13 @@
          ; reset the project watcher
          (set! cache-project-watcher (robust-watch new-dir))
          ; start updating
-         (update-files (lambda (p) (path-has-extension? p #".rkt")) new-dir)
+         (on-files new-dir update)
          ; reset the project directory cache
          (set! cache-project-dir new-dir)))))
   (void))
 
-(define (update-files f path)
-  ; NOTE: with `fold-files`, reduce about 100MB compare with `find-files`
+(define (on-files path fn)
+  ; NOTE: `fold-files` reduces about 100MB compare with `find-files`
   ; this is reasonable, since `find-files` build a huge list
   ; the next should be making `update` re-enterable, then blocking will get removed
   (fold-files (lambda (path kind acc)
@@ -48,7 +48,7 @@
                   [(ignore? path) (values acc #f)]
                   ; NOTE: should I simply assume `*.rkt` is not a ignored file?
                   [(path-has-extension? path #".rkt")
-                   (update path)
+                   (fn path)
                    acc]
                   [else acc]))
               null
