@@ -1,7 +1,5 @@
 #lang racket/gui
-
 (provide project-manager%)
-
 (require raco/invoke
          "../path/util.rkt"
          "project-templates.rkt")
@@ -13,6 +11,8 @@
 
     ;;; auto setup configuration
     (define projects-file (build-path config-dir "projects"))
+
+    (define (get-projects) (file->lines projects-file #:mode 'text))
 
     (define (auto-setup-configuration-env)
       ; create projects file configuration if not existed
@@ -69,7 +69,6 @@
          [callback
           (λ (btn event)
             (define path (get-directory #f this))
-            (define (get-projects) (file->lines projects-file))
             (when (and path
                        (directory-exists? path)
                        (not (member (path->string path) (get-projects))))
@@ -110,20 +109,13 @@
           (λ (btn event)
             (remove-selected-project))])
 
-    (define (load-projs)
-      ;;; load projects
-      (define f (open-input-file projects-file))
-      (let loop ([project-path (read-line f)])
-        (cond
-          [(eof-object? project-path) (void)]
-          [else
-           (send list-box append project-path)
-           (loop (read-line f))]))
-      (close-input-port f))
+    (define (load-projects)
+      (for ([project-path (get-projects)])
+        (send list-box append project-path)))
 
     (define/public (run)
       (auto-setup-configuration-env)
-      (load-projs)
+      (load-projects)
       (send* this
         [center 'both]
         [show #t]))))
