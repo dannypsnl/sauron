@@ -1,13 +1,17 @@
 #lang racket
 (provide (all-defined-out)
-         update)
+         update
+         create)
 (require data/interval-map
          sauron/collect/record
          sauron/collect/record-maintainer)
 
+;;; just prepare a maintainer for a path
+(define (create path)
+  (create-record-maintainer path))
 ;;; tell corresponding maintainer update the record
 (define (update path)
-  (thread-send (get-record-maintainer path)
+  (thread-send (get-record-maintainer path #:wait? #t)
                (list 'update)))
 
 (define (require-location? path require)
@@ -29,6 +33,6 @@
 
 ;;; try get record from maintainer map via path
 (define (get-record path)
-  (thread-send (get-record-maintainer path)
+  (thread-send (get-record-maintainer path #:wait? #t)
                (list 'get-record (current-thread)))
   (thread-receive))

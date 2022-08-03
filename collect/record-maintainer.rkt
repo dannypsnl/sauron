@@ -1,5 +1,6 @@
 #lang racket/base
-(provide get-record-maintainer
+(provide create-record-maintainer
+         get-record-maintainer
          terminate-record-maintainer)
 (require racket/path
          racket/function
@@ -10,24 +11,47 @@
          sauron/log)
 
 (define (valid-path? file-path)
-  (and (file-exists? file-path) (path-has-extension? file-path #".rkt")))
+  (and (file-exists? file-path)
+       (path-has-extension? file-path #".rkt")))
 
 (define path=>maintainer (make-hash))
-(define (get-record-maintainer path)
-  (if (valid-path? path)
-      (begin (unless (hash-ref path=>maintainer path #f)
-               (hash-set! path=>maintainer path (make-record-maintainer path)))
-             (hash-ref path=>maintainer path))
-      ; when path is invalid, return same thread to handle all non-sense requirement
-      ; since only one-more thread here, it should not be a big overhead
-      (begin (log:warning "cannot create maintainer for invalid path: ~a" path)
-             do-nothing)))
+;;; The constraint is only `record-maintainer-creator` allowed to create new maintainer
+; but anyone might like to create one concurrently, so `hash-ref!` here blocked all repeated creation
+; since `thread-receive` ensure every creation is proceeded one by one
+; if the previous `loop` created one, the next `loop` will skip existing creation
+(define record-maintainer-creator
+  (thread
+   (thunk
+    (let loop ()
+      (match (thread-receive)
+        [(list 'create from path)
+         (define mt (hash-ref! path=>maintainer path (thunk (make-record-maintainer path))))
+         ; `from` must be another thread
+         (when from
+           (thread-send from mt))])
+      (loop)))))
+
+(define (create-record-maintainer path [from #f])
+  (thread-send record-maintainer-creator
+               (list 'create from path)))
+
+(define (get-record-maintainer path #:wait? [wait? #f])
+  (cond
+    [(not (valid-path? path))
+     ; when path is invalid, return same thread to handle all non-sense requirement
+     ; since only one-more thread here, it should not be a big overhead
+     (log:warning "cannot create maintainer for invalid path: ~a" path)
+     do-nothing]
+    [wait? (create-record-maintainer path (current-thread))
+           (thread-receive)]
+    [else (hash-ref path=>maintainer path #f)]))
 
 (define (terminate-record-maintainer path)
   (when (valid-path? path)
     (define maintainer (get-record-maintainer path))
-    (kill-thread maintainer)
-    (hash-set! path=>maintainer path #f)))
+    (when maintainer
+      (kill-thread maintainer)
+      (hash-set! path=>maintainer path #f))))
 
 ;;; this thread do nothing and provide fake reply is need
 ; the purpose is making sure the caller will fail gratefully, but no need to handle exception

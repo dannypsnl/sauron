@@ -33,8 +33,8 @@
            (kill-thread cache-project-watcher))
          ; reset the project watcher
          (set! cache-project-watcher (robust-watch new-dir))
-         ; start updating
-         (on-files new-dir update)
+         ; start creating
+         (on-files new-dir create)
          ; reset the project directory cache
          (set! cache-project-dir new-dir)))))
   (void))
@@ -42,7 +42,6 @@
 (define (on-files path fn)
   ; NOTE: `fold-files` reduces about 100MB compare with `find-files`
   ; this is reasonable, since `find-files` build a huge list
-  ; the next should be making `update` re-enterable, then blocking will get removed
   (fold-files (lambda (path kind acc)
                 (cond
                   [(ignore? path) (values acc #f)]

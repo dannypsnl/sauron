@@ -99,7 +99,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                 (match (file-watcher-channel-get)
                   [(list 'robust 'add path)
                    (when (not (ignore? path))
-                     (update path)
+                     (create path)
                      (refresh-tree-view (preferences:get 'current-project)))]
                   [(list 'robust 'remove path)
                    (when (not (ignore? path))
