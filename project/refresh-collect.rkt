@@ -16,10 +16,11 @@
                       "doc"
                       "doc/**"))
 
-; FIXME: A weird thing is even I believe I already correctly ignore `.git/` files
-; when I run `git add <file>`, the file-tree view still get refreshed.
 (define (ignore? path)
-  (glob-match? ignore-list path))
+  (define proj-dir (preferences:get 'current-project))
+  (glob-match? ignore-list (if proj-dir
+                               (find-relative-path proj-dir path)
+                               path)))
 
 (let ([cache-project-dir #f]
       [cache-project-watcher #f])
@@ -57,8 +58,12 @@
 (module+ test
   (require rackunit)
 
-  (check-true (ignore? ".DS_Store"))
-  (check-true (ignore? ".git"))
-  (check-true (ignore? ".git/index"))
-  (check-true (ignore? ".git/info/exclude"))
-  (check-true (ignore? "compiled/info_rkt.dep")))
+  (define test-layer (preferences:new-layer (preferences:current-layer)))
+  (parameterize ([preferences:current-layer test-layer])
+    ; initialize 'a-pref in layer2
+    (preferences:set-default 'current-project (current-directory) path-string?)
+    (check-true (ignore? ".DS_Store"))
+    (check-true (ignore? ".git"))
+    (check-true (ignore? ".git/index"))
+    (check-true (ignore? ".git/info/exclude"))
+    (check-true (ignore? "compiled/info_rkt.dep"))))
