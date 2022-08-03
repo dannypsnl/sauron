@@ -8,10 +8,12 @@
 
 (define (auto-rename dir editor-panel
                      old-path new-path)
+  (rename-file-or-directory old-path new-path)
+
   (define racket-files (find-files (lambda (p) (path-has-extension? p #".rkt"))
                                    ; start from given dir
                                    dir))
-  (for ([f racket-files])
+  (for/async ([f racket-files])
     (define to-update-loc (require-location? f old-path))
     (when to-update-loc
       (match-define (list start end) to-update-loc)
@@ -25,5 +27,4 @@
       (define tab (send editor-panel find-matching-tab f))
       (when tab
         (send (send tab get-defs) load-file f))
-      (log:debug "~a get updated, since ~a get renamed to ~a" f old-path new-path)))
-  (rename-file-or-directory old-path new-path))
+      (log:debug "~a get updated, since ~a get renamed to ~a" f old-path new-path))))
