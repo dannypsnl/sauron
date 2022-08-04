@@ -20,7 +20,8 @@
 
 (module+ test
   (require rackunit)
+  (define test-layer (preferences:new-layer (preferences:current-layer)))
+  (parameterize ([preferences:current-layer test-layer])
+    (preferences:set-default 'current-project (current-directory) path-string?)
 
-  (preferences:set-default 'current-project (current-directory) path-string?)
-  (check-equal? (run "ls")
-                (void)))
+    (check-equal? (run "ls") (void))))

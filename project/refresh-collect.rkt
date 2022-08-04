@@ -60,8 +60,8 @@
 
   (define test-layer (preferences:new-layer (preferences:current-layer)))
   (parameterize ([preferences:current-layer test-layer])
-    ; initialize 'a-pref in layer2
     (preferences:set-default 'current-project (current-directory) path-string?)
+
     (check-true (ignore? ".DS_Store"))
     (check-true (ignore? ".git"))
     (check-true (ignore? ".git/index"))
