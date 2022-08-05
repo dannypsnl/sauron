@@ -1,8 +1,9 @@
-#lang racket/gui
-
+#lang racket/base
 (provide collect-from)
-
 (require drracket/check-syntax
+         racket/class
+         racket/gui/base
+         racket/set
          syntax/modread
          net/url
          data/interval-map
@@ -19,6 +20,7 @@
     (define bindings (make-interval-map))
     (define defs (make-hash))
     (define requires (make-hash))
+    (define refs (make-hash))
 
     (define/override (syncheck:find-source-object stx) (and (equal? src (syntax-source stx)) src))
 
@@ -61,13 +63,21 @@
 
     (define/override (syncheck:add-jump-to-definition source-obj start end id filename submods)
       (log:debug "syncheck:add-jump-to-definition ~a" filename)
+      (hash-update! refs (cons filename id)
+                    (lambda (old-set) (set-add old-set (binding id start end src)))
+                    (set (binding id start end src)))
       (interval-map-set! bindings start (add1 end) (binding id #f #f filename)))
 
     (define/override (syncheck:add-definition-target source-obj start end id mods)
       (log:debug "syncheck:add-definition-target ~a:~a" source-obj id)
       (hash-set! defs id (binding id start end src)))
 
-    (define/public (build-record) (record (current-seconds) doc bindings defs requires))
+    (define/public (build-record)
+      (make-record #:doc doc
+                   #:bindings bindings
+                   #:defs defs
+                   #:requires requires
+                   #:refs refs))
     (super-new)))
 
 (define (collect-from path)
@@ -109,5 +119,12 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          [v (regexp-replace* #rx#"[^-a-zA-Z0-9_!+*'()/.,]" v encode-bytes)])
     (bytes->string/utf-8 v)))
 
-(module+ main
-  (record-doc (collect-from (normalize-path "collector.rkt"))))
+(module+ test
+  (require rackunit
+           racket/path
+           racket/runtime-path)
+
+  (define-runtime-path this-dir ".")
+
+  (define r (collect-from (normalize-path (build-path this-dir "collector.rkt"))))
+  (check-true (hash? (record-refs r))))
