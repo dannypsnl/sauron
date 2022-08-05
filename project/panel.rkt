@@ -99,7 +99,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                 (match (file-watcher-channel-get)
                   [(list 'robust 'add path)
                    (when (not (ignore? path))
-                     (create path)
+                     (create-maintainer path)
                      (refresh-tree-view (preferences:get 'current-project)))]
                   [(list 'robust 'remove path)
                    (when (not (ignore? path))
@@ -107,7 +107,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                      (refresh-tree-view (preferences:get 'current-project)))]
                   [(list 'robust 'change path)
                    (when (not (ignore? path))
-                     (update path))]
+                     (update-maintainer path))]
                   [else (void)])
                 (loop))))
     (preferences:add-callback 'current-project

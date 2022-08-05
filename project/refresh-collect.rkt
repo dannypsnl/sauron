@@ -26,34 +26,19 @@
       [cache-project-watcher #f])
   (preferences:add-callback
    'current-project
-   (λ (_ new-dir)
-     (when (path-string? new-dir)
-       (unless (equal? new-dir cache-project-dir)
+   (λ (_ new-proj-dir)
+     (when (path-string? new-proj-dir)
+       (unless (equal? new-proj-dir cache-project-dir)
          ; stop project watcher if existed
          (when cache-project-watcher
            (kill-thread cache-project-watcher))
          ; reset the project watcher
-         (set! cache-project-watcher (robust-watch new-dir))
-         ; start creating
-         (on-files new-dir create)
+         (set! cache-project-watcher (robust-watch new-proj-dir))
+         ; start tracking the project directory
+         (start-tracking new-proj-dir ignore?)
          ; reset the project directory cache
-         (set! cache-project-dir new-dir)))))
+         (set! cache-project-dir new-proj-dir)))))
   (void))
-
-(define (on-files path fn)
-  ; NOTE: `fold-files` reduces about 100MB compare with `find-files`
-  ; this is reasonable, since `find-files` build a huge list
-  (fold-files (lambda (path kind acc)
-                (cond
-                  [(ignore? path) (values acc #f)]
-                  ; NOTE: should I simply assume `*.rkt` is not a ignored file?
-                  [(path-has-extension? path #".rkt")
-                   (fn path)
-                   acc]
-                  [else acc]))
-              null
-              path
-              #t))
 
 (module+ test
   (require rackunit)
