@@ -1,5 +1,4 @@
-#lang racket
-
+#lang racket/base
 (provide basename
          config-dir)
 
@@ -13,6 +12,10 @@
   (path->string file))
 
 (module+ test
-  (require rackunit)
+  (require rackunit
+           racket/path
+           racket/runtime-path)
 
-  (check-equal? (basename (current-directory)) "path"))
+  (define-runtime-path this-dir ".")
+
+  (check-equal? (basename (normalize-path this-dir)) "path"))
