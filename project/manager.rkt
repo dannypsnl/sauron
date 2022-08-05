@@ -53,14 +53,16 @@
               (define evt-type (send event get-event-type))
               (match evt-type
                 ['list-box-dclick
-                 (let ([path (string->path (send proj-manager get-string-selection))])
-                   (if (directory-exists? path)
-                       (begin
-                         (send this show #f)
-                         (on-select path))
-                       (begin
-                         (message-box "Failed" "project not existed")
-                         (remove-selected-project))))]
+                 (let ([str-path (send proj-manager get-string-selection)])
+                   (when str-path
+                      (let ([path (string->path str-path)])
+                         (if (directory-exists? path)
+                             (begin
+                               (send this show #f)
+                               (on-select path))
+                             (begin
+                               (message-box "Failed" "project not existed")
+                               (remove-selected-project))))))]
                 ['list-box
                  (void)]))]))
 
