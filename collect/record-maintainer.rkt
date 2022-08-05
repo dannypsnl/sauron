@@ -7,7 +7,6 @@
          racket/match
          racket/path
          racket/set
-         data/interval-map
          sauron/collect/record
          sauron/collect/collector
          sauron/log)
@@ -77,17 +76,18 @@
                                       [else (void)])
                                     (loop)))))
 
+(define (notify-others this-thread record)
+  (for/async ([path ((compose set->list
+                              record-depend-on)
+                     record)])
+    (future-wait-record-maintainer path (current-future))
+    this-thread))
+
 (define (make-record-maintainer file-path)
   (thread
    (thunk
-    (define self (current-thread))
-    (define (notify-others record)
-      (for/async ([path (hash-keys (record-requires record))])
-        (future-wait-record-maintainer path (current-future))
-        self))
-
     (define cached-record (collect-from file-path))
-    (notify-others cached-record)
+    (notify-others (current-thread) cached-record)
     (define depender (mutable-set))
 
     (let loop ()
@@ -96,9 +96,21 @@
          (match-define (struct* record ([created-time created-time])) cached-record)
          (when (created-time . < . (file-or-directory-modify-seconds file-path))
            (set! cached-record (collect-from file-path))
-           (notify-others cached-record))]
+           (notify-others (current-thread) cached-record))]
         [(list 'depended from)
          (set-add! depender from)]
+        [(list 'get-references from id)
+         (thread-send
+          from
+          ; collect all references from all dependers
+          (for/fold ([acc (set)])
+                    ([m (set->list depender)])
+            (thread-send m (list 'get-usage (current-thread) file-path id))
+            (set-union acc (thread-receive))))]
+        [(list 'get-usage from path id)
+         (println `(,file-path ask by ,path for ,id))
+         (define refs (record-refs cached-record))
+         (thread-send from (hash-ref refs (cons path id)))]
         ;; to invoke this, you must provide your thread-id as from
         [(list 'get-record from)
          (thread-send from cached-record)])

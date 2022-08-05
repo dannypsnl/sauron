@@ -21,6 +21,7 @@
     (define defs (make-hash))
     (define requires (make-hash))
     (define refs (make-hash))
+    (define depend-on (mutable-set))
 
     (define/override (syncheck:find-source-object stx) (and (equal? src (syntax-source stx)) src))
 
@@ -63,6 +64,7 @@
 
     (define/override (syncheck:add-jump-to-definition source-obj start end id filename submods)
       (log:debug "syncheck:add-jump-to-definition ~a" filename)
+      (set-add! depend-on filename)
       (hash-update! refs (cons filename id)
                     (lambda (old-set) (set-add old-set (binding id start end src)))
                     (set (binding id start end src)))
@@ -77,6 +79,7 @@
                    #:bindings bindings
                    #:defs defs
                    #:requires requires
+                   #:depend-on depend-on
                    #:refs refs))
     (super-new)))
 

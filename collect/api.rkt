@@ -1,10 +1,12 @@
 #lang racket
 (provide (all-defined-out)
          update-maintainer
-         create-maintainer)
+         create-maintainer
+         ignore?)
 (require data/interval-map
-         sauron/collect/record
-         sauron/collect/record-maintainer)
+         "ignore-path.rkt"
+         "record.rkt"
+         "record-maintainer.rkt")
 
 (define (start-tracking directory ignore?)
   ; NOTE: `fold-files` reduces about 100MB compare with `find-files`
@@ -17,7 +19,7 @@
                    (create-maintainer path)
                    acc]
                   [else acc]))
-              null
+              #f
               directory
               #t))
 
@@ -45,9 +47,32 @@
   (match-define (struct* record ([defs defs]))
     (get-record path))
   (hash-ref defs id #f))
+(define (get-references path id)
+  (define mt (get-record-maintainer path #:wait? #t))
+  (thread-send mt (list 'get-references (current-thread) id))
+  (thread-receive))
 
 ;;; try get record from maintainer map via path
 (define (get-record path)
   (thread-send (get-record-maintainer path #:wait? #t)
                (list 'get-record (current-thread)))
   (thread-receive))
+
+; TODO:
+; 1. convert to test
+; 2. interact with UI
+(module+ main
+  (require racket/path
+           racket/runtime-path
+           framework/preferences)
+  (define-runtime-path this-dir ".")
+  (define dir (normalize-path this-dir))
+
+  (define test-layer (preferences:new-layer (preferences:current-layer)))
+  (parameterize ([preferences:current-layer test-layer])
+    (preferences:set-default 'current-project dir path-string?)
+    (start-tracking dir ignore?)
+
+    (displayln (get-def (build-path dir "record.rkt") 'make-record))
+    (displayln (get-references (string->path "/Applications/Racket v8.5/collects/racket/private/struct.rkt") 'struct))
+    ))
