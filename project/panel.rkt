@@ -105,18 +105,18 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                 (match (file-watcher-channel-get)
                   [(list 'robust 'add path)
                    (when (not (ignore? path))
-                     (define parent-item (get-item-by-path (parent-path path)))
-                     (define item (send parent-item new-item set-text-mixin))
-                     (send* item
-                       [set-text (basename path)]
-                       [user-data (selected (path-only path) path (parent-path path))])
-                     (send this sort (λ (lhs rhs) (string<? (send lhs get-text) (send rhs get-text))))
-                     (store-item-into-path path item)
-                     (create path))]
+                     (create path)
+                     ;;; insert item
+                     (new-item (get-item-by-path (parent-path path))
+                               (path-only path)
+                               (basepath path))
+                     (send this sort (λ (lhs rhs)
+                                       (string<? (send lhs get-text)
+                                                 (send rhs get-text)))))]
                   [(list 'robust 'remove path)
                    (when (not (ignore? path))
-                     (remove-item path)
-                     (terminate-record-maintainer path))]
+                     (terminate-record-maintainer path)
+                     (remove-item path))]
                   [(list 'robust 'change path)
                    (when (not (ignore? path))
                      (update path))]

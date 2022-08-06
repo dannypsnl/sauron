@@ -1,5 +1,6 @@
 #lang racket/base
 (provide basename
+         basepath
          config-dir
          parent-path)
 
@@ -8,9 +9,12 @@
 (unless (directory-exists? config-dir)
   (make-directory config-dir))
 
+(define (basepath path)
+  (define-values (base file dir?) (split-path path))
+  file)
+
 (define (basename path)
-  (define-values [base file dir?] (split-path path))
-  (path->string file))
+  (path->string (basepath path)))
 
 (define (parent-path path)
   (define-values [base file dir?] (split-path path))
