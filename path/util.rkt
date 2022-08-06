@@ -1,6 +1,7 @@
 #lang racket/base
 (provide basename
-         config-dir)
+         config-dir
+         parent-path)
 
 (define config-dir (build-path (find-system-path 'home-dir) ".sauron"))
 ; create config directory if not exised
@@ -10,6 +11,10 @@
 (define (basename path)
   (define-values [base file dir?] (split-path path))
   (path->string file))
+
+(define (parent-path path)
+  (define-values [base file dir?] (split-path path))
+  base)
 
 (module+ test
   (require rackunit

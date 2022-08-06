@@ -31,6 +31,12 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
   (class hierarchical-list%
     (init editor-panel)
     (define the-editor-panel editor-panel)
+    (define table-path->item (make-hash))
+    (define (path->key path) (build-path path "$$"))
+    (define (get-item-by-path path) (hash-ref table-path->item (path->key path)))
+    (define (store-item-by-path path item) (hash-set! table-path->item (path->key path) item))
+    (define (remove-item-by-path path) (hash-remove! table-path->item (path->key path)))
+
     ; new-item : create new item for a file or directory
     (define (new-item parent-dir directory subpath)
       (when (dir-open? directory)
@@ -42,12 +48,14 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
            (define item (send parent-dir new-item set-text-mixin))
            (send* item
              [set-text (path->string subpath)]
-             [user-data (selected directory cur-path directory)])]
+             [user-data (selected directory cur-path directory)])
+           (store-item-by-path cur-path item)]
           ['directory
            (define item (send parent-dir new-list set-text-mixin))
            (send* item
              [set-text (path->string subpath)]
              [user-data (selected cur-path cur-path directory)])
+           (store-item-by-path cur-path item)
            (for ([subpath (directory-list cur-path)])
              (new-item item cur-path subpath))]
           ['link (void)])))
@@ -61,6 +69,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (send top-dir-list set-text (basename dir))
       ; add new-item for each member of dir
       (send top-dir-list user-data (selected dir dir #f))
+      (store-item-by-path dir top-dir-list)
       (for ([sub (directory-list dir)])
         (new-item top-dir-list dir sub))
       ;; open top dir-list by default
@@ -99,12 +108,20 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                 (match (file-watcher-channel-get)
                   [(list 'robust 'add path)
                    (when (not (ignore? path))
-                     (create path)
-                     (refresh-tree-view (preferences:get 'current-project)))]
+                     (define parent-item (get-item-by-path (parent-path path)))
+                     (define item (send parent-item new-item set-text-mixin))
+                     (send* item
+                       [set-text (basename path)]
+                       [user-data (selected (path-only path) path (parent-path path))])
+                     (store-item-by-path path item)
+                     (create path))]
                   [(list 'robust 'remove path)
                    (when (not (ignore? path))
-                     (terminate-record-maintainer path)
-                     (refresh-tree-view (preferences:get 'current-project)))]
+                     (define item (get-item-by-path path))
+                     (define parent-item (send item get-parent))
+                     (send parent-item delete-item item)
+                     (remove-item-by-path path)
+                     (terminate-record-maintainer path))]
                   [(list 'robust 'change path)
                    (when (not (ignore? path))
                      (update path))]
@@ -156,7 +173,8 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
     (new button% [parent this] [label "add"] [callback add-file/dir])
     (new button% [parent this] [label "remove"] [callback remove-path-and-refresh])
-    (new button% [parent this] [label "rename"] [callback rename-path-and-refresh])))
+    (new button% [parent this] [label "rename"] [callback rename-path-and-refresh])
+    (new button% [parent this] [label "refresh"] [callback (lambda (btn event) (send view refresh-tree-view (preferences:get 'current-project)))])))
 
 (define (ensure-file path)
   (make-parent-directory* path)
