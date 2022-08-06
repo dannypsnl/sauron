@@ -16,9 +16,15 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          sauron/path/renamer)
 
 (define set-text-mixin
-  (mixin (hierarchical-list-item<%>) ((interface () set-text))
+  (mixin (hierarchical-list-item<%>) ((interface () set-text get-text))
     (inherit get-editor)
     (super-new)
+
+    ; get-text: return the label of item
+    (define/public (get-text)
+      (define t (get-editor)) ; a text% object
+      (send t get-text))
+    
     ; set-text: this sets the label of the item
     (define/public (set-text str)
       (define t (get-editor)) ; a text% object
@@ -113,6 +119,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                      (send* item
                        [set-text (basename path)]
                        [user-data (selected (path-only path) path (parent-path path))])
+                     (send this sort (lambda (lhs rhs) (string<? (send lhs get-text) (send rhs get-text))))
                      (store-item-by-path path item)
                      (create path))]
                   [(list 'robust 'remove path)
