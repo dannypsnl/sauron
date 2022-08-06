@@ -33,9 +33,15 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
   (void))
 
 (define set-text-mixin
-  (mixin (hierarchical-list-item<%>) ((interface () set-text))
+  (mixin (hierarchical-list-item<%>) ((interface () set-text get-text))
     (inherit get-editor)
     (super-new)
+
+    ; get-text: return the label of item
+    (define/public (get-text)
+      (define t (get-editor)) ; a text% object
+      (send t get-text))
+
     ; set-text: this sets the label of the item
     (define/public (set-text str)
       (define t (get-editor)) ; a text% object
@@ -48,6 +54,18 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
   (class hierarchical-list%
     (init editor-panel)
     (define the-editor-panel editor-panel)
+    (define table-path=>item (make-hash))
+    (define (path->key path) (build-path path "$$"))
+    (define (get-item-by-path path)
+      (hash-ref table-path=>item (path->key path)))
+    (define (store-item-into-path path item)
+      (hash-set! table-path=>item (path->key path) item))
+    (define (remove-item path)
+      (define item (get-item-by-path path))
+      (define parent-item (send item get-parent))
+      (send parent-item delete-item item)
+      (hash-remove! table-path=>item (path->key path)))
+
     ; new-item : create new item for a file or directory
     (define (new-item parent-dir directory subpath)
       (when (dir-open? directory)
@@ -59,29 +77,17 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
            (define item (send parent-dir new-item set-text-mixin))
            (send* item
              [set-text (path->string subpath)]
-             [user-data (selected directory cur-path directory)])]
+             [user-data (selected directory cur-path directory)])
+           (store-item-into-path cur-path item)]
           ['directory
            (define item (send parent-dir new-list set-text-mixin))
            (send* item
              [set-text (path->string subpath)]
              [user-data (selected cur-path cur-path directory)])
+           (store-item-into-path cur-path item)
            (for ([subpath (directory-list cur-path)])
              (new-item item cur-path subpath))]
           ['link (void)])))
-
-    ; Set the top level item, and populate it with an entry
-    ; for each item in the directory.
-    (define/public (refresh-tree-view dir)
-      (set! current-selected (selected dir #f #f))
-      (send this delete-item top-dir-list)
-      (set! top-dir-list (send this new-list set-text-mixin))
-      (send top-dir-list set-text (basename dir))
-      ; add new-item for each member of dir
-      (send top-dir-list user-data (selected dir dir #f))
-      (for ([sub (directory-list dir)])
-        (new-item top-dir-list dir sub))
-      ;; open top dir-list by default
-      (send top-dir-list open))
 
     (define/public (get-cur-selected-dir) (selected-dir current-selected))
     (define/public (get-cur-selected-file) (selected-file current-selected))
@@ -117,20 +123,40 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
                   [(list 'robust 'add path)
                    (when (not (ignore? path))
                      (create-maintainer path)
-                     (refresh-tree-view (preferences:get 'current-project)))]
+                     ;;; insert item
+                     (new-item (get-item-by-path (parent-path path))
+                               (path-only path)
+                               (basepath path))
+                     (send this sort (λ (lhs rhs)
+                                       (string<? (send lhs get-text)
+                                                 (send rhs get-text)))))]
                   [(list 'robust 'remove path)
                    (when (not (ignore? path))
                      (terminate-record-maintainer path)
-                     (refresh-tree-view (preferences:get 'current-project)))]
+                     (remove-item path))]
                   [(list 'robust 'change path)
                    (when (not (ignore? path))
                      (update-maintainer path))]
                   [else (void)])
                 (loop))))
+
+    ; Build a fresh file-tree-view for certain directory
+    (define (fresh-file-tree dir)
+      (set! current-selected (selected dir #f #f))
+      (send this delete-item top-dir-list)
+      (set! top-dir-list (send this new-list set-text-mixin))
+      (send top-dir-list set-text (basename dir))
+      ; add new-item for each member of dir
+      (send top-dir-list user-data (selected dir dir #f))
+      (store-item-into-path dir top-dir-list)
+      (for ([sub (directory-list dir)])
+        (new-item top-dir-list dir sub))
+      ;; open top dir-list by default
+      (send top-dir-list open))
     (preferences:add-callback 'current-project
                               (λ (_ new-dir)
                                 (when (path-string? new-dir)
-                                  (refresh-tree-view new-dir))))))
+                                  (fresh-file-tree new-dir))))))
 
 (define project-files-pane%
   (class horizontal-pane%
@@ -158,7 +184,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (new list-box% [parent new-frame] [label "New"] [choices '("file" "directory")] [callback ask]))
     (define (remove-path-and-refresh btn event)
       (delete-directory/files (send view get-cur-selected-file) #:must-exist? #f))
-    (define (rename-path-and-refresh btn event)
+    (define (rename-path btn event)
       (define selected-dir (send view get-cur-selected-dir))
       (define selected-file (send view get-cur-selected-file))
       (define name (get-text-from-user "new name for selected path?" "" #f (basename selected-file)))
@@ -173,7 +199,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
     (new button% [parent this] [label "add"] [callback add-file/dir])
     (new button% [parent this] [label "remove"] [callback remove-path-and-refresh])
-    (new button% [parent this] [label "rename"] [callback rename-path-and-refresh])))
+    (new button% [parent this] [label "rename"] [callback rename-path])))
 
 (define (ensure-file path)
   (make-parent-directory* path)
