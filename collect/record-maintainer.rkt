@@ -39,8 +39,10 @@
       (loop)))))
 
 (define (create-record-maintainer path [from #f])
-  (thread-send record-maintainer-creator
-               (list 'create from path)))
+  ; only create maintainer for valid path
+  (when (valid-path? path)
+    (thread-send record-maintainer-creator
+                 (list 'create from path))))
 
 (define (future-wait-record-maintainer path future)
   (thread-send record-maintainer-creator
