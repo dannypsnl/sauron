@@ -63,11 +63,7 @@
 (define do-nothing (thread (thunk (let loop ()
                                     (match (thread-receive)
                                       [(list 'get-record from)
-                                       (thread-send from (record 0
-                                                                 (make-interval-map)
-                                                                 (make-interval-map)
-                                                                 (make-hash)
-                                                                 (make-hash)))]
+                                       (thread-send from (make-record))]
                                       [else (void)])
                                     (loop)))))
 

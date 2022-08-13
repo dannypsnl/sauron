@@ -67,7 +67,12 @@
       (log:debug "syncheck:add-definition-target ~a:~a" source-obj id)
       (hash-set! defs id (binding id start end src)))
 
-    (define/public (build-record) (record (current-seconds) doc bindings defs requires))
+    (define/public (build-record)
+      (make-record #:created-time (current-seconds)
+                   #:doc doc
+                   #:bindings bindings
+                   #:defs defs
+                   #:requires requires))
     (super-new)))
 
 (define (collect-from path)
