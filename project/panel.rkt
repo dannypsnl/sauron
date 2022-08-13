@@ -8,12 +8,30 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 (require mrlib/hierlist
          file-watchers
          framework/preferences
-         "../path/util.rkt"
+         sauron/path/ignore
+         sauron/path/util
          sauron/collect/api
          sauron/collect/record-maintainer
-         sauron/project/refresh-collect
          sauron/project/dir-state
          sauron/path/renamer)
+
+(let ([cache-project-dir #f]
+      [cache-project-watcher #f])
+  (preferences:add-callback
+   'current-project
+   (λ (_ new-proj-dir)
+     (when (path-string? new-proj-dir)
+       (unless (equal? new-proj-dir cache-project-dir)
+         ; stop project watcher if existed
+         (when cache-project-watcher
+           (kill-thread cache-project-watcher))
+         ; reset the project watcher
+         (set! cache-project-watcher (robust-watch new-proj-dir))
+         ; start creating
+         (start-tracking new-proj-dir ignore?)
+         ; reset the project directory cache
+         (set! cache-project-dir new-proj-dir)))))
+  (void))
 
 (define set-text-mixin
   (mixin (hierarchical-list-item<%>) ((interface () set-text get-text))
