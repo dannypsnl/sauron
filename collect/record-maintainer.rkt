@@ -3,6 +3,7 @@
          get-record-maintainer
          terminate-record-maintainer)
 (require racket/path
+         racket/future
          racket/function
          racket/match
          sauron/collect/record
@@ -33,8 +34,7 @@
 (define (create-record-maintainer path [from #f])
   ; only create maintainer for valid path
   (when (valid-path? path)
-    (thread-send record-maintainer-creator
-                 (list 'create from path))))
+    (future (thunk (hash-set! path=>maintainer path (thunk (make-record-maintainer path)))))))
 
 (define (get-record-maintainer path #:wait? [wait? #f])
   (cond
@@ -43,7 +43,8 @@
      ; since only one-more thread here, it should not be a big overhead
      (log:warning "cannot create maintainer for invalid path: ~a" path)
      do-nothing]
-    [wait? (create-record-maintainer path (current-thread))
+    [wait? (thread-send record-maintainer-creator
+                        (list 'create (current-thread) path))
            (thread-receive)]
     [else (hash-ref path=>maintainer path #f)]))
 
