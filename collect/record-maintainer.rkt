@@ -5,7 +5,6 @@
 (require racket/path
          racket/function
          racket/match
-         data/interval-map
          sauron/collect/record
          sauron/collect/collector
          sauron/log)
