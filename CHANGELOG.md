@@ -1,6 +1,9 @@
 ### To Release
 
+- [project] remove all unnecessary refreshing
+- [project:fix] double click the empty space of project manager makes a contract violation
 - [internal] file indexing maintaining system
+- [editor] `>>` produces `≫`
 
 ### v1.3.1
 
