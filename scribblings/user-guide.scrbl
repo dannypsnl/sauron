@@ -95,4 +95,9 @@ It has three buttons for quick modify as the following list.
 
 @section{Special symbol(LaTeX/Agda like) support}
 
-Sauron also supports convert input \all to ∀. This is helpful for PLT/Math researchers. Full list can refer to @code[#:lang "racket"]{latex-complete} in @(link "https://github.com/racket-tw/sauron/blob/develop/meta.rkt" "meta.rkt").
+Sauron also supports converting input starting from @litchar{\} when entering the space key after these char sequences, this should be helpful for PLT/Math researchers.
+
+@(require "../meta.rkt")
+@(apply itemlist
+        (for/list ([(cmd output-symbol) (in-hash latex-complete)])
+          @(item (litchar (format "\\~a" cmd)) " converts to " (litchar output-symbol))))
