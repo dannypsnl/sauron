@@ -10,5 +10,5 @@ ctrl/command and alt/option just rely on this function from racket/gui @code{get
 @section{information in preferences}
 
 @itemlist[
-    @item{You can get @code{(preferences:get 'current-project)} to know current editing project, default value is @code{#f}}
-    ]
+ @item{You can get @code{(preferences:get 'current-project)} to know current editing project, default value is @code{#f}}
+ ]
