@@ -44,7 +44,7 @@
 
 (define (create-record-maintainer path)
   (when (valid-path? path)
-    (creator-run (<-np creator 'get path))))
+    (creator-run (<-np creator 'create path))))
 
 (define (get-record-maintainer path)
   (when (valid-path? path)
