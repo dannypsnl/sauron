@@ -37,11 +37,12 @@
   (match-define (struct* record ([doc doc]))
     (get-record path))
   doc)
-(define (jump-to-def path from-pos)
+(define (jump-to-def path from-pos callback)
   ; (match-define (struct* record ([bindings bindings]))
   ;   (get-record path))
   ; (interval-map-ref bindings from-pos #f)
-  (m-run ($ (get-record-maintainer path) 'fetch-jump-target from-pos)))
+  (m-run ($ (get-record-maintainer path)
+            'fetch-jump-target from-pos callback)))
 
 ;;; try get record from maintainer map via path
 (define (get-record path)

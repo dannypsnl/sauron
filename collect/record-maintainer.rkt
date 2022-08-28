@@ -43,6 +43,9 @@
 (define (create-record-maintainer path)
   (when (valid-path? path)
     (creator-run (<-np creator 'create path))))
+
+;;; NOTE: you cannot call this function in `^maintainer` actor
+; else you will run into an infinition loop
 (define (get-record-maintainer path)
   (when (valid-path? path)
     (creator-run ($ creator 'get path))))
@@ -55,14 +58,16 @@
   (define (loop cur-record)
     (methods
      [(find-definition identifier) (hash-ref (record-defs cur-record) identifier #f)]
-     [(fetch-jump-target from-pos)
+     [(fetch-jump-target from-pos callback)
       (match (interval-map-ref (record-bindings cur-record) from-pos #f)
         ; external module definition
-        [(binding id #f #f path)
-         (define another-m (get-record-maintainer path))
-         ($ another-m 'find-definition id)]
+        [(binding id #f #f target-module-path)
+         (on (<- creator 'get target-module-path)
+             (lambda (another-m)
+               ;;; FIXME: how to bring this information out of the actor?
+               (callback ($ another-m 'find-definition id))))]
         ; current module definition or a no definition
-        [binding binding])]
+        [binding (callback binding)])]
      [(get-record) cur-record]
      [(update)
       (bcom (loop (if ((record-created-time cur-record) . < . (file-or-directory-modify-seconds filename))
