@@ -52,6 +52,7 @@
                                                   level
                                                   require-arrow?
                                                   name-dup?)
+      (println require-arrow?)
       (define id (string->symbol (send text get-text end-left end-right)))
       (unless require-arrow?
         (interval-map-set! bindings
@@ -74,6 +75,21 @@
                    #:defs defs
                    #:requires requires))
     (super-new)))
+
+(define (collect-from-editor editor)
+  (define text editor)
+  (define collector (new collector% [src #f] [text editor]))
+  (log:info "collect-from editor: ~a" editor)
+  (define in (open-input-string (send editor get-text)))
+
+  (try (define ns (make-base-namespace))
+       (define-values (add-syntax done) (make-traversal ns #f))
+       (parameterize ([current-annotations collector]
+                      [current-namespace ns])
+         (add-syntax (expand (read in)))
+         (done))
+       (catch _ (log:error "collec failed")))
+  (send collector build-record))
 
 (define (collect-from path)
   (define text (new text%))
@@ -116,4 +132,5 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (bytes->string/utf-8 v)))
 
 (module+ main
-  (record-doc (collect-from (normalize-path "collector.rkt"))))
+  (void (record-doc (collect-from (normalize-path "collector.rkt"))))
+  )
