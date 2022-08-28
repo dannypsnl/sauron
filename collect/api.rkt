@@ -3,6 +3,7 @@
          update
          create)
 (require data/interval-map
+         goblins
          sauron/collect/record
          sauron/collect/record-maintainer)
 
@@ -26,8 +27,7 @@
   (create-record-maintainer path))
 ;;; tell corresponding maintainer update the record
 (define (update path)
-  (thread-send (get-record-maintainer path #:wait? #t)
-               (list 'update)))
+  (m-run (<-np (get-record-maintainer path) 'update)))
 
 (define (require-location? path require)
   (match-define (struct* record ([requires requires]))
@@ -48,6 +48,4 @@
 
 ;;; try get record from maintainer map via path
 (define (get-record path)
-  (thread-send (get-record-maintainer path #:wait? #t)
-               (list 'get-record (current-thread)))
-  (thread-receive))
+  (m-run ($ (get-record-maintainer path) 'get-record)))

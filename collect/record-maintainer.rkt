@@ -1,83 +1,77 @@
 #lang racket/base
 (provide create-record-maintainer
          get-record-maintainer
-         terminate-record-maintainer)
+         terminate-record-maintainer
+         ; goblins
+         m-run)
 (require racket/path
-         racket/future
-         racket/function
-         racket/match
+         goblins
+         goblins/actor-lib/bootstrap
+         goblins/actor-lib/methods
          sauron/collect/record
          sauron/collect/collector
          sauron/log)
+
+(define creator-vat (make-vat))
+(define-vat-run creator-run
+  creator-vat)
+
+(define m-vat (make-vat))
+(define-vat-run m-run
+  m-vat)
 
 (define (valid-path? file-path)
   (and (file-exists? file-path)
        (path-has-extension? file-path #".rkt")))
 
-(define path=>maintainer (make-hash))
-;;; The constraint is only `record-maintainer-creator` allowed to create new maintainer
-; but anyone might like to create one concurrently, so `hash-ref!` here blocked all repeated creation
-; since `thread-receive` ensure every creation is proceeded one by one
-; if the previous `loop` created one, the next `loop` will skip existing creation
-(define record-maintainer-creator
-  (thread
-   (thunk
-    (let loop ()
-      (match (thread-receive)
-        [(list 'create from path)
-         (define mt (hash-ref! path=>maintainer path (thunk (make-record-maintainer path))))
-         ; `from` must be another thread
-         (when from
-           (thread-send from mt))])
-      (loop)))))
+(define (^maintainer-creator bcom)
+  (define (next map)
+    (methods
+     [(create filename)
+      (bcom (next (hash-set map filename (m-run (spawn ^maintainer filename)))))]
+     [(get filename) (if (hash-has-key? map filename)
+                         (hash-ref map filename)
+                         (let ([newmap (hash-set map filename
+                                                 (m-run (spawn ^maintainer filename)))])
+                           (bcom (next newmap)
+                                 (hash-ref newmap filename))))]))
+  (next (hash)))
 
-(define (create-record-maintainer path [from #f])
-  ; only create maintainer for valid path
+(define creator (creator-run (spawn ^maintainer-creator)))
+
+(define (create-record-maintainer path)
   (when (valid-path? path)
-    (future (thunk (hash-set! path=>maintainer path (thunk (make-record-maintainer path)))))))
+    (creator-run (<-np creator 'get path))))
 
-(define (get-record-maintainer path #:wait? [wait? #f])
+(define (get-record-maintainer path)
   (cond
     [(not (valid-path? path))
-     ; when path is invalid, return same thread to handle all non-sense requirement
-     ; since only one-more thread here, it should not be a big overhead
      (log:warning "cannot create maintainer for invalid path: ~a" path)
      do-nothing]
-    [wait? (thread-send record-maintainer-creator
-                        (list 'create (current-thread) path))
-           (thread-receive)]
-    [else (hash-ref path=>maintainer path #f)]))
+    [else (creator-run ($ creator 'get path))]))
 
 (define (terminate-record-maintainer path)
-  (when (valid-path? path)
-    (define maintainer (get-record-maintainer path))
-    (when maintainer
-      (kill-thread maintainer)
-      (hash-set! path=>maintainer path #f))))
+  ; do nothing for now, let's see if we should do something to cleanup our maintainer actor
+  (void))
+
+(define (^maintainer bcom filename)
+  (define (loop cached-record)
+    (methods
+     [(get-record) cached-record]
+     [(update)
+      (bcom (loop (if ((record-created-time cached-record) . < . (file-or-directory-modify-seconds filename))
+                      (collect-from filename)
+                      cached-record)))]))
+  (loop (collect-from filename)))
 
 ;;; this thread do nothing and provide fake reply is need
 ; the purpose is making sure the caller will fail gratefully, but no need to handle exception
 ; this is because the caller already think cannot fetch data is normal
 ; in editor, users can always try to get jump to definition even no definition exists
 ; so caller will just ignore the operation, thus, another error handling shouldn't be there
-(define do-nothing (thread (thunk (let loop ()
-                                    (match (thread-receive)
-                                      [(list 'get-record from)
-                                       (thread-send from (make-record))]
-                                      [else (void)])
-                                    (loop)))))
-
-(define (make-record-maintainer file-path)
-  (thread
-   (thunk
-    (define cached-record (collect-from file-path))
-    (let loop ()
-      (match (thread-receive)
-        [(list 'update)
-         (match-define (struct* record ([created-time created-time])) cached-record)
-         (when (< created-time (file-or-directory-modify-seconds file-path))
-           (set! cached-record (collect-from file-path)))]
-        ;; to invoke this, you must provide your thread-id as from
-        [(list 'get-record from)
-         (thread-send from cached-record)])
-      (loop)))))
+(define (^do-nothing-maintainer bcom)
+  (define (loop record)
+    (methods
+     [(get-record) record]))
+  (loop (make-record)))
+(define do-nothing (m-run (spawn ^do-nothing-maintainer)))
