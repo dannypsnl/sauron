@@ -12,8 +12,7 @@
          goblins/actor-lib/methods
          sauron/collect/record
          sauron/collect/binding
-         sauron/collect/collector
-         sauron/log)
+         sauron/collect/collector)
 
 (define creator-vat (make-vat))
 (define-vat-run creator-run
@@ -28,15 +27,16 @@
        (path-has-extension? file-path #".rkt")))
 
 (define (^maintainer-creator bcom)
-  (define (next map)
+  (define (next cur-map)
     (methods
      [(create filename)
-      (bcom (next (hash-set map filename (m-run (spawn ^maintainer filename)))))]
-     [(get filename) (if (hash-has-key? map filename)
-                         (hash-ref map filename)
-                         (let ([m (m-run (spawn ^maintainer filename))])
-                           (bcom (next (hash-set map filename m))
-                                 m)))]))
+      (bcom (next (hash-set cur-map filename (m-run (spawn ^maintainer filename)))))]
+     [(get filename)
+      (if (hash-has-key? cur-map filename)
+          (hash-ref cur-map filename)
+          (let ([m (m-run (spawn ^maintainer filename))])
+            (bcom (next (hash-set cur-map filename m))
+                  m)))]))
   (next (hash)))
 
 (define creator (creator-run (spawn ^maintainer-creator)))
@@ -52,22 +52,22 @@
   (void))
 
 (define (^maintainer bcom filename)
-  (define (loop cached-record)
+  (define (loop cur-record)
     (methods
-     [(find-definition identifier) (hash-ref (record-defs cached-record) identifier #f)]
+     [(find-definition identifier) (hash-ref (record-defs cur-record) identifier #f)]
      [(fetch-jump-target from-pos)
-      (match (interval-map-ref (record-bindings cached-record) from-pos #f)
+      (match (interval-map-ref (record-bindings cur-record) from-pos #f)
         ; external module definition
         [(binding id #f #f path)
          (define another-m (get-record-maintainer path))
          ($ another-m 'find-definition id)]
         ; current module definition or a no definition
         [binding binding])]
-     [(get-record) cached-record]
+     [(get-record) cur-record]
      [(update)
-      (bcom (loop (if ((record-created-time cached-record) . < . (file-or-directory-modify-seconds filename))
+      (bcom (loop (if ((record-created-time cur-record) . < . (file-or-directory-modify-seconds filename))
                       (collect-from filename)
-                      cached-record)))]))
+                      cur-record)))]))
   (loop (collect-from filename)))
 
 ;;; this thread do nothing and provide fake reply is need
