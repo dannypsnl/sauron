@@ -6,6 +6,7 @@
            "data-lib"
            "drracket-plugin-lib"
            "drracket-tool-lib"
+           "goblins"
            "file-watchers"
            "raco-invoke"
            ; syntax
