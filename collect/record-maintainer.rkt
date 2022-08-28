@@ -5,10 +5,13 @@
          ; goblins
          m-run)
 (require racket/path
+         racket/match
+         data/interval-map
          goblins
          goblins/actor-lib/bootstrap
          goblins/actor-lib/methods
          sauron/collect/record
+         sauron/collect/binding
          sauron/collect/collector
          sauron/log)
 
@@ -44,11 +47,8 @@
     (creator-run (<-np creator 'get path))))
 
 (define (get-record-maintainer path)
-  (cond
-    [(not (valid-path? path))
-     (log:warning "cannot create maintainer for invalid path: ~a" path)
-     do-nothing]
-    [else (creator-run ($ creator 'get path))]))
+  (when (valid-path? path)
+    (creator-run ($ creator 'get path))))
 
 (define (terminate-record-maintainer path)
   ; do nothing for now, let's see if we should do something to cleanup our maintainer actor
@@ -57,6 +57,15 @@
 (define (^maintainer bcom filename)
   (define (loop cached-record)
     (methods
+     [(find-definition identifier) (hash-ref (record-defs cached-record) identifier #f)]
+     [(fetch-jump-target from-pos)
+      (match (interval-map-ref (record-bindings cached-record) from-pos #f)
+        ; external module definition
+        [(binding id #f #f path)
+         (define another-m (get-record-maintainer path))
+         ($ another-m 'find-definition id)]
+        ; current module definition or a no definition
+        [binding binding])]
      [(get-record) cached-record]
      [(update)
       (bcom (loop (if ((record-created-time cached-record) . < . (file-or-directory-modify-seconds filename))
