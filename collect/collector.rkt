@@ -89,7 +89,8 @@
                       [current-namespace ns]
                       [current-load-relative-directory src-dir])
          (define stx (expand (with-module-reading-parameterization (λ () (read-syntax path in)))))
-         (add-syntax stx))
+         (add-syntax stx)
+         (done))
        (log:info "collect-from path done: ~a" path)
        (catch _ (log:error "collect-from path: ~a failed" path)))
   (send collector build-record))
