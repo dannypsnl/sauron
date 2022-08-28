@@ -1,5 +1,6 @@
 ### To Release
 
+- [editor] c+s+t reopen recently closed tab
 - [project] remove all unnecessary refreshing
 - [project:fix] double click the empty space of project manager makes a contract violation
 - [internal] file indexing maintaining system

@@ -72,6 +72,14 @@
                 (define ed (send tab get-defs))
                 (send ed set-position pos)])))
 
+;;; c+s+t reopen the recently closed tab
+(cmd/ctrl+ "s:t"
+           (λ (editor event)
+             (send+ editor
+                    (get-tab)
+                    (get-frame)
+                    (reopen-closed-tab))))
+
 ;;; delete whole thing from current position to the start of line
 (cmd/ctrl+ "backspace"
            (λ (editor event)
