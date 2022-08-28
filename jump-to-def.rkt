@@ -13,11 +13,13 @@
   (match (jump-to-def filepath from-pos)
     [(binding id #f #f path)
      (jump-add (send editor get-tab) (send editor get-start-position))
-     (define frame (send (send editor get-tab) get-frame))
+     (define frame (send+ editor (get-tab) (get-frame)))
      (prepare-editor-for frame path)
      (match (get-def path id)
        [(struct* binding ([start start] [end end]))
-        (send (send frame get-editor) set-position start end)])]
+        (send+ frame
+               (get-editor)
+               (set-position start end))])]
     [(struct* binding ([start start] [end end]))
      (jump-add (send editor get-tab) (send editor get-start-position))
      (send editor set-position start end)]
