@@ -34,18 +34,15 @@
       (bcom (next (hash-set map filename (m-run (spawn ^maintainer filename)))))]
      [(get filename) (if (hash-has-key? map filename)
                          (hash-ref map filename)
-                         (let ([newmap (hash-set map filename
-                                                 (m-run (spawn ^maintainer filename)))])
-                           (bcom (next newmap)
-                                 (hash-ref newmap filename))))]))
+                         (let ([m (m-run (spawn ^maintainer filename))])
+                           (bcom (next (hash-set map filename m))
+                                 m)))]))
   (next (hash)))
 
 (define creator (creator-run (spawn ^maintainer-creator)))
-
 (define (create-record-maintainer path)
   (when (valid-path? path)
     (creator-run (<-np creator 'create path))))
-
 (define (get-record-maintainer path)
   (when (valid-path? path)
     (creator-run ($ creator 'get path))))
