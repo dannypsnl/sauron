@@ -144,13 +144,14 @@
                     [on-select (λ (path) (preferences:set 'current-project path))]))
              (send manager run)))
 
-(cmd/ctrl+
- "d"
- (λ (editor event)
-   (define doc-page?
-     (interval-map-ref (get-doc (send editor get-filename)) (send editor get-start-position) #f))
-   (when doc-page?
-     (send-url doc-page? #f))))
+(cmd/ctrl+ "d"
+           (λ (editor event)
+             (define filename-<?> (send editor get-filename))
+             (when filename-<?>
+               ;;; FIXME: this should also works for untitled file
+               (define doc-page-<?> (get-doc filename-<?> (send editor get-start-position)))
+               (when doc-page-<?>
+                 (send-url doc-page-<?> #f)))))
 
 (keybinding "(" (λ (editor event) (send-command "insert-()-pair" editor event)))
 (keybinding "[" (λ (editor event) (send-command "insert-[]-pair" editor event)))
