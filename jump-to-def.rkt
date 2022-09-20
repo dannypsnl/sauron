@@ -9,23 +9,21 @@
 ;;; NOTE: per tab per editor
 ; thus, when switching to another tab, the editor must re-fetching from frame
 (define (jump-to-definition editor from-pos)
-  (define filename-<?> (send editor get-filename))
-  (when filename-<?>
-    ;;; FIXME: this should also works for untitled file
-    (match (jump-to-def filename-<?> from-pos)
-      [(binding id #f #f path)
-       (jump-add (send editor get-tab) (send editor get-start-position))
-       (define frame (send+ editor (get-tab) (get-frame)))
-       (prepare-editor-for frame path)
-       (match (get-def path id)
-         [(struct* binding ([start start] [end end]))
-          (send+ frame
-                 (get-editor)
-                 (set-position start end))])]
-      [(struct* binding ([start start] [end end]))
-       (jump-add (send editor get-tab) (send editor get-start-position))
-       (send editor set-position start end)]
-      [_ (log:info "cannot jump to definition from ~a:~a" filename-<?> from-pos)])))
+  (define filename (send editor get-filename))
+  (match (jump-to-def filename from-pos)
+    [(binding id #f #f path)
+     (jump-add (send editor get-tab) (send editor get-start-position))
+     (define frame (send+ editor (get-tab) (get-frame)))
+     (prepare-editor-for frame path)
+     (match (get-def path id)
+       [(struct* binding ([start start] [end end]))
+        (send+ frame
+               (get-editor)
+               (set-position start end))])]
+    [(struct* binding ([start start] [end end]))
+     (jump-add (send editor get-tab) (send editor get-start-position))
+     (send editor set-position start end)]
+    [_ (log:info "cannot jump to definition from ~a:~a" filename from-pos)]))
 
 (define (prepare-editor-for frame path)
   (define tab-of-path-<?> (send frame find-matching-tab path))
