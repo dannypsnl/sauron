@@ -38,11 +38,17 @@
 (cmd/ctrl+ "s"
            (λ (editor event)
              (when (object-method-arity-includes? editor 'set-needs-execution-message 1)
-               (define project-dir (preferences:get 'current-project))
                (define filename (send editor get-filename))
                (if filename
+                   ; if file exists
                    (send editor save-file)
-                   (if project-dir (finder:put-file "Untitled" project-dir) (finder:put-file))))))
+                   ; else invoke the finder helper to store file
+                   (let ([project-dir (preferences:get 'current-project)])
+                     (define filename (if project-dir
+                                          (finder:put-file "Untitled" project-dir)
+                                          (finder:put-file)))
+                     (send editor save-file filename)
+                     )))))
 ;;; c+x cut line if no selection, else cut selection
 (cmd/ctrl+ "x"
            (λ (editor event)

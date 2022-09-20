@@ -1,5 +1,6 @@
 ### To Release
 
+- [editor] c+s fix **save file**
 - [editor] c+b for untitled tab
 - [editor] c+s+t reopen recently closed tab
 - [project] remove all unnecessary refreshing
