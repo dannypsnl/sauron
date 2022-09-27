@@ -1,7 +1,8 @@
 #lang scribble/manual
-@require[@for-label[sauron racket
-                    racket/gui
-                    framework/preferences]]
+@(require (for-label sauron
+                     racket
+                     racket/gui
+                     framework/preferences))
 
 @title[#:tag "develop"]{Develop}
 
