@@ -1,11 +1,14 @@
 ### To Release
 
+### v1.4.0
+
 - [editor] c+s fix **save file**
 - [editor] c+b for untitled tab
 - [editor] c+s+t reopen recently closed tab
 - [project] remove all unnecessary refreshing
 - [project:fix] double click the empty space of project manager makes a contract violation
-- [internal] file indexing maintaining system
+- [project] huge speedup
+  - [internal] file indexing maintaining system
 - [editor] `>>` produces `≫`
 
 ### v1.3.1
