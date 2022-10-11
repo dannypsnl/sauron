@@ -118,7 +118,9 @@
       (update-by-checkbox check-box))))
 
 (module+ main
-  (define testing-dir (build-path (find-system-path 'home-dir) "racket.tw" "sauron"))
+  (require racket/runtime-path)
+
+  (define-runtime-path testing-dir ".")
   (unless (directory-exists? testing-dir)
     (error 'file "no such dir"))
 
@@ -154,3 +156,5 @@
                                    [λ-remove-from-ready (λ (a b) (void))]
                                    [status 'ready]))
              (send ready-fo remove-from-ready)))
+
+
