@@ -1,7 +1,7 @@
 # sauron
 
-[![Test](https://github.com/racket-tw/sauron/actions/workflows/test.yml/badge.svg)](https://github.com/racket-tw/sauron/actions/workflows/test.yml)
-[![Coverage Status](https://badgen.net/https/racket-tw.github.io/sauron/coverage/badge.json)](https://racket-tw.github.io/sauron/coverage)
+[![Test](https://github.com/dannypsnl/sauron/actions/workflows/test.yml/badge.svg)](https://github.com/dannypsnl/sauron/actions/workflows/test.yml)
+[![Coverage Status](https://badgen.net/https/dannypsnl.github.io/sauron/coverage/badge.json)](https://dannypsnl.github.io/sauron/coverage)
 
 Sauron is a plugin of DrRacket to make it be a better Racket IDE, see more in [user guide][user-guide], the following shows something you can do with the plugin.
 
