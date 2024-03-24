@@ -64,6 +64,15 @@
       (interval-map-set! bindings start (add1 end) (binding id #f #f filename)))
 
     (define/override (syncheck:add-definition-target source-obj start end id mods)
+      ; Record a definition which named `id` in this document, maps its name `id` to its meta data,
+      ; 1. start position
+      ; 2. end position
+      ; 3. source file
+      ; so an external user can find where to jump.
+      ;
+      ; e.g.
+      ;
+      ;   (define id <expr>)
       (log:debug "syncheck:add-definition-target ~a:~a" source-obj id)
       (hash-set! defs id (binding id start end src)))
 
