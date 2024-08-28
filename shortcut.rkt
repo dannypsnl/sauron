@@ -25,8 +25,8 @@
   (match (system-type 'os)
     ;; `a` is option
     ['macosx (format "a:~a" key)]
-    ;; `~c` is alt
-    [_ (string-append "~c:" key)]))
+    ;; `~c:m` is alt or meta
+    [_ (string-append "~c:m:" key)]))
 (define (send-command command editor event)
   (send (send editor get-keymap) call-function command editor event #t))
 
