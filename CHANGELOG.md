@@ -1,5 +1,9 @@
 ### To Release
 
+### v1.4.1
+
+- [editor] fix a linux/windows binding bug that all alt/meta are actually wrong
+
 ### v1.4.0
 
 - [editor] c+s fix **save file**
