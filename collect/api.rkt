@@ -44,6 +44,7 @@
   (match-define (struct* record ([bindings bindings]))
     (get-record path))
   (interval-map-ref bindings from-pos #f))
+; get-def : path id -> binding
 (define (get-def path id)
   (match-define (struct* record ([defs defs]))
     (get-record path))

@@ -4,10 +4,13 @@
 
 (struct binding
   (name start end external?)
-  #:transparent)
+  #:prefab)
 
 (module+ test
-  (require rackunit)
+  (require rackunit
+           racket/place)
 
   (check-equal? (binding "fake" 0 1 #t)
-                (binding "fake" 0 1 #t)))
+                (binding "fake" 0 1 #t))
+  (check-true (place-message-allowed? (binding "fake" 0 1 #t)))
+  )
