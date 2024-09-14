@@ -1,5 +1,8 @@
 #lang racket
-(provide (all-defined-out)
+(provide require-location?
+         get-doc
+         jump-to-def
+         get-def
          update
          create)
 (require data/interval-map
