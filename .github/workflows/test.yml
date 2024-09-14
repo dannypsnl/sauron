@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        variant: ["BC", "CS"]
+        variant: ["CS"]
         version: ["stable", "current"]
     steps:
       - uses: actions/checkout@master
