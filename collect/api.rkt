@@ -6,9 +6,7 @@
          get-def
          update
          create)
-(require data/interval-map
-         sauron/collect/record
-         sauron/collect/record-maintainer)
+(require sauron/collect/record-maintainer)
 
 (define (start-tracking directory ignore?)
   ; NOTE: `fold-files` reduces about 100MB compare with `find-files`
@@ -33,26 +31,31 @@
   (thread-send (get-record-maintainer path #:wait? #t)
                (list 'update)))
 
+; require-location? : path path -> list
 (define (require-location? path require)
-  (match-define (struct* record ([requires requires]))
-    (get-record path))
-  (hash-ref requires require #f))
+  (thread-send (get-record-maintainer path #:wait? #t)
+               (list 'require-location?
+                     (current-thread)
+                     require))
+  (thread-receive))
+; get-doc : path pos:exact-integer? -> string
 (define (get-doc path pos)
-  (match-define (struct* record ([doc doc]))
-    (get-record path))
-  (interval-map-ref doc pos #f))
+  (thread-send (get-record-maintainer path #:wait? #t)
+               (list 'get-doc
+                     (current-thread)
+                     pos))
+  (thread-receive))
+; jump-to-def : path pos:exact-integer? -> binding
 (define (jump-to-def path from-pos)
-  (match-define (struct* record ([bindings bindings]))
-    (get-record path))
-  (interval-map-ref bindings from-pos #f))
+  (thread-send (get-record-maintainer path #:wait? #t)
+               (list 'jump-to-def
+                     (current-thread)
+                     from-pos))
+  (thread-receive))
 ; get-def : path id -> binding
 (define (get-def path id)
-  (match-define (struct* record ([defs defs]))
-    (get-record path))
-  (hash-ref defs id #f))
-
-;;; try get record from maintainer map via path
-(define (get-record path)
   (thread-send (get-record-maintainer path #:wait? #t)
-               (list 'get-record (current-thread)))
+               (list 'get-def
+                     (current-thread)
+                     id))
   (thread-receive))

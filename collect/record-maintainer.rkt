@@ -6,6 +6,7 @@
          racket/future
          racket/function
          racket/match
+         data/interval-map
          sauron/collect/record
          sauron/collect/collector
          sauron/log)
@@ -77,7 +78,21 @@
          (match-define (struct* record ([created-time created-time])) cached-record)
          (when (< created-time (file-or-directory-modify-seconds file-path))
            (set! cached-record (collect-from file-path)))]
-        ;; to invoke this, you must provide your thread-id as from
-        [(list 'get-record from)
-         (thread-send from cached-record)])
+
+        [(list 'require-location? from require)
+         (define requires (record-requires cached-record))
+         (thread-send from (hash-ref requires require #f))]
+
+        [(list 'get-doc from pos)
+         (define doc (record-doc cached-record))
+         (thread-send from (interval-map-ref doc pos #f))]
+
+        [(list 'jump-to-def from from-pos)
+         (define bindings (record-bindings cached-record))
+         (thread-send from (interval-map-ref bindings from-pos #f))]
+
+        [(list 'get-def from id)
+         (define defs (record-defs cached-record))
+         (thread-send from (hash-ref defs id #f))]
+        )
       (loop)))))
