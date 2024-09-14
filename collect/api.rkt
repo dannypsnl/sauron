@@ -1,5 +1,6 @@
 #lang racket
-(provide require-location?
+(provide start-tracking
+         require-location?
          get-doc
          jump-to-def
          get-def
