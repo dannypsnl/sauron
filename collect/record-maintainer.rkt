@@ -52,8 +52,8 @@
   (when (valid-path? path)
     (define maintainer (get-record-maintainer path))
     (when maintainer
-      (kill-thread maintainer)
-      (hash-set! path=>maintainer path #f))))
+      (hash-set! path=>maintainer path #f)
+      (kill-thread maintainer))))
 
 ;;; this thread do nothing and provide fake reply is need
 ; the purpose is making sure the caller will fail gratefully, but no need to handle exception
