@@ -71,13 +71,14 @@
 (define (make-record-maintainer file-path)
   (thread
    (thunk
-    (define cached-record (collect-from file-path))
+    (define ns (make-base-namespace))
+    (define cached-record (collect-from file-path ns))
     (let loop ()
       (match (thread-receive)
         [(list 'update)
          (match-define (struct* record ([created-time created-time])) cached-record)
          (when (< created-time (file-or-directory-modify-seconds file-path))
-           (set! cached-record (collect-from file-path)))]
+           (set! cached-record (collect-from file-path ns)))]
 
         [(list 'require-location? from require)
          (define requires (record-requires cached-record))

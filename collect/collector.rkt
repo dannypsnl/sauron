@@ -84,7 +84,7 @@
                    #:requires requires))
     (super-new)))
 
-(define (collect-from path)
+(define (collect-from path ns)
   (define text (new text%))
   (send text load-file path)
   (define collector (new collector% [src path] [text text]))
@@ -92,8 +92,7 @@
   (log:info "collect-from path: ~a" path)
   (define in (open-input-string (send text get-text)))
 
-  (try (define ns (make-base-namespace))
-       (define-values (add-syntax done) (make-traversal ns src-dir))
+  (try (define-values (add-syntax done) (make-traversal ns src-dir))
        (parameterize ([current-annotations collector]
                       [current-namespace ns]
                       [current-load-relative-directory src-dir])
@@ -125,4 +124,5 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     (bytes->string/utf-8 v)))
 
 (module+ main
-  (record-doc (collect-from (normalize-path "collector.rkt"))))
+  (define ns (make-base-namespace))
+  (record-doc (collect-from (normalize-path "collector.rkt") ns)))
