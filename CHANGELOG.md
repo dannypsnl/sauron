@@ -1,5 +1,8 @@
 ### To Release
 
+- cache namespace in record maintainer (see #225)
+- stop ensure BC will work
+
 ### v1.4.1
 
 - [editor] fix a linux/windows binding bug that all alt/meta are actually wrong
