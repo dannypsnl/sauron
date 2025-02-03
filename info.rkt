@@ -12,7 +12,7 @@
            "try-catch-finally-lib"
            "curly-fn-lib"
            ; bundle
-           "new"
+           "raco-new"
            "drcomplete"))
 (define build-deps '("scribble-lib" "racket-doc" "rackunit-lib" "gui-doc"))
 (define scribblings '(("scribblings/sauron.scrbl" (multi-page) ("DrRacket Plugins"))))
