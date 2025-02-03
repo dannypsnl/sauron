@@ -1,5 +1,6 @@
 ### To Release
 
+- dependency: `from-template` -> `raco-new`
 - cache namespace in record maintainer (see #225)
 - stop ensure BC will work
 
