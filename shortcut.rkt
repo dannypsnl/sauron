@@ -32,6 +32,67 @@
 
 ;;; c+e run REPL
 (cmd/ctrl+ "e" (λ (editor event) (send-command "run" editor event)))
+;;; c+enter run selected, enclosed, or nearest expression
+(cmd/ctrl+ "enter" (λ (editor _event)
+  (define shift-focus? #f)
+  (define sp (send editor get-start-position))
+  (cond
+    [(not (= sp (send editor get-end-position)))
+      ;; we have a selection, send that to REPL
+      (send-range-to-repl editor (send editor get-start-position) (send editor get-end-position) shift-focus?)]
+    [(send editor find-up-sexp sp)
+      ;; we are inside some expression;
+      ;; find the enclosing expression
+      (define pos (send editor find-up-sexp sp))
+      (send-range-to-repl editor
+                          pos
+                          (send editor get-forward-sexp pos)
+                          shift-focus?)]
+    [else
+      ;; we are in the top-level, try best to find a next (foward) or previous (backward) expression
+      (define fw (send editor get-forward-sexp sp))
+      (define bw (send editor get-backward-sexp sp))
+      (cond
+        ; no proper expression can be sent to REPL, do nothing
+        [(and (not fw) (not bw)) (void)]
+        [(not fw) (send-range-to-repl editor bw (send editor get-forward-sexpr bw) shift-focus?)]
+        [else (send-range-to-repl editor (send editor get-backward-sexp fw) fw shift-focus?)])])))
+
+(define (send-range-to-repl editor start end shift-focus?)
+  #|
+  start to end is the fragment (should be an expression) be sent to REPL
+  shift-focus? is #t, the focus will move to REPL panel
+  |#
+  (unless (= start end) ;; don't send empty regions
+    (define ints (send (send editor get-tab) get-ints))
+    (define frame (send (send editor get-tab) get-frame))
+    ;; copy the expression over to the interactions window
+    (send editor move/copy-to-edit 
+          ints start end
+          (send ints last-position)
+          #:try-to-move? #f)
+    
+    ;; erase any trailing whitespace
+    (let loop ()
+      (define last-pos (- (send ints last-position) 1))
+      (when (last-pos . > . 0)
+        (define last-char (send ints get-character last-pos))
+        (when (char-whitespace? last-char)
+          (send ints delete last-pos (+ last-pos 1))
+          (loop))))
+    
+    ;; put back a single newline
+    (send ints insert
+          "\n"
+          (send ints last-position)
+          (send ints last-position))
+    
+    ;; make sure the interactions is visible 
+    ;; and run the submitted expression
+    (send frame ensure-rep-shown ints)
+    (when shift-focus? (send (send ints get-canvas) focus))
+    (send ints do-submission)))
+
 ;;; c+r rename identifier
 (cmd/ctrl+ "r" (λ (editor event) (send-command "Rename Identifier" editor event)))
 ;;; c+s save file

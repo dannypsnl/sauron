@@ -9,7 +9,8 @@ Sauron is a plugin of DrRacket to make it be a better Racket IDE, see more in [u
 2. File explorer
 3. Auto formatting
 4. Jump to definition
-5. ...
+5. Execute selection, enclosed, or nearest expression
+6. ...
 
 ### Install
 
