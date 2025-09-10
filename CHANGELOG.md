@@ -1,8 +1,12 @@
 ### To Release
 
+### v1.5.1
+
+- [editor:fix] c+enter in REPL won't crash now
+
 ### v1.5.0
 
-- Execute selection, enclosed, or nearest expression
+- c+enter execute selection, enclosed, or nearest expression
 - dependency: `from-template` -> `raco-new`
 - cache namespace in record maintainer (see #225)
 - stop ensure BC will work

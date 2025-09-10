@@ -55,7 +55,7 @@
       (cond
         ; no proper expression can be sent to REPL, do nothing
         [(and (not fw) (not bw)) (void)]
-        [(not fw) (send-range-to-repl editor bw (send editor get-forward-sexpr bw) shift-focus?)]
+        [(not fw) (send-range-to-repl editor bw (send editor get-forward-sexp bw) shift-focus?)]
         [else (send-range-to-repl editor (send editor get-backward-sexp fw) fw shift-focus?)])])))
 
 (define (send-range-to-repl editor start end shift-focus?)
