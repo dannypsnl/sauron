@@ -5,7 +5,8 @@
 In sauron, all @litchar{cmd}/@litchar{ctrl} would be called @litchar{c}, @litchar{alt}/@litchar{option} called @litchar{o}.
 
 @itemlist[
- @item{@litchar{c+e} run REPL}
+ @item{@litchar{c+e} run whole file and show result in REPL panel}
+ @item{@litchar{c+enter} run selection, wrapper, next, or previous expression in REPL}
  ;;; project management
  @item{@litchar{c+m} open project manager}
  @item{@litchar{c+y} show/hide project files viewer (Linux, MacOS only)}
