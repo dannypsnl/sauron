@@ -123,7 +123,7 @@
                         [end (send editor line-end-position end-line)])
                    (send editor set-position start end)))
                (send-command "cut-clipboard" editor event))))
-;;; c+b jump to definition
+;;; c+b jump to the definition location
 (define (jump-to-def editor event)
   (define filename-<?> (send editor get-filename))
   (if filename-<?>
@@ -140,6 +140,15 @@
                 (send frame change-to-tab tab)
                 (define ed (send tab get-defs))
                 (send ed set-position pos)])))
+(define (list-references)
+  ; TODO
+  (void))
+(cmd/ctrl+ "x"
+  (lambda (editor event)
+    (define filename-<?> (send editor get-filename))
+    (if filename-<?>
+      (list-references)
+      (send-command "Jump to Next Bound Occurrence" editor event))))
 
 ;;; c+s+t reopen the recently closed tab
 (cmd/ctrl+ "s:t"

@@ -6,10 +6,21 @@
          syntax/modread
          net/url
          data/interval-map
+         framework/preferences
          try-catch-finally
          sauron/collect/binding
          sauron/collect/record
          sauron/log)
+
+(define (project-files)
+  (define dir (preferences:get 'current-project))
+  (if dir
+    (list->set
+      (map path->complete-path (find-files (lambda (p) (path-has-extension? p #".rkt")) dir)))
+    (set)))
+(define projectwise-references (make-hash))
+(define (find-nonlocal-references uri symbol)
+  (dict-ref projectwise-references (list uri symbol)))
 
 (define collector%
   (class (annotations-mixin object%)
@@ -61,7 +72,13 @@
 
     (define/override (syncheck:add-jump-to-definition source-obj start end id filename submods)
       (log:debug "syncheck:add-jump-to-definition ~a" filename)
-      (interval-map-set! bindings start (add1 end) (binding id #f #f filename)))
+      (define end- (if (= start end) (add1 end) end))
+      (when (set-member? (project-files) filename)
+        (dict-update! projectwise-references
+          (list filename id)
+          (lambda (refs)
+            (set-add refs (list src start end-)))))
+      (interval-map-set! bindings start end- (binding id #f #f filename)))
 
     (define/override (syncheck:add-definition-target source-obj start end id mods)
       ; Record a definition which named `id` in this document, maps its name `id` to its meta data,
