@@ -1,16 +1,13 @@
 #lang s-exp framework/keybinding-lang
 
-(require data/interval-map
-         net/sendurl
+(require net/sendurl
          syntax/parse/define
          sauron/jump-to-def
          sauron/meta
          sauron/collect/api
-         sauron/collect/collector
          sauron/version-control/pusher
          sauron/version-control/panel
-         sauron/project/manager
-         "log.rkt")
+         sauron/project/manager)
 
 (define-syntax-parser cmd/ctrl+
   [(_ key fn) #'(keybinding (c+ key) fn)])
@@ -135,7 +132,6 @@
   (cond
     [(and filename (get-def filename start-pos))
       (define id (get-def filename start-pos))
-      (log:info "find references for ~a" id)
       (show-references editor filename id)]
     [else
       (and
