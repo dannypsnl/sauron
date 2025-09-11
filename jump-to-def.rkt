@@ -2,9 +2,9 @@
 (provide jump-to-definition
          (struct-out jump-pos)
          jump-pop!)
-(require sauron/collect/binding
-         sauron/collect/api
-         sauron/log)
+(require "collect/binding.rkt"
+         "collect/api.rkt"
+         "log.rkt")
 
 ;;; NOTE: per tab per editor
 ; thus, when switching to another tab, the editor must re-fetching from frame

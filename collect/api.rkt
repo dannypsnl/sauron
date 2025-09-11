@@ -4,9 +4,11 @@
          get-doc
          jump-to-def
          get-def
+         get-references
          update
          create)
-(require sauron/collect/record-maintainer)
+(require "record-maintainer.rkt"
+         "collector.rkt")
 
 (define (start-tracking directory ignore?)
   ; NOTE: `fold-files` reduces about 100MB compare with `find-files`
@@ -59,3 +61,7 @@
                      (current-thread)
                      id))
   (thread-receive))
+; get-references : path id -> (list locations)
+(define (get-references path id)
+  (define refs (find-nonlocal-references path id))
+  (set->list refs))

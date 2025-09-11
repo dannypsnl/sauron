@@ -1,6 +1,7 @@
 #lang racket/gui
 
-(provide collect-from)
+(provide collect-from
+         find-nonlocal-references)
 
 (require drracket/check-syntax
          syntax/modread
@@ -19,8 +20,8 @@
       (map path->complete-path (find-files (lambda (p) (path-has-extension? p #".rkt")) dir)))
     (set)))
 (define projectwise-references (make-hash))
-(define (find-nonlocal-references uri symbol)
-  (dict-ref projectwise-references (list uri symbol)))
+(define (find-nonlocal-references path id)
+  (dict-ref projectwise-references (list path id)))
 
 (define collector%
   (class (annotations-mixin object%)

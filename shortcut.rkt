@@ -3,12 +3,15 @@
 (require data/interval-map
          net/sendurl
          syntax/parse/define
-         sauron/jump-to-def
-         sauron/meta
-         sauron/collect/api
-         sauron/version-control/pusher
-         sauron/version-control/panel
-         sauron/project/manager)
+         racket/match
+         "collect/binding.rkt"
+         "jump-to-def.rkt"
+         "meta.rkt"
+         "collect/api.rkt"
+         "version-control/pusher.rkt"
+         "version-control/panel.rkt"
+         "project/manager.rkt"
+         "log.rkt")
 
 (define-syntax-parser cmd/ctrl+
   [(_ key fn) #'(keybinding (c+ key) fn)])
@@ -140,14 +143,23 @@
                 (send frame change-to-tab tab)
                 (define ed (send tab get-defs))
                 (send ed set-position pos)])))
-(define (list-references)
-  ; TODO
-  (void))
+;;; c+x list references
+(define (list-references editor)
+  (define filename (send editor get-filename))
+  (define pos (send editor get-start-position))
+  (match (jump-to-def filename pos)
+    [(struct* binding ([name id]))
+     (define ls (get-references filename id))
+     (unless (empty? ls)
+       ; TODO
+       (void))
+     ]
+    [_ (log:info "cannot find definition for position ~a:~a" filename pos)]))
 (cmd/ctrl+ "x"
-  (lambda (editor event)
+  (λ (editor event)
     (define filename-<?> (send editor get-filename))
     (if filename-<?>
-      (list-references)
+      (list-references editor)
       (send-command "Jump to Next Bound Occurrence" editor event))))
 
 ;;; c+s+t reopen the recently closed tab
