@@ -123,8 +123,8 @@
                    (send editor set-position start end)))
                (send-command "cut-clipboard" editor event))))
 ;;; c+b
-; 1. jump to definition
-; 2. show references of current definition
+; 1. jump to definition (on a binding/reference)
+; 2. show references of current definition (on a definition)
 (define (jump-to-def editor event)
   (jump-add! (send editor get-tab) (send editor get-start-position))
   (define filename (send editor get-filename))
