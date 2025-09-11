@@ -32,7 +32,7 @@
            (thread-send from mt))])
       (loop)))))
 
-(define (create-record-maintainer path [from #f])
+(define (create-record-maintainer path)
   ; only create maintainer for valid path
   (when (valid-path? path)
     (future (thunk (hash-set! path=>maintainer path (thunk (make-record-maintainer path)))))))
