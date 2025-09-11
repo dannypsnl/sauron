@@ -7,7 +7,6 @@
          net/url
          data/interval-map
          try-catch-finally
-         sauron/collect/binding
          sauron/collect/record
          sauron/log)
 
@@ -16,8 +15,6 @@
     (init-field src text)
 
     (define doc (make-interval-map))
-    (define bindings (make-interval-map))
-    (define defs (make-hash))
     (define requires (make-hash))
 
     (define/override (syncheck:find-source-object stx) (and (equal? src (syntax-source stx)) src))
@@ -52,16 +49,20 @@
                                                   level
                                                   require-arrow?
                                                   name-dup?)
-      (define id (string->symbol (send text get-text end-left end-right)))
-      (unless require-arrow?
-        (interval-map-set! bindings
-                           end-left
-                           (add1 end-right)
-                           (binding id start-left start-right #f))))
+      ; (define id (string->symbol (send text get-text end-left end-right)))
+      ; (unless require-arrow?
+      ;   (interval-map-set! bindings
+      ;                      end-left
+      ;                      (add1 end-right)
+      ;                      (binding id start-left start-right #f)))
+      (void)
+      )
 
     (define/override (syncheck:add-jump-to-definition source-obj start end id filename submods)
-      (log:debug "syncheck:add-jump-to-definition ~a" filename)
-      (interval-map-set! bindings start (add1 end) (binding id #f #f filename)))
+      ; (log:debug "syncheck:add-jump-to-definition ~a" filename)
+      ; (interval-map-set! bindings start (add1 end) (binding id #f #f filename))
+      (void)
+      )
 
     (define/override (syncheck:add-definition-target source-obj start end id mods)
       ; Record a definition which named `id` in this document, maps its name `id` to its meta data,
@@ -74,13 +75,13 @@
       ;
       ;   (define id <expr>)
       (log:debug "syncheck:add-definition-target ~a:~a" source-obj id)
-      (hash-set! defs id (binding id start end src)))
+      ; (hash-set! defs id (binding id start end src))
+      (void)
+      )
 
     (define/public (build-record)
       (make-record #:created-time (current-seconds)
                    #:doc doc
-                   #:bindings bindings
-                   #:defs defs
                    #:requires requires))
     (super-new)))
 

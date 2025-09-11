@@ -125,10 +125,10 @@
                (send-command "cut-clipboard" editor event))))
 ;;; c+b jump to definition
 (define (jump-to-def editor event)
-  (define filename-<?> (send editor get-filename))
-  (if filename-<?>
-      (jump-to-definition editor (send editor get-start-position))
-      (send-command "Jump to Binding Occurrence" editor event)))
+  (jump-add! (send editor get-tab) (send editor get-start-position))
+  (and
+    (send-command "Jump to Definition (in Other File)" editor event)
+    (send-command "Jump to Binding Occurrence" editor event)))
 (cmd/ctrl+ "b" jump-to-def)
 (cmd/ctrl+ "leftbutton" jump-to-def)
 (cmd/ctrl+ "s:b"

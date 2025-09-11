@@ -87,13 +87,5 @@
         [(list 'get-doc from pos)
          (define doc (record-doc cached-record))
          (thread-send from (interval-map-ref doc pos #f))]
-
-        [(list 'jump-to-def from from-pos)
-         (define bindings (record-bindings cached-record))
-         (thread-send from (interval-map-ref bindings from-pos #f))]
-
-        [(list 'get-def from id)
-         (define defs (record-defs cached-record))
-         (thread-send from (hash-ref defs id #f))]
         )
       (loop)))))
