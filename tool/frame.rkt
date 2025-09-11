@@ -13,7 +13,9 @@
   (export drracket:tool-exports^)
 
   (define (phase1)
-    (preferences:set-default 'current-project #f (λ (_) #t))
+    (preferences:set-default 'current-project
+      #f
+      (λ (v) (or (path-string? v) (false? v))))
     (preferences:add-callback 'current-project
                               (λ (_ new-dir)
                                 (log:info "current project is ~a" new-dir))))
