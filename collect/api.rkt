@@ -87,10 +87,13 @@
                  (when selection
                    (match-define (list ref-file start end) (list-ref refs selection))
                    (send references-choice-frame show #f)
+                   ; jump to picked reference location
                    (define editor-frame (send+ editor (get-tab) (get-frame)))
                    (prepare-editor-for editor-frame ref-file)
                    (send+ editor-frame (get-editor) (set-position start end))
-                   (log:info "Jump to reference ~a:~a-~a" ref-file start end))))]))
+                   (define line (send editor position-line start))
+                   (define line-sp (send editor line-start-position line))
+                   (log:info "Jump to reference ~a:~a:~a" ref-file line (- start line-sp)))))]))
   
      (send references-choice-frame center)
      (send references-choice-frame show #t)
