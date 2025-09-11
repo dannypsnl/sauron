@@ -6,9 +6,11 @@
          sauron/jump-to-def
          sauron/meta
          sauron/collect/api
+         sauron/collect/collector
          sauron/version-control/pusher
          sauron/version-control/panel
-         sauron/project/manager)
+         sauron/project/manager
+         "log.rkt")
 
 (define-syntax-parser cmd/ctrl+
   [(_ key fn) #'(keybinding (c+ key) fn)])
@@ -123,12 +125,22 @@
                         [end (send editor line-end-position end-line)])
                    (send editor set-position start end)))
                (send-command "cut-clipboard" editor event))))
-;;; c+b jump to definition
+;;; c+b
+; 1. jump to definition
+; 2. show references of current definition
 (define (jump-to-def editor event)
   (jump-add! (send editor get-tab) (send editor get-start-position))
-  (and
-    (send-command "Jump to Definition (in Other File)" editor event)
-    (send-command "Jump to Binding Occurrence" editor event)))
+  (define filename (send editor get-filename))
+  (define start-pos (send editor get-start-position))
+  (cond
+    [(and filename (get-def filename start-pos))
+      (define id (get-def filename start-pos))
+      (log:info "find references for ~a" id)
+      (show-references editor filename id)]
+    [else
+      (and
+        (send-command "Jump to Definition (in Other File)" editor event)
+        (send-command "Jump to Binding Occurrence" editor event))]))
 (cmd/ctrl+ "b" jump-to-def)
 (cmd/ctrl+ "leftbutton" jump-to-def)
 (cmd/ctrl+ "s:b"

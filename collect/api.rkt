@@ -2,6 +2,7 @@
 (provide start-tracking
          require-location?
          get-doc
+         get-def
          update
          create)
 (require sauron/collect/record-maintainer)
@@ -40,6 +41,13 @@
 (define (get-doc path pos)
   (thread-send (get-record-maintainer path #:wait? #t)
                (list 'get-doc
+                     (current-thread)
+                     pos))
+  (thread-receive))
+; get-def : path pos:exact-integer? -> (or symbol #f)
+(define (get-def path pos)
+  (thread-send (get-record-maintainer path #:wait? #t)
+               (list 'get-def
                      (current-thread)
                      pos))
   (thread-receive))

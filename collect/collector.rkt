@@ -1,6 +1,8 @@
 #lang racket/gui
 
-(provide collect-from)
+(provide collect-from
+         projectwise-references
+         show-references)
 
 (require drracket/check-syntax
          syntax/modread
@@ -10,11 +12,15 @@
          sauron/collect/record
          sauron/log)
 
+;; Global reference map: (filename . id) -> list of (reference-file start end)
+(define projectwise-references (make-hash))
+
 (define collector%
   (class (annotations-mixin object%)
     (init-field src text)
 
     (define doc (make-interval-map))
+    (define defs (make-interval-map))
     (define requires (make-hash))
 
     (define/override (syncheck:find-source-object stx) (and (equal? src (syntax-source stx)) src))
@@ -49,39 +55,33 @@
                                                   level
                                                   require-arrow?
                                                   name-dup?)
-      ; (define id (string->symbol (send text get-text end-left end-right)))
-      ; (unless require-arrow?
-      ;   (interval-map-set! bindings
-      ;                      end-left
-      ;                      (add1 end-right)
-      ;                      (binding id start-left start-right #f)))
-      (void)
-      )
+      (unless require-arrow?
+        (define id (string->symbol (send text get-text start-left start-right)))
+        (define key (list src id))
+        (define reference-info (list src end-left end-right))
+        (dict-update! projectwise-references key 
+                     (lambda (refs) (set-add refs reference-info))
+                     (set))))
 
     (define/override (syncheck:add-jump-to-definition source-obj start end id filename submods)
-      ; (log:debug "syncheck:add-jump-to-definition ~a" filename)
-      ; (interval-map-set! bindings start (add1 end) (binding id #f #f filename))
-      (void)
-      )
+      (define key (list (or filename src) id))
+      (define reference-info (list src start end))
+      (dict-update! projectwise-references key 
+                   (lambda (refs) (set-add refs reference-info))
+                   (set)))
 
     (define/override (syncheck:add-definition-target source-obj start end id mods)
-      ; Record a definition which named `id` in this document, maps its name `id` to its meta data,
-      ; 1. start position
-      ; 2. end position
-      ; 3. source file
-      ; so an external user can find where to jump.
-      ;
-      ; e.g.
-      ;
-      ;   (define id <expr>)
+      ; interval map to find the symbol name of this range
+      ; e.g. if I write down
+      ; (define xxx ...)
+      ; the range of `xxx` should map to `xxx` this symbol
       (log:debug "syncheck:add-definition-target ~a:~a" source-obj id)
-      ; (hash-set! defs id (binding id start end src))
-      (void)
-      )
+      (interval-map-set! defs start end id))
 
     (define/public (build-record)
       (make-record #:created-time (current-seconds)
                    #:doc doc
+                   #:defs defs
                    #:requires requires))
     (super-new)))
 
@@ -124,6 +124,58 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          [v (regexp-replace* #rx#"[^-a-zA-Z0-9_!+*'()/.,]" v encode-bytes)])
     (bytes->string/utf-8 v)))
 
+;; Show references popup list-box
+(define (show-references editor filename id [parent #f])
+  (define key (list filename id))
+  (define references (dict-ref projectwise-references key (set)))
+
+  (cond
+    [(set-empty? references)
+     (message-box "No References" (format "No references found for ~a in ~a" id filename))]
+    [else
+     (define references-choice-frame
+       (new frame% [label (format "References for ~a" id)] [width 600] [height 400] [parent parent]))
+     (define refs (set->list references))
+     (define choices
+       (for/list ([ref-info (in-set refs)])
+         (match-define (list ref-file start _end) ref-info)
+         (define line (send editor position-line start))
+         (define line-sp (send editor line-start-position line))
+         (format "~a:~a:~a" (path->string ref-file) line (- start line-sp))))
+  
+     (define list-box
+       (new list-box%
+            [parent references-choice-frame]
+            [label "References:"]
+            [choices choices]
+            [style '(single)]
+            [callback
+             (lambda (lb event)
+               (when (eq? (send event get-event-type) 'list-box-dclick)
+                 (define selection (send lb get-selection))
+                 (when selection
+                   (match-define (list ref-file start end) (list-ref refs selection))
+                   (send references-choice-frame show #f)
+                   (define editor-frame (send+ editor (get-tab) (get-frame)))
+                   (prepare-editor-for editor-frame ref-file)
+                   (send+ editor-frame (get-editor) (set-position start end))
+                   (log:info "Jump to reference ~a:~a-~a" ref-file start end))))]))
+  
+     (send references-choice-frame center)
+     (send references-choice-frame show #t)
+     references-choice-frame]))
+
+(define (prepare-editor-for frame path)
+  (define tab-of-path-<?> (send frame find-matching-tab path))
+  (if tab-of-path-<?>
+      ; when we already have a tab for the path, switch to it
+      (send frame change-to-tab tab-of-path-<?>)
+      ; when we don't have a tab for the path, open one
+      (send frame open-in-new-tab path)))
+
 (module+ main
   (define ns (make-base-namespace))
-  (record-doc (collect-from (normalize-path "collector.rkt") ns)))
+  ;; Use the current source file for testing
+  (define test-file (find-system-path 'orig-dir))
+  (when (file-exists? (build-path test-file "collector.rkt"))
+    (record-doc (collect-from (build-path test-file "collector.rkt") ns))))
