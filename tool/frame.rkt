@@ -59,13 +59,13 @@
                           (show-real-area)
                           (send c set-label "Hide the Project Viewer"))]))
                 (if (preferences:get 'current-project)
-                    (if project-files-show?
-                        (let ()
-                          (close-real-area)
-                          (send c set-label "Show the Project Viewer"))
-                        (let ()
-                          (show-real-area)
-                          (send c set-label "Hide the Project Viewer")))
+                    (cond
+                      [project-files-show?
+                       (close-real-area)
+                       (send c set-label "Show the Project Viewer")]
+                      [else
+                       (show-real-area)
+                       (send c set-label "Hide the Project Viewer")])
                     (send (get-manager) run)))]
              ;;; c+y   open project viewer (on Linux, MacOS)
              ;;; c+s+y open project viewer (on Windows)
@@ -75,9 +75,9 @@
                                 [else (get-default-shortcut-prefix)])])
 
         (let ([edit-menu (send this get-edit-menu)])
-          (for ([item (send edit-menu get-items)])
-            (when (and (is-a? item labelled-menu-item<%>) (equal? "Find" (send item get-label)))
-              (send item delete)))
+          (for ([item (send edit-menu get-items)]
+                #:when (and (is-a? item labelled-menu-item<%>) (equal? "Find" (send item get-label))))
+            (send item delete))
           (new menu-item% [parent edit-menu]
                [label "Find"]
                [callback (λ (c e)

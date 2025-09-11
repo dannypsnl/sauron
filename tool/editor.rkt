@@ -37,10 +37,10 @@
                (when (<= para end-para)
                  (define start (send this paragraph-start-position para))
                  (define end (send this paragraph-end-position para))
-                 (for ([i (range start (add1 end))])
-                   (when (and (char=? #\" (send this get-character i))
-                              (not (char=? #\\ (send this get-character (sub1 i)))))
-                     (set! skip-this-line? (not skip-this-line?))))
+                 (for ([i (range start (add1 end))]
+                       #:when (and (char=? #\" (send this get-character i))
+                                   (not (char=? #\\ (send this get-character (sub1 i))))))
+                   (set! skip-this-line? (not skip-this-line?)))
                  (set! skip-this-line? (and modifying-multiple-paras?
                                             skip-this-line?))
                  (unless skip-this-line?

@@ -15,11 +15,8 @@
      (jump-add (send editor get-tab) (send editor get-start-position))
      (define frame (send+ editor (get-tab) (get-frame)))
      (prepare-editor-for frame path)
-     (match (get-def path id)
-       [(struct* binding ([start start] [end end]))
-        (send+ frame
-               (get-editor)
-               (set-position start end))])]
+     (match-define (struct* binding ([start start] [end end])) (get-def path id))
+     (send+ frame (get-editor) (set-position start end))]
     [(struct* binding ([start start] [end end]))
      (jump-add (send editor get-tab) (send editor get-start-position))
      (send editor set-position start end)]
