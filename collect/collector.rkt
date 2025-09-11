@@ -7,18 +7,12 @@
          syntax/modread
          net/url
          data/interval-map
-         framework/preferences
          try-catch-finally
          sauron/collect/binding
          sauron/collect/record
-         sauron/log)
+         sauron/log
+         "project-files.rkt")
 
-(define (project-files)
-  (define dir (preferences:get 'current-project))
-  (if dir
-    (list->set
-      (map path->complete-path (find-files (lambda (p) (path-has-extension? p #".rkt")) dir)))
-    (set)))
 (define projectwise-references (make-hash))
 (define (find-nonlocal-references path id)
   (dict-ref projectwise-references (list path id)))

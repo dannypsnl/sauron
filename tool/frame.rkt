@@ -4,9 +4,11 @@
          framework
          racket/gui/base
 
-         sauron/project/manager
-         sauron/project/panel
-         sauron/log)
+         "../project/manager.rkt"
+         "../project/panel.rkt"
+         "../log.rkt"
+         "../collect/api.rkt"
+         "../collect/project-files.rkt")
 
 (define-unit tool@
   (import drracket:tool^)
@@ -18,7 +20,10 @@
       (λ (v) (or (path-string? v) (false? v))))
     (preferences:add-callback 'current-project
                               (λ (_ new-dir)
-                                (log:info "current project is ~a" new-dir))))
+                                (log:info "current project is ~a" new-dir)
+                                
+                                (for ([path (project-files)])
+                                  (update path)))))
   (define (phase2) (void))
 
   (define drracket-frame-mixin
