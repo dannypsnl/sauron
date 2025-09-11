@@ -1,6 +1,7 @@
 #lang racket/gui
 
-(provide collect-from)
+(provide collect-from
+         projectwise-references)
 
 (require drracket/check-syntax
          syntax/modread
@@ -10,11 +11,15 @@
          sauron/collect/record
          sauron/log)
 
+;; Global reference map: (filename . id) -> list of (reference-file start end)
+(define projectwise-references (make-hash))
+
 (define collector%
   (class (annotations-mixin object%)
     (init-field src text)
 
     (define doc (make-interval-map))
+    (define defs (make-interval-map))
     (define requires (make-hash))
 
     (define/override (syncheck:find-source-object stx) (and (equal? src (syntax-source stx)) src))
@@ -49,39 +54,33 @@
                                                   level
                                                   require-arrow?
                                                   name-dup?)
-      ; (define id (string->symbol (send text get-text end-left end-right)))
-      ; (unless require-arrow?
-      ;   (interval-map-set! bindings
-      ;                      end-left
-      ;                      (add1 end-right)
-      ;                      (binding id start-left start-right #f)))
-      (void)
-      )
+      (unless require-arrow?
+        (define id (string->symbol (send text get-text start-left start-right)))
+        (define key (list src id))
+        (define reference-info (list src end-left end-right))
+        (dict-update! projectwise-references key 
+                     (lambda (refs) (set-add refs reference-info))
+                     (set))))
 
     (define/override (syncheck:add-jump-to-definition source-obj start end id filename submods)
-      ; (log:debug "syncheck:add-jump-to-definition ~a" filename)
-      ; (interval-map-set! bindings start (add1 end) (binding id #f #f filename))
-      (void)
-      )
+      (define key (list (or filename src) id))
+      (define reference-info (list src start end))
+      (dict-update! projectwise-references key 
+                   (lambda (refs) (set-add refs reference-info))
+                   (set)))
 
     (define/override (syncheck:add-definition-target source-obj start end id mods)
-      ; Record a definition which named `id` in this document, maps its name `id` to its meta data,
-      ; 1. start position
-      ; 2. end position
-      ; 3. source file
-      ; so an external user can find where to jump.
-      ;
-      ; e.g.
-      ;
-      ;   (define id <expr>)
+      ; interval map to find the symbol name of this range
+      ; e.g. if I write down
+      ; (define xxx ...)
+      ; the range of `xxx` should map to `xxx` this symbol
       (log:debug "syncheck:add-definition-target ~a:~a" source-obj id)
-      ; (hash-set! defs id (binding id start end src))
-      (void)
-      )
+      (interval-map-set! defs start end id))
 
     (define/public (build-record)
       (make-record #:created-time (current-seconds)
                    #:doc doc
+                   #:defs defs
                    #:requires requires))
     (super-new)))
 

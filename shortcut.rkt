@@ -1,7 +1,6 @@
 #lang s-exp framework/keybinding-lang
 
-(require data/interval-map
-         net/sendurl
+(require net/sendurl
          syntax/parse/define
          sauron/jump-to-def
          sauron/meta
@@ -123,12 +122,21 @@
                         [end (send editor line-end-position end-line)])
                    (send editor set-position start end)))
                (send-command "cut-clipboard" editor event))))
-;;; c+b jump to definition
+;;; c+b
+; 1. jump to definition (on a binding/reference)
+; 2. show references of current definition (on a definition)
 (define (jump-to-def editor event)
   (jump-add! (send editor get-tab) (send editor get-start-position))
-  (and
-    (send-command "Jump to Definition (in Other File)" editor event)
-    (send-command "Jump to Binding Occurrence" editor event)))
+  (define filename (send editor get-filename))
+  (define start-pos (send editor get-start-position))
+  (cond
+    [(and filename (get-def filename start-pos))
+      (define id (get-def filename start-pos))
+      (show-references editor filename id)]
+    [else
+      (and
+        (send-command "Jump to Definition (in Other File)" editor event)
+        (send-command "Jump to Binding Occurrence" editor event))]))
 (cmd/ctrl+ "b" jump-to-def)
 (cmd/ctrl+ "leftbutton" jump-to-def)
 (cmd/ctrl+ "s:b"

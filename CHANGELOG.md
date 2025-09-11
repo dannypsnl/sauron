@@ -1,5 +1,17 @@
 ### To Release
 
+- c+b/click now
+  1. jumps to definintion if cursor is on a reference/binding
+  2. toggle a list-box to pick references of the definition if cursor is on a definition
+
+Toggle list-box to pick a references
+
+<img width="1517" height="874" alt="Image" src="https://github.com/user-attachments/assets/86e451d6-641a-4c5e-8fff-1177ef71b261" />
+
+Choose a reference at another file and jump
+
+<img width="1559" height="733" alt="Image" src="https://github.com/user-attachments/assets/c6a5f521-7caa-4d20-8309-3e508b313606" />
+
 ### v1.5.1
 
 - [editor:fix] c+enter in REPL won't crash now
