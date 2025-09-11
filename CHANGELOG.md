@@ -1,6 +1,8 @@
 ### To Release
 
-- c+b now jumps to definintion or toggle a list-box to pick references of the definition
+- c+b now
+  1. jumps to definintion if cursor is on a reference/binding
+  2. toggle a list-box to pick references of the definition if cursor is on a definition
 
 Toggle list-box to pick a references
 
