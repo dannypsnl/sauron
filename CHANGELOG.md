@@ -1,6 +1,6 @@
 ### To Release
 
-- c+b now
+- c+b/click now
   1. jumps to definintion if cursor is on a reference/binding
   2. toggle a list-box to pick references of the definition if cursor is on a definition
 
