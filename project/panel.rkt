@@ -6,7 +6,6 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 |#
 (provide project-files-pane%)
 (require mrlib/hierlist
-         file-watchers
          framework/preferences
          sauron/path/ignore
          sauron/path/util
@@ -14,6 +13,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          sauron/collect/record-maintainer
          sauron/project/dir-state
          sauron/path/renamer)
+(require "file-watchers/main.rkt")
 
 (let ([cache-project-dir #f]
       [cache-project-watcher #f])

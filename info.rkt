@@ -6,7 +6,6 @@
            "data-lib"
            "drracket-plugin-lib"
            "drracket-tool-lib"
-           "file-watchers"
            "raco-invoke"
            ; syntax
            "try-catch-finally-lib"
