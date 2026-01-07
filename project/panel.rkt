@@ -13,7 +13,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          sauron/collect/record-maintainer
          sauron/project/dir-state
          sauron/path/renamer)
-(require "file-watchers/main.rkt")
+(require "../file-watchers/main.rkt")
 
 (let ([cache-project-dir #f]
       [cache-project-watcher #f])
