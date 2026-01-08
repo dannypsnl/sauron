@@ -58,5 +58,7 @@
   (define pid (gen-server-start (record-maintainer-server)
                                 (normalize-path "record.rkt")))
 
-  (gen-server-call pid 'get)
+  (println (gen-server-call pid 'get))
+  (gen-server-cast! pid 'update)
+  (println (gen-server-call pid 'get))
   )
