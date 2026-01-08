@@ -60,11 +60,11 @@
 
 ;;; when a new file is added, a dynamic genserver is started
 (define (create path)
-  ((maintainer-start path))
-  (void))
+  ((maintainer-start path)))
 ;;; tell corresponding maintainer update the record
 (define (update path)
   (define pid (whereis (internal-name path)))
+  (set! pid (if pid pid (create path)))
   (gen-server-cast! pid 'update))
 
 (define (terminate-record-maintainer path)
@@ -76,6 +76,7 @@
 ; require-location? : path path -> list
 (define (require-location? path require)
   (define pid (whereis (internal-name path)))
+  (set! pid (if pid pid (create path)))
   (gen-server-call pid
                    (list 'require-location?
                          (current-thread)
@@ -83,6 +84,7 @@
 ; get-doc : path pos:exact-integer? -> string
 (define (get-doc path pos)
   (define pid (whereis (internal-name path)))
+  (set! pid (if pid pid (create path)))
   (gen-server-call pid
                    (list 'get-doc
                          (current-thread)
@@ -90,6 +92,7 @@
 ; get-def : path pos:exact-integer? -> (or symbol #f)
 (define (get-def path pos)
   (define pid (whereis (internal-name path)))
+  (set! pid (if pid pid (create path)))
   (gen-server-call pid
                    (list 'get-def
                          (current-thread)
