@@ -3,57 +3,100 @@
          require-location?
          get-doc
          get-def
+         terminate-record-maintainer
          update
          create
          show-references)
-(require "record-maintainer.rkt"
+(require rakka
+         compiler/module-suffix
+         data/queue
          "collector.rkt"
+         "maintainer-server.rkt"
          "../log.rkt")
 
+(struct my-app ()
+  #:methods gen:application
+  [(define (start self type files)
+     ;; Start your supervision tree here
+     (define sup (supervisor-start-link #:strategy 'one-for-one
+                                        ; max 100 restarts in 5 seconds, or the supervisor terminate itself
+                                        #:max-restarts 100
+                                        #:max-seconds 5
+                                        #:children (for/list ([path (in-queue files)])
+                                                     (child-spec* #:id (gensym 'maintainer)
+                                                                  #:start (maintainer-start path)
+                                                                  #:restart 'transient))))
+     (app-ok sup))
+
+   (define (stop self state)
+     (void))])
+
 (define (start-tracking directory ignore?)
+  (define files (make-queue))
   ; NOTE: `fold-files` reduces about 100MB compare with `find-files`
   ; this is reasonable, since `find-files` build a huge list
   (fold-files (lambda (path kind acc)
                 (cond
                   [(ignore? path) (values acc #f)]
                   ; NOTE: should I simply assume `*.rkt` is not a ignored file?
-                  [(path-has-extension? path #".rkt")
-                   (create path)
+                  [(for/or ([ext (get-module-suffixes)]) (path-has-extension? path ext))
+                   (enqueue! files path)
                    acc]
                   [else acc]))
               #f
               directory
-              #t))
+              #t)
 
-;;; just prepare a maintainer for a path
+  (application-start (my-app) files))
+
+(define (internal-name path)
+  (string->symbol (path->string path)))
+(define (maintainer-start path)
+  (lambda ()
+    (define pid (gen-server-start (record-maintainer-server) path))
+    (register! (internal-name path) pid)
+    (log:info "maintainer (~a) of ~a started" pid path)
+    pid))
+
+;;; when a new file is added, a dynamic genserver is started
 (define (create path)
-  (create-record-maintainer path))
+  ((maintainer-start path)))
 ;;; tell corresponding maintainer update the record
 (define (update path)
-  (thread-send (get-record-maintainer path #:wait? #t)
-               (list 'update)))
+  (define pid (whereis (internal-name path)))
+  (set! pid (if pid pid (create path)))
+  (gen-server-cast! pid 'update))
+
+(define (terminate-record-maintainer path)
+  (define pid (whereis (internal-name path)))
+  (unregister! (internal-name path))
+
+  (gen-server-stop pid (format "file ~a is removed" path)))
 
 ; require-location? : path path -> list
 (define (require-location? path require)
-  (thread-send (get-record-maintainer path #:wait? #t)
-               (list 'require-location?
-                     (current-thread)
-                     require))
-  (thread-receive))
+  (define pid (whereis (internal-name path)))
+  (set! pid (if pid pid (create path)))
+  (gen-server-call pid
+                   (list 'require-location?
+                         (current-thread)
+                         require)))
 ; get-doc : path pos:exact-integer? -> string
 (define (get-doc path pos)
-  (thread-send (get-record-maintainer path #:wait? #t)
-               (list 'get-doc
-                     (current-thread)
-                     pos))
-  (thread-receive))
+  (define pid (whereis (internal-name path)))
+  (set! pid (if pid pid (create path)))
+  (gen-server-call pid
+                   (list 'get-doc
+                         (current-thread)
+                         pos)))
 ; get-def : path pos:exact-integer? -> (or symbol #f)
 (define (get-def path pos)
-  (thread-send (get-record-maintainer path #:wait? #t)
-               (list 'get-def
-                     (current-thread)
-                     pos))
-  (thread-receive))
+  (define pid (whereis (internal-name path)))
+  (set! pid (if pid pid (create path)))
+  (gen-server-call pid
+                   (list 'get-def
+                         (current-thread)
+                         pos)))
 
 ;; Show references popup list-box
 (define (show-references editor filename id [parent #f])
@@ -73,8 +116,8 @@
          (define line (send editor position-line start))
          (define line-sp (send editor line-start-position line))
          (format "~a:~a:~a" (path->string ref-file) line (- start line-sp))))
-  
-     (define list-box
+
+     (define _list-box
        (new list-box%
             [parent references-choice-frame]
             [label "References:"]
@@ -94,7 +137,7 @@
                    (define line (send editor position-line start))
                    (define line-sp (send editor line-start-position line))
                    (log:info "Jump to reference ~a:~a:~a" ref-file line (- start line-sp)))))]))
-  
+
      (send references-choice-frame center)
      (send references-choice-frame show #t)
      references-choice-frame]))

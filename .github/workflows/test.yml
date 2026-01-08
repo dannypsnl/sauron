@@ -26,19 +26,12 @@ jobs:
         version: ["stable", "current"]
     steps:
       - uses: actions/checkout@master
-      - name: Cache installed packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/racket
-            ~/.local/share/racket
-          key: ${{ runner.os }}-primes
       - name: Setup Racket
         uses: Bogdanp/setup-racket@v1.14
         with:
           architecture: "x64" # (x64 or x86), ignored on Linux
-          distribution: "minimal"
+          distribution: "full"
           variant: ${{ matrix.variant }}
           version: ${{ matrix.version }}
-      - run: raco pkg install --auto --skip-installed
+      - run: raco pkg install --auto
       - run: xvfb-run -a raco test .

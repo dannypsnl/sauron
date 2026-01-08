@@ -10,7 +10,6 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          sauron/path/ignore
          sauron/path/util
          sauron/collect/api
-         sauron/collect/record-maintainer
          sauron/project/dir-state
          sauron/path/renamer)
 (require "../file-watchers/main.rkt")
