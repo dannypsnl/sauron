@@ -64,8 +64,7 @@
 ;;; tell corresponding maintainer update the record
 (define (update path)
   (define pid (whereis (internal-name path)))
-  (when pid
-    (gen-server-cast! pid 'update)))
+  (gen-server-cast! pid 'update))
 
 (define (terminate-record-maintainer path)
   (define pid (whereis (internal-name path)))
