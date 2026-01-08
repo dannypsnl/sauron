@@ -8,7 +8,7 @@
            "drracket-tool-lib"
            "raco-invoke"
            ; runtime
-           "rakka"
+           "Rakka"
            ; syntax
            "try-catch-finally-lib"
            "curly-fn-lib"
