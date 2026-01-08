@@ -7,7 +7,7 @@
          "record.rkt"
          "collector.rkt")
 
-(struct record-maintainer-server-state (file-path ns record))
+(struct record-maintainer-server-state (file-path record))
 (struct record-maintainer-server ()
   #:methods gen:server
   [(define (init self args)
@@ -16,7 +16,6 @@
      ; track collected record as state of this genserver
      (ok (record-maintainer-server-state
           file-path
-          ns
           (collect-from file-path ns))))
 
    (define (handle-call self msg state from)
@@ -33,19 +32,19 @@
         (define record (record-maintainer-server-state-record state))
         (define defs (record-defs record))
         (reply (interval-map-ref defs pos #f) state)]
-       ['get
-        (define record (record-maintainer-server-state-record state))
-        (reply record state)]))
+       ['ack (reply 'ok state)]))
 
    (define (handle-cast self msg state)
      (match msg
        ['update
-        (match-define (struct* record-maintainer-server-state ([file-path path] [ns ns] [record r]))
+        (match-define (struct* record-maintainer-server-state ([file-path path] [record r]))
           state)
         (match-define (struct* record ([created-time created-time])) r)
-        (if (< created-time (file-or-directory-modify-seconds path))
-            (noreply (collect-from path ns))
-            (noreply state))]
+        (cond
+          [(< created-time (file-or-directory-modify-seconds path))
+           (define ns (make-base-namespace))
+           (noreply (record-maintainer-server-state path (collect-from path ns)))]
+          [else (noreply state)])]
        [_ (noreply state)]))
 
    (define (handle-info self msg state)
@@ -56,9 +55,11 @@
 
 (module+ main
   (define pid (gen-server-start (record-maintainer-server)
-                                (normalize-path "record.rkt")))
+                                (normalize-path "/Users/dannypsnl/workspace/workspace-racket/reverse-linked-list-2.rkt")))
 
-  (println (gen-server-call pid 'get))
+  (println (gen-server-call pid 'ack))
   (gen-server-cast! pid 'update)
-  (println (gen-server-call pid 'get))
+  (println (gen-server-call pid 'ack))
+  (gen-server-cast! pid 'update)
+  (println (gen-server-call pid 'ack))
   )

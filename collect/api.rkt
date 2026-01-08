@@ -11,7 +11,7 @@
          compiler/module-suffix
          data/queue
          "collector.rkt"
-         "record-maintainer-server.rkt"
+         "maintainer-server.rkt"
          "../log.rkt")
 
 (struct my-app ()
@@ -55,6 +55,7 @@
   (lambda ()
     (define pid (gen-server-start (record-maintainer-server) path))
     (register! (internal-name path) pid)
+    (log:info "maintainer (~a) of ~a started" pid path)
     pid))
 
 ;;; when a new file is added, a dynamic genserver is started
