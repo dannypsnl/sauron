@@ -29,8 +29,7 @@ jobs:
           variant: "CS"
           version: "stable"
           packages: "cover, cover-badge"
-      - run: raco pkg install --no-docs --auto --skip-installed
-      - run: raco pkg install --auto --skip-installed
+      - run: raco pkg install --no-docs --auto
       - run: |
           xvfb-run -a raco cover -n tool -b .
           raco cover-badge

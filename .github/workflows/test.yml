@@ -37,8 +37,7 @@ jobs:
         uses: Bogdanp/setup-racket@v1.14
         with:
           architecture: "x64" # (x64 or x86), ignored on Linux
-          distribution: "minimal"
           variant: ${{ matrix.variant }}
           version: ${{ matrix.version }}
-      - run: raco pkg install --auto --skip-installed
+      - run: raco pkg install --auto
       - run: xvfb-run -a raco test .
