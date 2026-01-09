@@ -24,10 +24,12 @@
         (define record (record-maintainer-server-state-record state))
         (define requires (record-requires record))
         (reply (hash-ref requires req #f) state)]
+       ; lookup document for given position
        [(list 'get-doc pos)
         (define record (record-maintainer-server-state-record state))
         (define doc (record-doc record))
         (reply (interval-map-ref doc pos #f) state)]
+       ; lookup definition location for given position
        [(list 'get-def pos)
         (define record (record-maintainer-server-state-record state))
         (define defs (record-defs record))
@@ -53,13 +55,15 @@
    (define (terminate self reason state)
      (void))])
 
-(module+ main
-  (define pid (gen-server-start (record-maintainer-server)
-                                (normalize-path "/Users/dannypsnl/workspace/workspace-racket/reverse-linked-list-2.rkt")))
+(module+ test
+  (require rackunit)
+  (require racket/string)
 
-  (println (gen-server-call pid 'ack))
-  (gen-server-cast! pid 'update)
-  (println (gen-server-call pid 'ack))
-  (gen-server-cast! pid 'update)
-  (println (gen-server-call pid 'ack))
-  )
+  (define pid (gen-server-start (record-maintainer-server)
+                                (normalize-path "collector.rkt")))
+
+  (check-equal? (gen-server-call pid '(get-def 340)) 'projectwise-references)
+  (check-true (string-contains? (gen-server-call pid '(get-doc 333))
+                                "doc/reference/define.html#(form._((lib._racket%2Fprivate%2Fbase..rkt)._define))"))
+  (check-equal? (gen-server-call pid (list 'require-location? (normalize-path "record.rkt")))
+                '(209 230)))
