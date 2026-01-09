@@ -28,7 +28,7 @@
         (define record (record-maintainer-server-state-record state))
         (define doc (record-doc record))
         (reply (interval-map-ref doc pos #f) state)]
-       [(list 'get-def from pos)
+       [(list 'get-def pos)
         (define record (record-maintainer-server-state-record state))
         (define defs (record-defs record))
         (reply (interval-map-ref defs pos #f) state)]

@@ -78,25 +78,19 @@
   (define pid (whereis (internal-name path)))
   (set! pid (if pid pid (create path)))
   (gen-server-call pid
-                   (list 'require-location?
-                         (current-thread)
-                         require)))
+                   (list 'require-location? require)))
 ; get-doc : path pos:exact-integer? -> string
 (define (get-doc path pos)
   (define pid (whereis (internal-name path)))
   (set! pid (if pid pid (create path)))
   (gen-server-call pid
-                   (list 'get-doc
-                         (current-thread)
-                         pos)))
+                   (list 'get-doc pos)))
 ; get-def : path pos:exact-integer? -> (or symbol #f)
 (define (get-def path pos)
   (define pid (whereis (internal-name path)))
   (set! pid (if pid pid (create path)))
   (gen-server-call pid
-                   (list 'get-def
-                         (current-thread)
-                         pos)))
+                   (list 'get-def pos)))
 
 ;; Show references popup list-box
 (define (show-references editor filename id [parent #f])
