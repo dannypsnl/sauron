@@ -59,6 +59,7 @@
   (require rackunit)
   (require racket/string)
 
+ (with-runtime #:schedulers 4
   (define pid (gen-server-start (record-maintainer-server)
                                 (normalize-path "collector.rkt")))
 
@@ -66,4 +67,4 @@
   (check-true (string-contains? (gen-server-call pid '(get-doc 333))
                                 "doc/reference/define.html#(form._((lib._racket%2Fprivate%2Fbase..rkt)._define))"))
   (check-equal? (gen-server-call pid (list 'require-location? (normalize-path "record.rkt")))
-                '(209 230)))
+                '(209 230))))

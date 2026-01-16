@@ -32,6 +32,8 @@
      (void))])
 
 (define (start-tracking directory ignore?)
+  (start-runtime!)
+
   (define files (make-queue))
   ; NOTE: `fold-files` reduces about 100MB compare with `find-files`
   ; this is reasonable, since `find-files` build a huge list
