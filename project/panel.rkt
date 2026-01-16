@@ -5,14 +5,14 @@ origin author: https://github.com/racket/gui/graphs/contributors
 modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 |#
 (provide project-files-pane%)
-(require rakka
-         mrlib/hierlist
+(require mrlib/hierlist
          framework/preferences
          sauron/path/ignore
          sauron/path/util
          sauron/collect/api
          sauron/project/dir-state
          sauron/path/renamer)
+(require (only-in rakka start-runtime!))
 (require "../file-watchers/main.rkt")
 
 (let ([cache-project-dir #f]
