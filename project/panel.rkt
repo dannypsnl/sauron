@@ -71,7 +71,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
       (when (dir-open? directory)
         (send parent-dir open))
       (define cur-path (build-path directory subpath))
-      (when (not (ignore? subpath))
+      (unless (ignore? subpath)
         (match (file-or-directory-type cur-path #t)
           ['file
            (define item (send parent-dir new-item set-text-mixin))
