@@ -5,7 +5,8 @@ origin author: https://github.com/racket/gui/graphs/contributors
 modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 |#
 (provide project-files-pane%)
-(require mrlib/hierlist
+(require rakka
+         mrlib/hierlist
          framework/preferences
          sauron/path/ignore
          sauron/path/util
@@ -16,6 +17,8 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
 (let ([cache-project-dir #f]
       [cache-project-watcher #f])
+  (start-runtime!)
+
   (preferences:add-callback
    'current-project
    (λ (_ new-proj-dir)
@@ -30,6 +33,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          (start-tracking new-proj-dir ignore?)
          ; reset the project directory cache
          (set! cache-project-dir new-proj-dir)))))
+
   (void))
 
 (define set-text-mixin

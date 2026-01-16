@@ -9,32 +9,29 @@
          show-references)
 (require rakka
          compiler/module-suffix
-         data/queue
          "collector.rkt"
          "maintainer-server.rkt"
          "../log.rkt")
 
 (struct my-app ()
   #:methods gen:application
-  [(define (start self type files)
+  [(define (start self type args)
      ;; Start your supervision tree here
      (define sup (supervisor-start-link #:strategy 'one-for-one
                                         ; max 100 restarts in 5 seconds, or the supervisor terminate itself
                                         #:max-restarts 100
-                                        #:max-seconds 5
-                                        #:children (for/list ([path (in-queue files)])
-                                                     (child-spec* #:id (gensym 'maintainer)
-                                                                  #:start (maintainer-start path)
-                                                                  #:restart 'transient))))
+                                        #:max-seconds 5))
+
+     (register! 'maintainer-sup sup)
+
      (app-ok sup))
 
    (define (stop self state)
      (void))])
 
 (define (start-tracking directory ignore?)
-  (start-runtime!)
+  (application-start (my-app) '())
 
-  (define files (make-queue))
   ; NOTE: `fold-files` reduces about 100MB compare with `find-files`
   ; this is reasonable, since `find-files` build a huge list
   (fold-files (lambda (path kind acc)
@@ -42,27 +39,32 @@
                   [(ignore? path) (values acc #f)]
                   ; NOTE: should I simply assume `*.rkt` is not a ignored file?
                   [(for/or ([ext (get-module-suffixes)]) (path-has-extension? path ext))
-                   (enqueue! files path)
+                   (create path)
                    acc]
                   [else acc]))
               #f
               directory
-              #t)
-
-  (application-start (my-app) files))
+              #t))
 
 (define (internal-name path)
   (string->symbol (path->string path)))
-(define (maintainer-start path)
-  (lambda ()
-    (define pid (gen-server-start (record-maintainer-server) path))
-    (register! (internal-name path) pid)
-    (log:info "maintainer (~a) of ~a started" pid path)
-    pid))
 
-;;; when a new file is added, a dynamic genserver is started
+;;; Run a new dynamic genserver to track the file (via given path)
+; We need this function when
+; 1. A new file is created
+; 2. start tracking a new project
+; 3. The maintainer of a certain file crash now need a new one
 (define (create path)
-  ((maintainer-start path)))
+  (supervisor-start-child
+   'maintainer-sup
+   (child-spec* #:id (gensym 'maintainer)
+                #:start (lambda ()
+                          (define pid (gen-server-start (record-maintainer-server) path))
+                          (register! (internal-name path) pid)
+                          (log:info "maintainer (~a) of ~a started" pid path)
+                          pid)
+                #:restart 'transient)))
+
 ;;; tell corresponding maintainer update the record
 (define (update path)
   (define pid (whereis (internal-name path)))
