@@ -20,9 +20,9 @@
      (define sup (supervisor-start-link #:strategy 'one-for-one
                                         ; max 100 restarts in 5 seconds, or the supervisor terminate itself
                                         #:max-restarts 100
-                                        #:max-seconds 5))
-
-     (register! 'maintainer-sup sup)
+                                        #:max-seconds 5
+                                        #:children '()
+                                        #:name 'maintainer-sup))
 
      (app-ok sup))
 
