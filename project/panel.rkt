@@ -17,7 +17,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
 (let ([cache-project-dir #f]
       [cache-project-watcher #f])
-  (start-runtime!)
+  (start-runtime! #:schedulers 4)
 
   (preferences:add-callback
    'current-project
