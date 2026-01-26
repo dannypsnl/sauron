@@ -12,13 +12,10 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
          sauron/collect/api
          sauron/project/dir-state
          sauron/path/renamer)
-(require (only-in rakka start-runtime!))
 (require "../file-watchers/main.rkt")
 
 (let ([cache-project-dir #f]
       [cache-project-watcher #f])
-  (start-runtime! #:schedulers 4)
-
   (preferences:add-callback
    'current-project
    (λ (_ new-proj-dir)

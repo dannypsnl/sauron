@@ -7,31 +7,14 @@
          update
          create
          show-references)
-(require rakka
+(require erl
+         racket/class
          compiler/module-suffix
          "collector.rkt"
          "maintainer-server.rkt"
          "../log.rkt")
 
-(struct my-app ()
-  #:methods gen:application
-  [(define (start self type args)
-     ;; Start your supervision tree here
-     (define sup (supervisor-start-link #:strategy 'one-for-one
-                                        ; max 100 restarts in 5 seconds, or the supervisor terminate itself
-                                        #:max-restarts 100
-                                        #:max-seconds 5
-                                        #:children '()
-                                        #:name 'maintainer-sup))
-
-     (app-ok sup))
-
-   (define (stop self state)
-     (void))])
-
 (define (start-tracking directory ignore?)
-  (application-start (my-app) '())
-
   ; NOTE: `fold-files` reduces about 100MB compare with `find-files`
   ; this is reasonable, since `find-files` build a huge list
   (fold-files (lambda (path kind acc)
@@ -55,45 +38,39 @@
 ; 2. start tracking a new project
 ; 3. The maintainer of a certain file crash now need a new one
 (define (create path)
-  (supervisor-start-child
-   'maintainer-sup
-   (child-spec* #:id (gensym 'maintainer)
-                #:start (lambda ()
-                          (define pid (gen-server-start (record-maintainer-server) path))
-                          (register! (internal-name path) pid)
-                          (log:info "maintainer (~a) of ~a started" pid path)
-                          pid)
-                #:restart 'transient)))
+  (define pid (gen-server:start (new record-maintainer-server%) path))
+  (register (internal-name path) pid)
+  (log:info "maintainer of path ~a started" path)
+  pid)
 
 ;;; tell corresponding maintainer update the record
 (define (update path)
   (define pid (whereis (internal-name path)))
   (set! pid (if pid pid (create path)))
-  (gen-server-cast! pid 'update))
+  (gen-server:cast! pid 'update))
 
 (define (terminate-record-maintainer path)
   (define pid (whereis (internal-name path)))
-  (unregister! (internal-name path))
-
-  (gen-server-stop pid (format "file ~a is removed" path)))
+  (unregister (internal-name path))
+  (gen-server:stop pid (format "file ~a is removed" path)))
 
 ; require-location? : path path -> list
 (define (require-location? path require)
   (define pid (whereis (internal-name path)))
   (set! pid (if pid pid (create path)))
-  (gen-server-call pid
+  (gen-server:call pid
                    (list 'require-location? require)))
 ; get-doc : path pos:exact-integer? -> string
 (define (get-doc path pos)
   (define pid (whereis (internal-name path)))
   (set! pid (if pid pid (create path)))
-  (gen-server-call pid
+  (gen-server:call pid
                    (list 'get-doc pos)))
 ; get-def : path pos:exact-integer? -> (or symbol #f)
 (define (get-def path pos)
   (define pid (whereis (internal-name path)))
   (set! pid (if pid pid (create path)))
-  (gen-server-call pid
+  (gen-server:call pid
                    (list 'get-def pos)))
 
 ;; Show references popup list-box
