@@ -90,7 +90,7 @@
          (match-define (list ref-file start _end) ref-info)
          (define line (send editor position-line start))
          (define line-sp (send editor line-start-position line))
-         (format "~a:~a:~a" (path->string ref-file) line (- start line-sp))))
+         (format "~a:~a:~a" (path->string ref-file) (add1 line) (- start line-sp))))
 
      (define _list-box
        (new list-box%
