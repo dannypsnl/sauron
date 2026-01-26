@@ -125,7 +125,7 @@
 ;;; c+b
 ; 1. jump to definition (on a binding/reference)
 ; 2. show references of current definition (on a definition)
-(define (jump-to-def editor event)
+(define (jump-to-definition-or-references editor event)
   (jump-add! (send editor get-tab) (send editor get-start-position))
   (define filename (send editor get-filename))
   (define start-pos (send editor get-start-position))
@@ -137,8 +137,8 @@
       (and
         (send-command "Jump to Definition (in Other File)" editor event)
         (send-command "Jump to Binding Occurrence" editor event))]))
-(cmd/ctrl+ "b" jump-to-def)
-(cmd/ctrl+ "leftbutton" jump-to-def)
+(cmd/ctrl+ "b" jump-to-definition-or-references)
+(cmd/ctrl+ "leftbutton" jump-to-definition-or-references)
 (cmd/ctrl+ "s:b"
            (λ (editor event)
              (match (jump-pop!)
