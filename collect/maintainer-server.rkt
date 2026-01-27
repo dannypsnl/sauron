@@ -59,13 +59,17 @@
 
 (module+ test
   (require rackunit)
-  (require racket/string)
+  (require racket/string
+           racket/runtime-path)
+
+  (define-runtime-path file-collector "collector.rkt")
+  (define-runtime-path file-record "record.rkt")
 
   (define pid (gen-server:start (new record-maintainer-server%)
-                                (normalize-path "collector.rkt")))
+                                (normalize-path file-collector)))
 
   (check-equal? (gen-server:call pid '(get-def 340)) 'projectwise-references)
   (check-true (string-contains? (gen-server:call pid '(get-doc 333))
                                 "reference/define.html"))
-  (check-equal? (gen-server:call pid (list 'require-location? (normalize-path "record.rkt")))
+  (check-equal? (gen-server:call pid (list 'require-location? (normalize-path file-record)))
                 '(209 230)))
