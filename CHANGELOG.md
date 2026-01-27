@@ -1,6 +1,6 @@
 ### To Release
 
-- rewrite collectors based on [Rakka](https://docs.racket-lang.org/rakka/index.html)
+- rewrite collectors based on [erl](https://docs.racket-lang.org/erl/index.html)
 - c+b/click now
   1. jumps to definintion if cursor is on a reference/binding
   2. toggle a list-box to pick references of the definition if cursor is on a definition
