@@ -28,18 +28,18 @@
         [(list 'require-location? req)
          (define record (record-maintainer-server-state-record state))
          (define requires (record-requires record))
-         (reply from (hash-ref requires req #f) state)]
+         (reply (hash-ref requires req #f) state)]
         ; lookup document for given position
         [(list 'get-doc pos)
          (define record (record-maintainer-server-state-record state))
          (define doc (record-doc record))
-         (reply from (interval-map-ref doc pos #f) state)]
+         (reply (interval-map-ref doc pos #f) state)]
         ; lookup definition location for given position
         [(list 'get-def pos)
          (define record (record-maintainer-server-state-record state))
          (define defs (record-defs record))
-         (reply from (interval-map-ref defs pos #f) state)]
-        ['ack (reply from 'ok state)]))
+         (reply (interval-map-ref defs pos #f) state)]
+        ['ack (reply 'ok state)]))
 
     (define/override (handle-cast msg state)
       (match msg
