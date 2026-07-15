@@ -1,5 +1,7 @@
 ### To Release
 
+- project viewer and version control panel now follow DrRacket's color scheme
+  (Preferences | Colors | Color Schemes) instead of always being white (see #192)
 - rewrite collectors based on [erl](https://docs.racket-lang.org/erl/index.html)
 - c+b/click now
   1. jumps to definintion if cursor is on a reference/binding

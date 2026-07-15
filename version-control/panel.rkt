@@ -1,6 +1,7 @@
 #lang racket/gui
 
 (require framework
+         sauron/theme
          sauron/cmd/execute
          sauron/version-control/parse-git
          sauron/log)
@@ -11,7 +12,7 @@
     (super-new)
 
     ;;; commit editor
-    (define editor-canvas (new editor-canvas%
+    (define editor-canvas (new themed-editor-canvas%
                                [parent this]
                                [style '(no-hscroll)]))
     (define commit-editor%

@@ -7,6 +7,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 (provide project-files-pane%)
 (require mrlib/hierlist
          framework/preferences
+         sauron/theme
          sauron/path/ignore
          sauron/path/util
          sauron/collect/api
@@ -35,7 +36,7 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
 
 (define set-text-mixin
   (mixin (hierarchical-list-item<%>) ((interface () set-text get-text))
-    (inherit get-editor)
+    (inherit get-editor get-clickable-snip)
     (super-new)
 
     ; get-text: return the label of item
@@ -46,13 +47,17 @@ modifier author: Lîm Tsú-thuàn(GitHub: @dannypsnl)
     ; set-text: this sets the label of the item
     (define/public (set-text str)
       (define t (get-editor)) ; a text% object
+      ; not at construction: a compound item's editor doesn't exist until its snip is built
+      (send t set-style-list themed-item-style-list)
+      ; items are editor-snips, which fill their background with white unless told otherwise
+      (send (get-clickable-snip) use-style-background #t)
       (send t erase)
       (send t insert str))))
 
 (struct selected (dir file parent-dir) #:transparent)
 
 (define project-files%
-  (class hierarchical-list%
+  (class themed-hierarchical-list%
     (init editor-panel)
     (define the-editor-panel editor-panel)
     (define table-path=>item (make-hash))
