@@ -1,5 +1,8 @@
 ### To Release
 
+- new color schemes **Alabaster** and **Alabaster Dark** (Preferences | Colors | Color Schemes),
+  following [tonsky's syntax highlighting advice](https://tonsky.me/blog/syntax-highlighting/):
+  only strings, constants, comments and names bound in the file are highlighted; keywords and library functions stay plain, parentheses are dimmed
 - the project files viewer is now provided by [files-viewer](https://github.com/Syntacticlosure/files-viewer)
   - c+y shows/hides it, c+m also moves it to the selected project
   - its right-click menu gains "Rename (update requires)" and "Set as current project"
