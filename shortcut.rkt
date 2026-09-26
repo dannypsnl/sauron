@@ -7,7 +7,8 @@
          sauron/collect/api
          sauron/version-control/pusher
          sauron/version-control/panel
-         sauron/project/manager)
+         sauron/project/manager
+         sauron/project/files-viewer)
 
 (define-syntax-parser cmd/ctrl+
   [(_ key fn) #'(keybinding (c+ key) fn)])
@@ -29,33 +30,51 @@
 (define (send-command command editor event)
   (send (send editor get-keymap) call-function command editor event #t))
 
-;;; c+e run REPL
-(cmd/ctrl+ "e" (λ (editor event) (send-command "run" editor event)))
-;;; c+enter run selected, enclosed, or nearest expression
-(cmd/ctrl+ "enter" (λ (editor _event)
-  (define shift-focus? #f)
-  (define sp (send editor get-start-position))
+;;; the receiver of a keybinding can be any editor or window that has focus, e.g. files-viewer's
+;;; tree, so bindings check what they get before using it
+; code-editor? : definitions or interactions of DrRacket
+(define (code-editor? receiver)
+  (and (is-a? receiver racket:text<%>)
+       (object-method-arity-includes? receiver 'get-tab 0)))
+(define ((when-code-editor f) editor event)
+  (when (code-editor? editor) (f editor event)))
+(define ((when-text f) editor event)
+  (when (is-a? editor text%) (f editor event)))
+; receiver-frame : the top-level window that the receiver belongs to
+(define (receiver-frame receiver)
   (cond
-    [(not (= sp (send editor get-end-position)))
-      ;; we have a selection, send that to REPL
-      (send-range-to-repl editor (send editor get-start-position) (send editor get-end-position) shift-focus?)]
-    [(send editor find-up-sexp sp)
-      ;; we are inside some expression;
-      ;; find the enclosing expression
-      (define pos (send editor find-up-sexp sp))
-      (send-range-to-repl editor
-                          pos
-                          (send editor get-forward-sexp pos)
-                          shift-focus?)]
-    [else
-      ;; we are in the top-level, try best to find a next (foward) or previous (backward) expression
-      (define fw (send editor get-forward-sexp sp))
-      (define bw (send editor get-backward-sexp sp))
-      (cond
-        ; no proper expression can be sent to REPL, do nothing
-        [(and (not fw) (not bw)) (void)]
-        [(not fw) (send-range-to-repl editor bw (send editor get-forward-sexp bw) shift-focus?)]
-        [else (send-range-to-repl editor (send editor get-backward-sexp fw) fw shift-focus?)])])))
+    [(is-a? receiver window<%>) (send receiver get-top-level-window)]
+    [(and (is-a? receiver editor<%>) (send receiver get-canvas))
+     => (λ (canvas) (send canvas get-top-level-window))]
+    [else #f]))
+
+;;; c+e run REPL
+(cmd/ctrl+ "e" (when-code-editor (λ (editor event) (send-command "run" editor event))))
+;;; c+enter run selected, enclosed, or nearest expression
+(cmd/ctrl+ "enter" (when-code-editor (λ (editor _event)
+                                       (define shift-focus? #f)
+                                       (define sp (send editor get-start-position))
+                                       (cond
+                                         [(not (= sp (send editor get-end-position)))
+                                          ;; we have a selection, send that to REPL
+                                          (send-range-to-repl editor (send editor get-start-position) (send editor get-end-position) shift-focus?)]
+                                         [(send editor find-up-sexp sp)
+                                          ;; we are inside some expression;
+                                          ;; find the enclosing expression
+                                          (define pos (send editor find-up-sexp sp))
+                                          (send-range-to-repl editor
+                                                              pos
+                                                              (send editor get-forward-sexp pos)
+                                                              shift-focus?)]
+                                         [else
+                                          ;; we are in the top-level, try best to find a next (foward) or previous (backward) expression
+                                          (define fw (send editor get-forward-sexp sp))
+                                          (define bw (send editor get-backward-sexp sp))
+                                          (cond
+                                            ; no proper expression can be sent to REPL, do nothing
+                                            [(and (not fw) (not bw)) (void)]
+                                            [(not fw) (send-range-to-repl editor bw (send editor get-forward-sexp bw) shift-focus?)]
+                                            [else (send-range-to-repl editor (send editor get-backward-sexp fw) fw shift-focus?)])]))))
 
 (define (send-range-to-repl editor start end shift-focus?)
   #|
@@ -93,7 +112,7 @@
     (send ints do-submission)))
 
 ;;; c+r rename identifier
-(cmd/ctrl+ "r" (λ (editor event) (send-command "Rename Identifier" editor event)))
+(cmd/ctrl+ "r" (when-code-editor (λ (editor event) (send-command "Rename Identifier" editor event))))
 ;;; c+s save file
 (cmd/ctrl+ "s"
            (λ (editor event)
@@ -111,17 +130,18 @@
                      )))))
 ;;; c+x cut line if no selection, else cut selection
 (cmd/ctrl+ "x"
-           (λ (editor event)
-             (let* ([s (send editor get-start-position)]
-                    [e (send editor get-end-position)]
-                    [select? (not (= s e))])
-               (unless select?
-                 (let* ([start-line (send editor position-line (send editor get-start-position))]
-                        [end-line (send editor position-line (send editor get-end-position))]
-                        [start (send editor line-start-position start-line)]
-                        [end (send editor line-end-position end-line)])
-                   (send editor set-position start end)))
-               (send-command "cut-clipboard" editor event))))
+           (when-text
+            (λ (editor event)
+              (let* ([s (send editor get-start-position)]
+                     [e (send editor get-end-position)]
+                     [select? (not (= s e))])
+                (unless select?
+                  (let* ([start-line (send editor position-line (send editor get-start-position))]
+                         [end-line (send editor position-line (send editor get-end-position))]
+                         [start (send editor line-start-position start-line)]
+                         [end (send editor line-end-position end-line)])
+                    (send editor set-position start end)))
+                (send-command "cut-clipboard" editor event)))))
 ;;; c+b
 ; 1. jump to definition (on a binding/reference)
 ; 2. show references of current definition (on a definition)
@@ -137,14 +157,14 @@
       (and
         (send-command "Jump to Definition (in Other File)" editor event)
         (send-command "Jump to Binding Occurrence" editor event))]))
-(cmd/ctrl+ "b" jump-to-definition-or-references)
-(cmd/ctrl+ "leftbutton" jump-to-definition-or-references)
+(cmd/ctrl+ "b" (when-code-editor jump-to-definition-or-references))
+(cmd/ctrl+ "leftbutton" (when-code-editor jump-to-definition-or-references))
 (cmd/ctrl+ "s:b"
            (λ (editor event)
-             (match (jump-pop!)
+             (define frame (receiver-frame editor))
+             (match (and frame (jump-pop!))
                [#f (void)]
                [(jump-pos tab pos)
-                (define frame (send (send editor get-tab) get-frame))
                 (send frame change-to-tab tab)
                 (define ed (send tab get-defs))
                 (send ed set-position pos)])))
@@ -152,18 +172,18 @@
 ;;; c+s+t reopen the recently closed tab
 (cmd/ctrl+ "s:t"
            (λ (editor event)
-             (send+ editor
-                    (get-tab)
-                    (get-frame)
-                    (reopen-closed-tab))))
+             (define frame (receiver-frame editor))
+             (when (and frame (object-method-arity-includes? frame 'reopen-closed-tab 0))
+               (send frame reopen-closed-tab))))
 
 ;;; delete whole thing from current position to the start of line
 (cmd/ctrl+ "backspace"
-           (λ (editor event)
-             (define end (send editor get-start-position))
-             (define line (send editor position-line end))
-             (define start (send editor line-start-position line))
-             (send editor delete start end)))
+           (when-text
+            (λ (editor event)
+              (define end (send editor get-start-position))
+              (define line (send editor position-line end))
+              (define start (send editor line-start-position line))
+              (send editor delete start end))))
 
 ;;; delete previous sexp
 (opt/alt+
@@ -182,18 +202,19 @@
 ;;; comment/uncomment selected text, if no selected text, target is current line
 (cmd/ctrl+
  "semicolon"
- (λ (editor event)
-   ; NOTE: get-start-position and get-end-position would have same value when no selected text
-   ; following code comment all lines of selected text(or automatically select cursor line)
-   (let* ([start-line (send editor position-line (send editor get-start-position))]
-          [end-line (send editor position-line (send editor get-end-position))]
-          [start (send editor line-start-position start-line)]
-          [end (send editor line-end-position end-line)]
-          [selected-text (send editor get-text start end)])
-     (if (string-contains? selected-text ";")
-         (send editor uncomment-selection start end)
-         (send editor comment-out-selection start end))
-     (send editor set-position start))))
+ (when-code-editor
+  (λ (editor event)
+    ; NOTE: get-start-position and get-end-position would have same value when no selected text
+    ; following code comment all lines of selected text(or automatically select cursor line)
+    (let* ([start-line (send editor position-line (send editor get-start-position))]
+           [end-line (send editor position-line (send editor get-end-position))]
+           [start (send editor line-start-position start-line)]
+           [end (send editor line-end-position end-line)]
+           [selected-text (send editor get-text start end)])
+      (if (string-contains? selected-text ";")
+          (send editor uncomment-selection start end)
+          (send editor comment-out-selection start end))
+      (send editor set-position start)))))
 
 (define vc-open? #f)
 (define frame-<?> #f)
@@ -215,20 +236,24 @@
 
 (cmd/ctrl+ "m"
            (λ (editor event)
+             (define frame (receiver-frame editor))
              (define manager
                (new project-manager%
                     [label "select a project"]
-                    [on-select (λ (path) (preferences:set 'current-project path))]))
+                    [on-select (λ (path)
+                                 (preferences:set 'current-project path)
+                                 (when frame (files-viewer-change-directory! frame path)))]))
              (send manager run)))
 
 (cmd/ctrl+ "d"
-           (λ (editor event)
-             (define filename-<?> (send editor get-filename))
-             (when filename-<?>
-               ;;; FIXME: this should also works for untitled file
-               (define doc-page-<?> (get-doc filename-<?> (send editor get-start-position)))
-               (when doc-page-<?>
-                 (send-url doc-page-<?> #f)))))
+           (when-code-editor
+            (λ (editor event)
+              (define filename-<?> (send editor get-filename))
+              (when filename-<?>
+                ;;; FIXME: this should also works for untitled file
+                (define doc-page-<?> (get-doc filename-<?> (send editor get-start-position)))
+                (when doc-page-<?>
+                  (send-url doc-page-<?> #f))))))
 
 (keybinding "(" (λ (editor event) (send-command "insert-()-pair" editor event)))
 (keybinding "[" (λ (editor event) (send-command "insert-[]-pair" editor event)))

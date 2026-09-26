@@ -9,8 +9,8 @@ In sauron, all @litchar{cmd}/@litchar{ctrl} would be called @litchar{c}, @litcha
  @item{@litchar{c+enter} run selection, wrapper, next, or previous expression in REPL}
  ;;; project management
  @item{@litchar{c+m} open project manager}
- @item{@litchar{c+y} show/hide project files viewer (Linux, MacOS only)}
- @item{@litchar{c+s+y} show/hide project files viewer (Windows only)}
+ @item{@litchar{c+y} show/hide files viewer (Linux, MacOS only)}
+ @item{@litchar{c+s+y} show/hide files viewer (Windows only)}
  ;;; version control
  @item{@litchar{c+k} version control, open commit editor}
  @item{@litchar{c+s+k} commits push}
@@ -86,13 +86,14 @@ It has three buttons for quick modify as the following list.
 
 @subsection{Viewer}
 
+The file tree is provided by @hyperlink["https://docs.racket-lang.org/files-viewer/"]{files-viewer}, see its documentation for the full feature list. Sauron adds the following to its right-click menu:
+
 @itemlist[
- @item{interactive with files}
- @item{open file via double click}
- @item{add file/directory}
- @item{rename file/directory, a nice feature is those files imported it will get update}
- @item{remove file/directory}
+ @item{@litchar{Rename (update requires)}: rename file/directory, those files imported it will get update}
+ @item{@litchar{Set as current project}: use the selected directory as current project}
  ]
+
+Opening a project via @litchar{c+m} moves the viewer to it; moving the viewer into another project (a directory contains @litchar{info.rkt} or @litchar{.git}) makes it the current project.
 
 @section{Special symbol(LaTeX/Agda like) support}
 

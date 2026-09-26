@@ -4,8 +4,8 @@
          framework
          racket/gui/base
 
-         sauron/project/manager
-         sauron/project/panel
+         sauron/project/tracker
+         sauron/project/files-viewer
          sauron/log)
 
 (define-unit tool@
@@ -18,57 +18,25 @@
       (λ (v) (or (path-string? v) (false? v))))
     (preferences:add-callback 'current-project
                               (λ (_ new-dir)
-                                (log:info "current project is ~a" new-dir))))
+                                (log:info "current project is ~a" new-dir)))
+    (start-project-tracker!)
+    (follow-files-viewer-directory!))
   (define (phase2) (void))
 
   (define drracket-frame-mixin
     (mixin (drracket:unit:frame<%> (class->interface drracket:unit:frame%)) ()
-      (define project-files-show? #f)
-
       (super-new)
 
+      ;;; the file tree panel is provided by files-viewer, it is ready once `super-new` returns
+      (install-sauron-menu-items! this)
+
       (define/override (get-definitions/interactions-panel-parent)
-        (define panel (new panel:horizontal-dragable% [parent (super get-definitions/interactions-panel-parent)]))
-        (define real-area (new panel:vertical-dragable% [parent panel]))
-
-        (new project-files-pane% [parent real-area]
-             [editor-panel this])
-        (send real-area set-percentages '(1/20 19/20))
-
-        (define (close-real-area)
-          (set! project-files-show? #f)
-          (send panel change-children
-                (λ (x)
-                  (filter
-                   (λ (x) (not (eq? real-area x))) x))))
-        (define (show-real-area)
-          (set! project-files-show? #t)
-          (send panel change-children
-                (λ (x) (cons real-area x)))
-          (send panel set-percentages '(2/11 9/11)))
+        (define parent (super get-definitions/interactions-panel-parent))
         (new menu-item% [parent (send this get-show-menu)]
-             [label (if project-files-show? "Hide the Project Viewer" "Show the Project Viewer")]
-             [callback
-              (λ (c e)
-                (define (get-manager)
-                  (new project-manager%
-                       [label "select a project"]
-                       [on-select
-                        (λ (path)
-                          (preferences:set 'current-project path)
-                          (show-real-area)
-                          (send c set-label "Hide the Project Viewer"))]))
-                (if (preferences:get 'current-project)
-                    (cond
-                      [project-files-show?
-                       (close-real-area)
-                       (send c set-label "Show the Project Viewer")]
-                      [else
-                       (show-real-area)
-                       (send c set-label "Hide the Project Viewer")])
-                    (send (get-manager) run)))]
-             ;;; c+y   open project viewer (on Linux, MacOS)
-             ;;; c+s+y open project viewer (on Windows)
+             [label "Show/Hide the File Manager"]
+             [callback (λ (c e) (toggle-files-viewer! this))]
+             ;;; c+y   show/hide file manager (on Linux, MacOS)
+             ;;; c+s+y show/hide file manager (on Windows)
              [shortcut #\y]
              [shortcut-prefix (case (system-type)
                                 [(windows) '(ctl shift)]
@@ -89,11 +57,6 @@
                [shortcut #\f]
                [shortcut-prefix (get-default-shortcut-prefix)]))
 
-        (unless project-files-show?
-          (send panel change-children
-                (λ (x)
-                  (filter
-                   (λ (x) (not (eq? real-area x))) x))))
-        (make-object vertical-panel% panel))))
+        parent)))
 
   (drracket:get/extend:extend-unit-frame drracket-frame-mixin))

@@ -14,7 +14,9 @@
            "curly-fn-lib"
            ; bundle
            "raco-new"
-           "drcomplete"))
+           "drcomplete"
+           ; file tree panel
+           "files-viewer"))
 (define build-deps '("scribble-lib" "racket-doc" "rackunit-lib" "gui-doc"))
 (define scribblings '(("scribblings/sauron.scrbl" (multi-page) ("DrRacket Plugins"))))
 (define pkg-desc "A Racket IDE")

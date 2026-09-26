@@ -1,5 +1,11 @@
 ### To Release
 
+- the project files viewer is now provided by [files-viewer](https://github.com/Syntacticlosure/files-viewer)
+  - c+y shows/hides it, c+m also moves it to the selected project
+  - its right-click menu gains "Rename (update requires)" and "Set as current project"
+  - moving it into another project (a directory with `info.rkt` or `.git`) makes that the current project
+- keybindings that need the code editor are ignored when focus is elsewhere (e.g. the files viewer),
+  instead of raising errors
 - project viewer and version control panel now follow DrRacket's color scheme
   (Preferences | Colors | Color Schemes) instead of always being white (see #192)
 - rewrite collectors based on [erl](https://docs.racket-lang.org/erl/index.html)
