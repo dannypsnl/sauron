@@ -1,7 +1,8 @@
 #lang info
 (define collection "sauron")
 (define deps
-  '("base" "gui-lib"
+  '("rackunit-lib"
+    "base" "gui-lib"
            "net-lib"
            "data-lib"
            "drracket-plugin-lib"
