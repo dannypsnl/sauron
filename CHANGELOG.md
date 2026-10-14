@@ -7,6 +7,8 @@
   - c+y shows/hides it, c+m also moves it to the selected project
   - its right-click menu gains "Rename (update requires)" and "Set as current project"
   - moving it into another project (a directory with `info.rkt` or `.git`) makes that the current project
+  - the project manager (c+m) and files-viewer's Workspaces share one list: projects are workspaces,
+    the old `~/.sauron/projects` list is no longer used
 - keybindings that need the code editor are ignored when focus is elsewhere (e.g. the files viewer),
   instead of raising errors
 - project viewer and version control panel now follow DrRacket's color scheme

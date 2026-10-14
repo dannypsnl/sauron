@@ -10,7 +10,8 @@
 (require framework
          files-viewer/private/gui-helpers
          sauron/path/util
-         sauron/path/renamer)
+         sauron/path/renamer
+         "workspaces.rkt")
 
 ;;; find-files-viewer-list : frame -> (or directory-list% #f)
 (define (find-files-viewer-list frame)
@@ -31,24 +32,33 @@
 
 ;;; files-viewer-change-directory! : frame path-string -> void
 ; files-viewer only changes its directory through its private `change-to-directory`, which is
-; reachable from the "Workspaces" submenu of its popup menu, so we register the directory as a
-; temporary workspace and fire that entry.
+; reachable from the "Workspaces" submenu of its popup menu: fire the entry of `dir` if it is a
+; workspace, else register `dir` as a temporary workspace and fire that entry.
 (define (files-viewer-change-directory! frame dir)
   (define dl (find-files-viewer-list frame))
   (when dl
     (define popup (get-field my-popup-menu dl))
-    (define label (format "sauron:~a" dir))
-    (define old-workspaces (preferences:get 'files-viewer:workspaces))
-    (dynamic-wind
-     void
-     (λ ()
-       (preferences:set 'files-viewer:workspaces
-                        (append old-workspaces (list (list label (path->string (path->complete-path dir))))))
-       (send popup on-demand)
-       (define workspaces (find-menu-item popup (λ (l) (equal? l "Workspaces"))))
-       (define item (and workspaces (find-menu-item workspaces (λ (l) (equal? l label)))))
-       (when item (fire! item)))
-     (λ () (preferences:set 'files-viewer:workspaces old-workspaces)))))
+    (define (fire-workspace! n)
+      (send popup on-demand)
+      (define workspaces (find-menu-item popup (λ (l) (equal? l "Workspaces"))))
+      ; the submenu is "Workspace manager", a separator, then one item per workspace in order
+      (define items (if workspaces (send workspaces get-items) '()))
+      (when (< (+ n 2) (length items))
+        (fire! (list-ref items (+ n 2)))))
+    (define n (workspace-index dir))
+    (cond
+      [n (fire-workspace! n)]
+      [else
+       (define old-workspaces (preferences:get 'files-viewer:workspaces))
+       (dynamic-wind
+        void
+        (λ ()
+          (preferences:set 'files-viewer:workspaces
+                           (append old-workspaces
+                                   (list (list (format "sauron:~a" dir)
+                                               (path->string (path->complete-path dir))))))
+          (fire-workspace! (length old-workspaces)))
+        (λ () (preferences:set 'files-viewer:workspaces old-workspaces)))])))
 
 ;;; toggle-files-viewer! : frame -> void
 ; fire files-viewer's "Show/Hide the File Manager" item in the View menu

@@ -8,7 +8,7 @@ In sauron, all @litchar{cmd}/@litchar{ctrl} would be called @litchar{c}, @litcha
  @item{@litchar{c+e} run whole file and show result in REPL panel}
  @item{@litchar{c+enter} run selection, wrapper, next, or previous expression in REPL}
  ;;; project management
- @item{@litchar{c+m} open project manager}
+ @item{@litchar{c+m} open project manager, its projects are the workspaces of the files viewer}
  @item{@litchar{c+y} show/hide files viewer (Linux, MacOS only)}
  @item{@litchar{c+s+y} show/hide files viewer (Windows only)}
  ;;; version control
