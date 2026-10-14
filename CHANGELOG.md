@@ -1,5 +1,7 @@
 ### To Release
 
+### v1.6.0
+
 - new color schemes **Alabaster** and **Alabaster Dark** (Preferences | Colors | Color Schemes),
   following [tonsky's syntax highlighting advice](https://tonsky.me/blog/syntax-highlighting/):
   only strings, constants, comments and names bound in the file are highlighted; keywords and library functions stay plain, parentheses are dimmed
