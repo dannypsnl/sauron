@@ -124,10 +124,12 @@
                    ; else invoke the finder helper to store file
                    (let ([project-dir (preferences:get 'current-project)])
                      (define filename (if project-dir
-                                          (finder:put-file "Untitled" project-dir)
+                                          (finder:put-file "Untitled" (if (path? project-dir)
+                                                                          project-dir
+                                                                          (string->path project-dir)))
                                           (finder:put-file)))
-                     (send editor save-file filename)
-                     )))))
+                     (when filename
+                       (send editor save-file filename)))))))
 ;;; c+x cut line if no selection, else cut selection
 (cmd/ctrl+ "x"
            (when-text
